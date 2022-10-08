@@ -1,0 +1,22 @@
+[package]
+name = "pluviolithic/horror-simulator"
+version = "1.0.0"
+authors = ["Eric McKanna <e-mckanna@onu.edu>"]
+realm = "shared"
+registry = "https://github.com/upliftgames/wally-index"
+
+[dependencies]
+Rodux = "roblox/rodux@3.0.0"
+Llama = "shanebutt/llama@1.1.0"
+
+Net = "vorlias/net@3.0.1"
+Promise = "evaera/promise@3.1.0"
+ZonePlus = "legendoj1/zoneplus@3.2.2"
+Janitor = "howmanysmall/janitor@1.13.14"
+Datastructures = "howmanysmall/datastructures@1.1.0"
+
+Fusion = "elttob/fusion@0.1.1-beta"
+
+[server-dependencies]
+Cmdr = "evaera/cmdr@1.9.0"
+ProfileService = "jakebball/profileservice@1.5.0"
