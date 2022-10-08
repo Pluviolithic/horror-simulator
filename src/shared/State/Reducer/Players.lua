@@ -1,0 +1,30 @@
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
+
+local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
+local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
+local Llama = require(ReplicatedStorage.Common.lib.Llama)
+
+return Rodux.createReducer({}, {
+	addPlayer = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = defaultStates.PlayerState,
+		})
+	end,
+	removePlayer = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = Llama.None,
+		})
+	end,
+	updatePlayerWithProfile = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = action.profileData,
+		})
+	end,
+	incrementPlayerLogInCount = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				LogInCount = state[action.playerName].LogInCount + 1,
+			},
+		})
+	end,
+})
