@@ -26,4 +26,10 @@ return {
 			statName = statName,
 		}
 	end),
+	switchPlayerEnemy = makeActionCreator("switchPlayerEnemy", function(playerName, enemy)
+		return {
+			enemy = enemy,
+			playerName = playerName,
+		}
+	end),
 }

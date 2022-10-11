@@ -27,4 +27,11 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	switchPlayerEnemy = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				CurrentEnemy = action.enemy,
+			},
+		})
+	end,
 })
