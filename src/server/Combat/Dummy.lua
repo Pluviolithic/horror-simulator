@@ -7,12 +7,14 @@ local animations = ReplicatedStorage.CombatAnimations
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
+local Remotes = require(ReplicatedStorage.Common.Remotes)
 
 local fightRange = 2
 
 local function handleDummy(dummy)
 	local clickDetector = dummy.Hitbox.ClickDetector
 	local goalPosition = dummy.Hitbox.Position
+	local fear = dummy.Configuration.Fear.Value
 
 	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
@@ -26,6 +28,7 @@ local function handleDummy(dummy)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, dummy))
 		end
 
+		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, dummy:FindFirstChild("NPCGUI", true), true)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 		humanoid.MoveToFinished:Wait()
 
@@ -53,7 +56,7 @@ local function handleDummy(dummy)
 			and player:DistanceFromCharacter(dummy.Hitbox.Position) < (fightRange + 2)
 		do
 			task.wait(1)
-			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear"))
+			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
 		end
 
 		runAnimations = false
