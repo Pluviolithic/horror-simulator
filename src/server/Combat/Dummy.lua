@@ -29,7 +29,8 @@ local function handleDummy(dummy)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 		humanoid.MoveToFinished:Wait()
 
-		local animationInstances = animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
+		local animationInstances =
+			animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
 		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack = humanoid:LoadAnimation(currentAnimation)
 		local runAnimations = true
@@ -60,7 +61,6 @@ local function handleDummy(dummy)
 		if store:getState().Players[player.Name] and store:getState().Players[player.Name].CurrentEnemy == dummy then
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 		end
-
 	end)
 end
 
