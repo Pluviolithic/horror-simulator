@@ -20,10 +20,10 @@ return Rodux.createReducer({}, {
 			[action.playerName] = action.profileData,
 		})
 	end,
-	incrementPlayerLogInCount = function(state, action)
+	incrementPlayerStat = function(state, action)
 		return Llama.Dictionary.mergeDeep(state, {
 			[action.playerName] = {
-				LogInCount = state[action.playerName].LogInCount + 1,
+				[action.statName] = state[action.playerName][action.statName] + (action.incrementAmount or 1),
 			},
 		})
 	end,

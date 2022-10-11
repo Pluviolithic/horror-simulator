@@ -19,9 +19,11 @@ return {
 			profileData = profileData,
 		}
 	end),
-	incrementPlayerLogInCount = makeActionCreator("incrementPlayerLogInCount", function(playerName)
+	incrementPlayerStat = makeActionCreator("incrementPlayerStat", function(playerName, statName, incrementAmount)
 		return {
+			incrementAmount = incrementAmount,
 			playerName = playerName,
+			statName = statName,
 		}
 	end),
 }

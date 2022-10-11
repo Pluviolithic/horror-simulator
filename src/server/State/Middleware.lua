@@ -1,3 +1,4 @@
+local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
@@ -18,8 +19,21 @@ end
 local function savePlayerDataMiddleware(nextDispatch)
 	return function(action)
 		if profiles[action.playerName] then
-			if action.type == "incrementPlayerLogInCount" then
-				profiles[action.playerName].Data.LogInCount += 1
+			if action.type == "incrementPlayerStat" then
+				profiles[action.playerName].Data[action.statName] += (action.incrementAmount or 1)
+			end
+		end
+		return nextDispatch(action)
+	end
+end
+
+local function updateLeaderboardMiddleware(nextDispatch)
+	return function(action)
+		if action.type == "incrementPlayerStat" then
+			local player = Players:FindFirstChild(action.playerName)
+			local stat = player and player.leaderstats:FindFirstChild(action.statName)
+			if stat then
+				stat.Value += (action.incrementAmount or 1)
 			end
 		end
 		return nextDispatch(action)
@@ -28,6 +42,7 @@ end
 
 return {
 	savePlayerDataMiddleware,
+	updateLeaderboardMiddleware,
 	updateClientMiddleware,
 	Rodux.loggerMiddleware,
 }

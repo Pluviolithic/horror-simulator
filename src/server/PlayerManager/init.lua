@@ -11,6 +11,33 @@ local actions = require(ServerScriptService.Server.State.Actions)
 
 local profileStore = ProfileService.GetProfileStore("PlayerData", profileTemplate)
 
+local function initializeLeaderboard(player, data)
+	local leaderstats = Instance.new "Folder"
+	leaderstats.Name = "leaderstats"
+
+	local strength = Instance.new "IntValue"
+	strength.Name = "Strength"
+	strength.Value = data.Strength
+	strength.Parent = leaderstats
+
+	local fear = Instance.new "IntValue"
+	fear.Name = "Fear"
+	fear.Value = data.Fear
+	fear.Parent = leaderstats
+
+	local Kills = Instance.new "IntValue"
+	Kills.Name = "Kills"
+	Kills.Value = data.Kills
+	Kills.Parent = leaderstats
+
+	local Rebirths = Instance.new "IntValue"
+	Rebirths.Name = "Rebirths"
+	Rebirths.Value = data.Rebirths
+	Rebirths.Parent = leaderstats
+
+	leaderstats.Parent = player
+end
+
 local function onPlayerAdded(player)
 	local profile = profileStore:LoadProfileAsync("Player_" .. player.UserId)
 	store:dispatch(actions.addPlayer(player.Name))
@@ -24,10 +51,13 @@ local function onPlayerAdded(player)
 		profiles[player.Name] = nil
 		player:Kick()
 	end)
+
+	initializeLeaderboard(player, profile.Data)
+
 	if player:IsDescendantOf(Players) then
 		profiles[player.Name] = profile
 		store:dispatch(actions.updatePlayerWithProfile(player.Name, profile.Data))
-		store:dispatch(actions.incrementPlayerLogInCount(player.Name))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "LogInCount"))
 	end
 end
 
