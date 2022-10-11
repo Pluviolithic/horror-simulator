@@ -4,6 +4,8 @@ return {
 	Kills = 0,
 	Rebirths = 0,
 
+	EquippedTool = "Fists",
+
 	LogInCount = 0,
 	HoursPlayed = 0,
 }
