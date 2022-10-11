@@ -8,6 +8,7 @@ local profileTemplate = require(ServerScriptService.Server.PlayerManager.Profile
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
+local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 
 local profileStore = ProfileService.GetProfileStore("PlayerData", profileTemplate)
 
@@ -15,24 +16,24 @@ local function initializeLeaderboard(player, data)
 	local leaderstats = Instance.new "Folder"
 	leaderstats.Name = "leaderstats"
 
-	local strength = Instance.new "IntValue"
+	local strength = Instance.new "StringValue"
 	strength.Name = "Strength"
-	strength.Value = data.Strength
+	strength.Value = formatter.formatNumberWithSuffix(data.Strength)
 	strength.Parent = leaderstats
 
-	local fear = Instance.new "IntValue"
+	local fear = Instance.new "StringValue"
 	fear.Name = "Fear"
-	fear.Value = data.Fear
+	fear.Value = formatter.formatNumberWithSuffix(data.Fear)
 	fear.Parent = leaderstats
 
-	local Kills = Instance.new "IntValue"
+	local Kills = Instance.new "StringValue"
 	Kills.Name = "Kills"
-	Kills.Value = data.Kills
+	Kills.Value = formatter.formatNumberWithSuffix(data.Kills)
 	Kills.Parent = leaderstats
 
-	local Rebirths = Instance.new "IntValue"
+	local Rebirths = Instance.new "StringValue"
 	Rebirths.Name = "Rebirths"
-	Rebirths.Value = data.Rebirths
+	Rebirths.Value = formatter.formatNumberWithSuffix(data.Rebirths)
 	Rebirths.Parent = leaderstats
 
 	leaderstats.Parent = player
