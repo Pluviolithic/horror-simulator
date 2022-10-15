@@ -32,4 +32,9 @@ return {
 			playerName = playerName,
 		}
 	end),
+	resetPlayerData = makeActionCreator("resetPlayerData", function(playerName)
+		return {
+			playerName = playerName,
+		}
+	end),
 }

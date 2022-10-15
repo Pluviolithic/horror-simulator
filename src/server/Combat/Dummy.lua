@@ -19,11 +19,18 @@ local function handleDummy(dummy)
 
 	NPCUI:FindFirstChild("NPCName", true).Text = "Dummy"
 
+	local debounceArray = {}
+
 	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
-		if not humanoid then
+		if debounceArray[player] or not humanoid then
 			return
 		end
+
+		debounceArray[player] = true
+		task.delay(2, function()
+			debounceArray[player] = false
+		end)
 
 		if store:getState().Players[player.Name].CurrentEnemy == dummy then
 			return
@@ -65,7 +72,8 @@ local function handleDummy(dummy)
 		end)
 
 		while
-			humanoid:IsDescendantOf(game)
+			runAnimations
+			and humanoid:IsDescendantOf(game)
 			and store:getState().Players[player.Name]
 			and store:getState().Players[player.Name].CurrentEnemy == dummy
 			and player:DistanceFromCharacter(dummy.Hitbox.Position) < (fightRange + 2)

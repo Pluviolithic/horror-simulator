@@ -6,6 +6,7 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
 
 local function updateClientMiddleware(nextDispatch)
 	return function(action)
@@ -22,6 +23,8 @@ local function savePlayerDataMiddleware(nextDispatch)
 		if profiles[action.playerName] then
 			if action.type == "incrementPlayerStat" then
 				profiles[action.playerName].Data[action.statName] += (action.incrementAmount or 1)
+			elseif action.type == "resetPlayerData" then
+				profiles[action.playerName].Data = table.clone(profileTemplate)
 			end
 		end
 		return nextDispatch(action)

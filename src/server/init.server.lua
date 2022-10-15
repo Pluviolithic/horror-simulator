@@ -3,3 +3,4 @@ local server = ServerScriptService.Server
 
 require(server.PlayerManager)
 require(server.Combat)
+require(server.Cmdr)

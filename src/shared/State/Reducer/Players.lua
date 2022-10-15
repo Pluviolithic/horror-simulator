@@ -34,4 +34,9 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	resetPlayerData = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = defaultStates.PlayerState,
+		})
+	end,
 })
