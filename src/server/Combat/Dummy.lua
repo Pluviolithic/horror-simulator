@@ -33,7 +33,19 @@ local function handleDummy(dummy)
 
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
+
+		local failed = false
+		task.spawn(function()
+			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
+			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
+			failed = true
+		end)
+
 		humanoid.MoveToFinished:Wait()
+		if failed then
+			return
+		end
 
 		local animationInstances =
 			animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
