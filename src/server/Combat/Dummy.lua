@@ -23,13 +23,13 @@ local function handleDummy(dummy)
 
 	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
-		if debounceArray[player] or not humanoid then
+		if debounceArray[player.UserId] or not humanoid then
 			return
 		end
 
-		debounceArray[player] = true
-		task.delay(2, function()
-			debounceArray[player] = false
+		debounceArray[player.UserId] = true
+		task.delay(1, function()
+			debounceArray[player.UserId] = nil
 		end)
 
 		if store:getState().Players[player.Name].CurrentEnemy == dummy then
@@ -71,24 +71,31 @@ local function handleDummy(dummy)
 			end
 		end)
 
+		task.spawn(function()
+			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
+			if failed then
+				return
+			end
+			runAnimations = false
+			currentTrack:Stop()
+			print "disabling ui"
+			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
+		end)
+
+		task.wait(1)
+
 		while
 			runAnimations
 			and humanoid:IsDescendantOf(game)
 			and store:getState().Players[player.Name]
 			and store:getState().Players[player.Name].CurrentEnemy == dummy
-			and player:DistanceFromCharacter(dummy.Hitbox.Position) < (fightRange + 2)
 		do
-			task.wait(1)
 			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
+			task.wait(1)
 		end
 
-		runAnimations = false
-		currentTrack:Stop()
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-
-		if store:getState().Players[player.Name] and store:getState().Players[player.Name].CurrentEnemy == dummy then
-			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
-		end
 	end)
 end
 

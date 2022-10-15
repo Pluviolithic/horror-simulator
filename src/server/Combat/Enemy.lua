@@ -67,10 +67,10 @@ local function handleEnemy(enemy)
 	end)
 end
 
-for _, dummy in ipairs(CollectionService:GetTagged "Dummy") do
+for _, dummy in ipairs(CollectionService:GetTagged "Enemy") do
 	handleEnemy(dummy)
 end
 
-CollectionService:GetInstanceAddedSignal("Dummy"):Connect(handleEnemy)
+CollectionService:GetInstanceAddedSignal("Enemy"):Connect(handleEnemy)
 
 return 0

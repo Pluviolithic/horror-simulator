@@ -11,7 +11,9 @@ Remotes.Client:Get("SendNPCHealthBar"):Connect(function(NPCHealthBar, enabled, h
 	print("SendNPCHealthBar", NPCHealthBar, enabled, healthValue, maxHealth)
 	if NPCHealthBar and not enabled then
 		NPCHealthBar.Enabled = false
-		currentHealthBarConnection:Disconnect()
+		if currentHealthBarConnection then
+			currentHealthBarConnection:Disconnect()
+		end
 		return
 	elseif not enabled then
 		return
