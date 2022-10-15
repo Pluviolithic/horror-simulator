@@ -11,13 +11,10 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 
 local fightRange = 2
 
-local function handleDummy(dummy)
-	local clickDetector = dummy.Hitbox.ClickDetector
-	local goalPosition = dummy.Hitbox.Position
-	local fear = dummy.Configuration.Fear.Value
-	local NPCUI = dummy:FindFirstChild("NPCUI", true)
-
-	NPCUI:FindFirstChild("NPCName", true).Text = "Dummy"
+local function handleEnemy(enemy)
+	local clickDetector = enemy.Hitbox.ClickDetector
+	local goalPosition = enemy.Hitbox.Position
+	local fear = enemy.Configuration.Fear.Value
 
 	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
@@ -25,13 +22,13 @@ local function handleDummy(dummy)
 			return
 		end
 
-		if store:getState().Players[player.Name].CurrentEnemy == dummy then
+		if store:getState().Players[player.Name].CurrentEnemy == enemy then
 			return
 		else
-			store:dispatch(actions.switchPlayerEnemy(player.Name, dummy))
+			store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
 		end
 
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true)
+		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, enemy:FindFirstChild("NPCGUI", true), true)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 		humanoid.MoveToFinished:Wait()
 
@@ -55,27 +52,25 @@ local function handleDummy(dummy)
 		while
 			humanoid:IsDescendantOf(game)
 			and store:getState().Players[player.Name]
-			and store:getState().Players[player.Name].CurrentEnemy == dummy
-			and player:DistanceFromCharacter(dummy.Hitbox.Position) < (fightRange + 2)
+			and store:getState().Players[player.Name].CurrentEnemy == enemy
+			and player:DistanceFromCharacter(enemy.Hitbox.Position) < (fightRange + 2)
 		do
 			task.wait(1)
 			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
 		end
 
 		runAnimations = false
-		currentTrack:Stop()
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 
-		if store:getState().Players[player.Name] and store:getState().Players[player.Name].CurrentEnemy == dummy then
+		if store:getState().Players[player.Name] and store:getState().Players[player.Name].CurrentEnemy == enemy then
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 		end
 	end)
 end
 
 for _, dummy in ipairs(CollectionService:GetTagged "Dummy") do
-	handleDummy(dummy)
+	handleEnemy(dummy)
 end
 
-CollectionService:GetInstanceAddedSignal("Dummy"):Connect(handleDummy)
+CollectionService:GetInstanceAddedSignal("Dummy"):Connect(handleEnemy)
 
 return 0
