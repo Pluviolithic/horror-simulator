@@ -1,5 +1,5 @@
 return {
-	Strength = 0,
+	Strength = 1,
 	Fear = 0,
 	Kills = 0,
 	Rebirths = 0,

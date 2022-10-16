@@ -14,13 +14,29 @@ local fightRange = 2
 local function handleEnemy(enemy)
 	local clickDetector = enemy.Hitbox.ClickDetector
 	local goalPosition = enemy.Hitbox.Position
-	local fear = enemy.Configuration.Fear.Value
+	local maxHealth = enemy.Humanoid.MaxHealth
+
+	local NPCUI = enemy:FindFirstChild("NPCUI", true)
+	local healthValue = enemy.Configuration.Health
+
+	local debounceTable = {}
+	local damageDealtByPlayer = {}
+
+	local totalDamageDealt = 0
+
+	NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
+	healthValue.Value = maxHealth
 
 	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
-		if not humanoid then
+		if debounceTable[player.UserId] or not humanoid then
 			return
 		end
+
+		debounceTable[player.UserId] = true
+		task.delay(1, function()
+			debounceTable[player.UserId] = nil
+		end)
 
 		if store:getState().Players[player.Name].CurrentEnemy == enemy then
 			return
@@ -28,9 +44,21 @@ local function handleEnemy(enemy)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
 		end
 
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, enemy:FindFirstChild("NPCGUI", true), true)
+		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, healthValue, maxHealth)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
+
+		local failed = false
+		task.spawn(function()
+			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
+			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
+			failed = true
+		end)
+
 		humanoid.MoveToFinished:Wait()
+		if failed then
+			return
+		end
 
 		local animationInstances =
 			animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
@@ -49,26 +77,42 @@ local function handleEnemy(enemy)
 			end
 		end)
 
+		task.spawn(function()
+			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
+			if failed then
+				return
+			end
+			runAnimations = false
+			currentTrack:Stop()
+			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
+		end)
+
+		task.wait(1)
+
 		while
-			humanoid:IsDescendantOf(game)
+			runAnimations
+			and totalDamageDealt < maxHealth
+			and humanoid:IsDescendantOf(game)
 			and store:getState().Players[player.Name]
 			and store:getState().Players[player.Name].CurrentEnemy == enemy
-			and player:DistanceFromCharacter(enemy.Hitbox.Position) < (fightRange + 2)
 		do
+			local damageToDeal =
+				math.clamp(store:getState().Players[player.Name].Strength, 0, maxHealth - totalDamageDealt)
+			totalDamageDealt += damageToDeal
+			damageDealtByPlayer[player] = (damageDealtByPlayer[player] or 0) + damageToDeal
+			healthValue.Value = maxHealth - totalDamageDealt
 			task.wait(1)
-			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
 		end
 
-		runAnimations = false
+		-- clean up
 
-		if store:getState().Players[player.Name] and store:getState().Players[player.Name].CurrentEnemy == enemy then
-			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
-		end
+		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 	end)
 end
 
-for _, dummy in ipairs(CollectionService:GetTagged "Enemy") do
-	handleEnemy(dummy)
+for _, enemy in ipairs(CollectionService:GetTagged "Enemy") do
+	handleEnemy(enemy)
 end
 
 CollectionService:GetInstanceAddedSignal("Enemy"):Connect(handleEnemy)

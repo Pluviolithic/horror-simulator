@@ -19,17 +19,17 @@ local function handleDummy(dummy)
 
 	NPCUI:FindFirstChild("NPCName", true).Text = "Dummy"
 
-	local debounceArray = {}
+	local debounceTable = {}
 
 	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
-		if debounceArray[player.UserId] or not humanoid then
+		if debounceTable[player.UserId] or not humanoid then
 			return
 		end
 
-		debounceArray[player.UserId] = true
+		debounceTable[player.UserId] = true
 		task.delay(1, function()
-			debounceArray[player.UserId] = nil
+			debounceTable[player.UserId] = nil
 		end)
 
 		if store:getState().Players[player.Name].CurrentEnemy == dummy then
