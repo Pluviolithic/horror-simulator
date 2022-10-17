@@ -42,6 +42,14 @@ local function handleDummy(dummy)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
 		local failed = false
+		local connection
+		connection = store.changed:connect(function(newState)
+			if newState.Players[player.Name].CurrentEnemy ~= dummy then
+				failed = true
+				Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+			end
+		end)
+
 		task.spawn(function()
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
@@ -50,6 +58,7 @@ local function handleDummy(dummy)
 		end)
 
 		humanoid.MoveToFinished:Wait()
+		connection:disconnect()
 		if failed then
 			return
 		end
