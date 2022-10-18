@@ -9,14 +9,13 @@ local function updateHealthBarText(healthBarText, health, maxHealth)
 	healthBarText.Text = string.format("%d / %d", health, maxHealth)
 end
 
-local currentHealthBarConnection
+local currentHealthBarConnections = {}
 
 Remotes.Client:Get("SendNPCHealthBar"):Connect(function(NPCHealthBar, enabled, healthValue, maxHealth)
-	print("SendNPCHealthBar", NPCHealthBar, enabled, healthValue, maxHealth)
 	if NPCHealthBar and not enabled then
 		NPCHealthBar.Enabled = false
-		if currentHealthBarConnection then
-			currentHealthBarConnection:Disconnect()
+		if currentHealthBarConnections[NPCHealthBar] then
+			currentHealthBarConnections[NPCHealthBar]:Disconnect()
 		end
 		return
 	elseif not enabled then
@@ -29,7 +28,7 @@ Remotes.Client:Get("SendNPCHealthBar"):Connect(function(NPCHealthBar, enabled, h
 
 		resizeHealthBar(healthBar, healthValue.Value, maxHealth)
 		updateHealthBarText(healthBarText, healthValue.Value, maxHealth)
-		currentHealthBarConnection = healthValue:GetPropertyChangedSignal("Value"):Connect(function()
+		currentHealthBarConnections[NPCHealthBar] = healthValue:GetPropertyChangedSignal("Value"):Connect(function()
 			resizeHealthBar(healthBar, healthValue.Value, maxHealth)
 			updateHealthBarText(healthBarText, healthValue.Value, maxHealth)
 		end)

@@ -22,7 +22,9 @@ local function handleEnemy(enemy)
 	local damageValue = enemy.Configuration.Damage
 
 	local attackAnimations = enemy.Configuration.AttackAnims:GetChildren()
+	local currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
 	local engagedPlayers = {}
+	local attackTrack
 
 	local debounceTable = {}
 	local damageDealtByPlayer = {}
@@ -93,10 +95,9 @@ local function handleEnemy(enemy)
 
 		table.insert(engagedPlayers, player)
 		if #engagedPlayers == 1 then
-			local currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
 			task.spawn(function()
 				while #engagedPlayers > 0 do
-					local attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
+					attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
 					attackTrack:Play()
 					attackTrack.Stopped:Wait()
 					attackTrack:Destroy()
@@ -149,6 +150,10 @@ local function handleEnemy(enemy)
 		end
 
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+		table.remove(engagedPlayers, table.find(engagedPlayers, player))
+		if #engagedPlayers == 0 then
+			attackTrack:Stop()
+		end
 	end)
 end
 
