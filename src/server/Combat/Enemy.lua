@@ -1,4 +1,5 @@
 local CollectionService = game:GetService "CollectionService"
+local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
@@ -22,13 +23,15 @@ local function handleEnemy(enemy)
 
 	local attackAnimations = enemy.Configuration.AttackAnims:GetChildren()
 	local currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
-	local engagedPlayers = {}
 	local attackTrack
 
 	local debounceTable = {}
+	local engagedPlayers = {}
 	local damageDealtByPlayer = {}
 
+	local resetBegan = false
 	local totalDamageDealt = 0
+	local enemyClone = enemy:Clone()
 
 	NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
 	healthValue.Value = maxHealth
@@ -53,11 +56,11 @@ local function handleEnemy(enemy)
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, healthValue, maxHealth)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
-		local failed = false
+		local quit = false
 		local connection
 		connection = store.changed:connect(function(newState)
 			if newState.Players[player.Name].CurrentEnemy ~= enemy then
-				failed = true
+				quit = true
 				Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			end
 		end)
@@ -66,12 +69,12 @@ local function handleEnemy(enemy)
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
-			failed = true
+			quit = true
 		end)
 
 		humanoid.MoveToFinished:Wait()
 		connection:disconnect()
-		if failed then
+		if quit then
 			return
 		end
 
@@ -95,8 +98,11 @@ local function handleEnemy(enemy)
 		table.insert(engagedPlayers, player)
 		if #engagedPlayers == 1 then
 			-- rotate enemy to face player
-			enemyHumanoid.RootPart.CFrame =
-				CFrame.lookAt(enemyHumanoid.RootPart.Position, player.Character.HumanoidRootPart.Position)
+			local lookAt = player.Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
+			enemyHumanoid.RootPart.CFrame = CFrame.lookAt(
+				enemyHumanoid.RootPart.Position,
+				lookAt + enemyHumanoid.RootPart.Position.Y * Vector3.new(0, 1, 0)
+			)
 
 			task.spawn(function()
 				while #engagedPlayers > 0 and enemyHumanoid:IsDescendantOf(game) do
@@ -112,7 +118,7 @@ local function handleEnemy(enemy)
 
 		task.spawn(function()
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
-			if failed then
+			if quit then
 				return
 			end
 			runAnimations = false
@@ -146,14 +152,29 @@ local function handleEnemy(enemy)
 		end
 
 		if totalDamageDealt >= maxHealth then
+			if resetBegan then
+				return
+			end
+			resetBegan = true
+
 			for otherPlayer, damage in pairs(damageDealtByPlayer) do
+				if not Players:FindFirstChild(otherPlayer.Name) then
+					continue
+				end
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
 			end
 
+			quit = true
 			enemy:Destroy()
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			runAnimations = false
 			currentTrack:Stop()
+
+			task.delay(15, function()
+				handleEnemy(enemyClone)
+				enemyClone.Parent = workspace
+			end)
+
 			return
 		end
 
