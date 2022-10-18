@@ -37,9 +37,7 @@ local function updateLeaderboardMiddleware(nextDispatch)
 			local player = Players:FindFirstChild(action.playerName)
 			local stat = player and player.leaderstats:FindFirstChild(action.statName)
 			if stat then
-				stat.Value = formatter.formatNumberWithSuffix(
-					profiles[action.playerName].Data[action.statName] + (action.incrementAmount or 1)
-				)
+				stat.Value = formatter.formatNumberWithSuffix(profiles[action.playerName].Data[action.statName])
 			end
 		end
 		return nextDispatch(action)

@@ -9,8 +9,6 @@ local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 
-local fightRange = 2
-
 local function handleEnemy(enemy)
 	local clickDetector = enemy.Hitbox.ClickDetector
 	local goalPosition = enemy.Hitbox.Position
@@ -20,6 +18,7 @@ local function handleEnemy(enemy)
 	local NPCUI = enemy:FindFirstChild("NPCUI", true)
 	local healthValue = enemy.Configuration.Health
 	local damageValue = enemy.Configuration.Damage
+	local fightRange = enemy.Configuration.FightRange.Value
 
 	local attackAnimations = enemy.Configuration.AttackAnims:GetChildren()
 	local currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
@@ -95,8 +94,12 @@ local function handleEnemy(enemy)
 
 		table.insert(engagedPlayers, player)
 		if #engagedPlayers == 1 then
+			-- rotate enemy to face player
+			enemyHumanoid.RootPart.CFrame =
+				CFrame.lookAt(enemyHumanoid.RootPart.Position, player.Character.HumanoidRootPart.Position)
+
 			task.spawn(function()
-				while #engagedPlayers > 0 do
+				while #engagedPlayers > 0 and enemyHumanoid:IsDescendantOf(game) do
 					attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
 					attackTrack:Play()
 					attackTrack.Stopped:Wait()
@@ -123,6 +126,7 @@ local function handleEnemy(enemy)
 
 		while
 			runAnimations
+			and humanoid.Health > 0
 			and totalDamageDealt < maxHealth
 			and humanoid:IsDescendantOf(game)
 			and store:getState().Players[player.Name]
@@ -142,6 +146,10 @@ local function handleEnemy(enemy)
 		end
 
 		if totalDamageDealt >= maxHealth then
+			for otherPlayer, damage in pairs(damageDealtByPlayer) do
+				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
+			end
+
 			enemy:Destroy()
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			runAnimations = false
