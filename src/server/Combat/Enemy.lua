@@ -50,6 +50,7 @@ local function handleEnemy(enemy)
 					enemyHumanoid.RootPart.Position,
 					lookAt + enemyHumanoid.RootPart.Position.Y * Vector3.new(0, 1, 0)
 				)
+				targetPlayer = engagedPlayers[1]
 			end
 			return rawlen(engagedPlayers)
 		end,
@@ -166,7 +167,6 @@ local function handleEnemy(enemy)
 		end
 
 		if totalDamageDealt >= maxHealth then
-
 			quit = true
 			currentTrack:Stop()
 			runAnimations = false
@@ -196,7 +196,7 @@ local function handleEnemy(enemy)
 		end
 
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-		
+
 		local removalKey = table.find(engagedPlayers, player)
 		if removalKey then
 			table.remove(engagedPlayers, removalKey)
