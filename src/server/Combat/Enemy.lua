@@ -143,8 +143,6 @@ local function handleEnemy(enemy)
 			end)
 		end
 
-		task.wait(1)
-
 		while
 			runAnimations
 			and humanoid.Health > 0
