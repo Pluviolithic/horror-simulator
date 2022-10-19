@@ -37,24 +37,26 @@ local function handleEnemy(enemy)
 	NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
 	healthValue.Value = maxHealth
 
-	setmetatable(engagedPlayers, {
-		__len = function()
-			if rawlen(engagedPlayers) == 0 then
-				totalDamageDealt = 0
-				damageDealtByPlayer = {}
-				healthValue.Value = maxHealth
-				enemyHumanoid.Health = maxHealth
-			elseif engagedPlayers[1] ~= targetPlayer then
-				local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
-				enemyHumanoid.RootPart.CFrame = CFrame.lookAt(
-					enemyHumanoid.RootPart.Position,
-					lookAt + enemyHumanoid.RootPart.Position.Y * Vector3.new(0, 1, 0)
-				)
-				targetPlayer = engagedPlayers[1]
-			end
-			return rawlen(engagedPlayers)
-		end,
-	})
+	local function removePlayer(player)
+		local playerIndex = table.find(engagedPlayers, player)
+		if not playerIndex then
+			return
+		end
+		table.remove(engagedPlayers, playerIndex)
+		if #engagedPlayers == 0 then
+			totalDamageDealt = 0
+			damageDealtByPlayer = {}
+			healthValue.Value = maxHealth
+			enemyHumanoid.Health = maxHealth
+		elseif engagedPlayers[1] ~= targetPlayer then
+			local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
+			enemyHumanoid.RootPart.CFrame = CFrame.lookAt(
+				enemyHumanoid.RootPart.Position,
+				lookAt + enemyHumanoid.RootPart.Position.Y * Vector3.new(0, 1, 0)
+			)
+			targetPlayer = engagedPlayers[1]
+		end
+	end
 
 	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
@@ -100,7 +102,7 @@ local function handleEnemy(enemy)
 			currentTrack:Stop()
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
-			table.remove(engagedPlayers, table.find(engagedPlayers, player))
+			removePlayer(player)
 		end)
 
 		humanoid.MoveToFinished:Wait()
@@ -181,6 +183,7 @@ local function handleEnemy(enemy)
 					continue
 				end
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
+				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Kills"))
 			end
 
 			enemy:Destroy()
@@ -195,10 +198,7 @@ local function handleEnemy(enemy)
 
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 
-		local removalKey = table.find(engagedPlayers, player)
-		if removalKey then
-			table.remove(engagedPlayers, removalKey)
-		end
+		removePlayer(player)
 	end)
 end
 
