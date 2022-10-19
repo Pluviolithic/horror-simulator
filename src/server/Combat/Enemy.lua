@@ -29,12 +29,31 @@ local function handleEnemy(enemy)
 	local engagedPlayers = {}
 	local damageDealtByPlayer = {}
 
+	local targetPlayer
 	local resetBegan = false
 	local totalDamageDealt = 0
 	local enemyClone = enemy:Clone()
 
 	NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
 	healthValue.Value = maxHealth
+
+	setmetatable(engagedPlayers, {
+		__len = function()
+			if rawlen(engagedPlayers) == 0 then
+				totalDamageDealt = 0
+				damageDealtByPlayer = {}
+				healthValue.Value = maxHealth
+				enemyHumanoid.Health = maxHealth
+			elseif engagedPlayers[1] ~= targetPlayer then
+				local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
+				enemyHumanoid.RootPart.CFrame = CFrame.lookAt(
+					enemyHumanoid.RootPart.Position,
+					lookAt + enemyHumanoid.RootPart.Position.Y * Vector3.new(0, 1, 0)
+				)
+			end
+			return rawlen(engagedPlayers)
+		end,
+	})
 
 	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
@@ -65,11 +84,22 @@ local function handleEnemy(enemy)
 			end
 		end)
 
+		local animationInstances =
+			animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
+		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
+		local currentTrack = humanoid:LoadAnimation(currentAnimation)
+		local runAnimations = true
+
 		task.spawn(function()
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
+			if quit then
+				return
+			end
+			runAnimations = false
+			currentTrack:Stop()
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
-			quit = true
+			table.remove(engagedPlayers, table.find(engagedPlayers, player))
 		end)
 
 		humanoid.MoveToFinished:Wait()
@@ -77,12 +107,6 @@ local function handleEnemy(enemy)
 		if quit then
 			return
 		end
-
-		local animationInstances =
-			animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
-		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
-		local currentTrack = humanoid:LoadAnimation(currentAnimation)
-		local runAnimations = true
 
 		task.spawn(function()
 			while runAnimations do
@@ -104,6 +128,8 @@ local function handleEnemy(enemy)
 				lookAt + enemyHumanoid.RootPart.Position.Y * Vector3.new(0, 1, 0)
 			)
 
+			targetPlayer = player
+
 			task.spawn(function()
 				while #engagedPlayers > 0 and enemyHumanoid:IsDescendantOf(game) do
 					attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
@@ -115,18 +141,6 @@ local function handleEnemy(enemy)
 				end
 			end)
 		end
-
-		task.spawn(function()
-			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
-			if quit then
-				return
-			end
-			runAnimations = false
-			currentTrack:Stop()
-			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
-			table.remove(engagedPlayers, table.find(engagedPlayers, player))
-		end)
 
 		task.wait(1)
 
@@ -152,6 +166,13 @@ local function handleEnemy(enemy)
 		end
 
 		if totalDamageDealt >= maxHealth then
+
+			quit = true
+			currentTrack:Stop()
+			runAnimations = false
+
+			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
+
 			if resetBegan then
 				return
 			end
@@ -164,11 +185,7 @@ local function handleEnemy(enemy)
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
 			end
 
-			quit = true
 			enemy:Destroy()
-			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
-			runAnimations = false
-			currentTrack:Stop()
 
 			task.delay(15, function()
 				handleEnemy(enemyClone)
@@ -179,9 +196,10 @@ local function handleEnemy(enemy)
 		end
 
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-		table.remove(engagedPlayers, table.find(engagedPlayers, player))
-		if #engagedPlayers == 0 then
-			attackTrack:Stop()
+		
+		local removalKey = table.find(engagedPlayers, player)
+		if removalKey then
+			table.remove(engagedPlayers, removalKey)
 		end
 	end)
 end
