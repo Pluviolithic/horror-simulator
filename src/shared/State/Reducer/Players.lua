@@ -39,4 +39,18 @@ return Rodux.createReducer({}, {
 			[action.playerName] = defaultStates.PlayerState,
 		})
 	end,
+	setCurrentPunchingBag = function(state, action)
+		return Llama.Dctionary.mergeDeep(state, {
+			[action.playerName] = {
+				CurrentPunchingBag = action.currentPunchingBag or Llama.None,
+			},
+		})
+	end,
+	updateRequiredFear = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				RequiredFear = state[action.playerName].RequiredFear + action.amount,
+			},
+		})
+	end,
 })

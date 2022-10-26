@@ -87,7 +87,6 @@ local function handleDummy(dummy)
 			end
 			runAnimations = false
 			currentTrack:Stop()
-			print "disabling ui"
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 		end)

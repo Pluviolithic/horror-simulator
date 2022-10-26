@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - cabins
   pull_request:
     branches:
     - main

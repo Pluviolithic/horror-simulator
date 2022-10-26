@@ -37,4 +37,16 @@ return {
 			playerName = playerName,
 		}
 	end),
+	setCurrentPunchingBag = makeActionCreator("setCurrentPunchingBag", function(playerName, bag)
+		return {
+			playerName = playerName,
+			currentPunchingBag = bag,
+		}
+	end),
+	updateRequiredFear = makeActionCreator("updateRequiredFear", function(playerName, amount)
+		return {
+			playerName = playerName,
+			amount = amount,
+		}
+	end),
 }
