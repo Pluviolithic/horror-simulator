@@ -14,6 +14,7 @@ function Formatter.formatNumberWithSuffix(n)
 
 	local nString = tostring(n / 10 ^ (power * 3))
 	local truncatedString = nString:match "%." and nString:sub(1, 4) or nString:sub(1, 3)
+
 	return truncatedString:gsub("%.?0+$", "") .. (suffixes[power] or "")
 end
 
