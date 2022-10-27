@@ -3,7 +3,7 @@
 -- I just leave them so I have an idea of the game state
 return {
 	PlayerState = {
-		Strength = 0,
+		Strength = 1,
 		Fear = 0,
 		Kills = 0,
 		Rebirths = 0,

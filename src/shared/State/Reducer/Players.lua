@@ -40,7 +40,7 @@ return Rodux.createReducer({}, {
 		})
 	end,
 	setCurrentPunchingBag = function(state, action)
-		return Llama.Dctionary.mergeDeep(state, {
+		return Llama.Dictionary.mergeDeep(state, {
 			[action.playerName] = {
 				CurrentPunchingBag = action.currentPunchingBag or Llama.None,
 			},

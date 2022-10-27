@@ -12,7 +12,7 @@ local function handlePunchingBag(bag)
 	local prompt = bag.HumanoidLockPart.Prompt
 	local inUse = false
 
-	prompt.PromptTriggered:Connect(function(_, player)
+	prompt.Triggered:Connect(function(player)
 		local playerState = store:getState().Players[player.Name]
 		local cancelled = false
 		if inUse or playerState.CurrentPunchingBag or playerState.Fear < playerState.RequiredFear then
@@ -22,7 +22,7 @@ local function handlePunchingBag(bag)
 		Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, false)
 
 		local connection
-		connection = Remotes:Get("CancelExchange"):Connect(function(cancellingPlayer)
+		connection = Remotes.Server:Get("CancelExchange"):Connect(function(cancellingPlayer)
 			if cancellingPlayer == player then
 				cancelled = true
 				connection:Disconnect()
@@ -50,3 +50,5 @@ for _, punchingBag in ipairs(CollectionService:GetTagged "PunchingBag") do
 end
 
 CollectionService:GetInstanceAddedSignal("PunchingBag"):Connect(handlePunchingBag)
+
+return 0

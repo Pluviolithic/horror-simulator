@@ -23,8 +23,8 @@ local function savePlayerDataMiddleware(nextDispatch)
 		if profiles[action.playerName] then
 			if action.type == "incrementPlayerStat" then
 				profiles[action.playerName].Data[action.statName] += (action.incrementAmount or 1)
-      elseif action.type == "updateRequiredFear" then
-        profiles[action.playerName].Data.RequiredFear += 5
+			elseif action.type == "updateRequiredFear" then
+				profiles[action.playerName].Data.RequiredFear += 5
 			elseif action.type == "resetPlayerData" then
 				profiles[action.playerName].Data = table.clone(profileTemplate)
 			end
@@ -50,5 +50,5 @@ return {
 	savePlayerDataMiddleware,
 	updateLeaderboardMiddleware,
 	updateClientMiddleware,
-	Rodux.loggerMiddleware,
+	--Rodux.loggerMiddleware,
 }
