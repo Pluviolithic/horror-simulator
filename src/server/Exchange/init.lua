@@ -20,7 +20,7 @@ local function handlePunchingBag(bag)
 		local playerState = store:getState().Players[player.Name]
 		local cancelled = false
 
-		if inUse or playerState.CurrentPunchingBag or playerState.Fear < playerState.RequiredFear then
+		if inUse or playerState.CurrentPunchingBag or playerState.Fear < playerState.Strength * 5 then
 			if store:getState().Players[player.Name].CurrentPunchingBag == bag then
 				disableSwitch:Fire(player)
 			end
@@ -68,13 +68,12 @@ local function handlePunchingBag(bag)
 
 		while
 			store:getState().Players[player.Name]
-			and store:getState().Players[player.Name].Fear >= store:getState().Players[player.Name].RequiredFear
+			and store:getState().Players[player.Name].Fear >= store:getState().Players[player.Name].Strength * 5
 			and not cancelled
 		do
 			-- change "magic number 5" to be based on gamepasses
 			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", 1))
 			store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", -5))
-			store:dispatch(actions.updateRequiredFear(player.Name, 5))
 			task.wait(0.6)
 		end
 

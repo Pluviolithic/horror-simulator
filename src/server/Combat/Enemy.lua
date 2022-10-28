@@ -163,6 +163,11 @@ local function handleEnemy(enemy)
 
 			humanoid.Health -= damageValue.Value
 
+			-- need to quick exit for this one
+			if totalDamageDealt >= maxHealth then
+				break
+			end
+
 			task.wait(1)
 		end
 

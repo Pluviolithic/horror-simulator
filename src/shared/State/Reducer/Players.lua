@@ -46,11 +46,4 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
-	updateRequiredFear = function(state, action)
-		return Llama.Dictionary.mergeDeep(state, {
-			[action.playerName] = {
-				RequiredFear = state[action.playerName].RequiredFear + action.amount,
-			},
-		})
-	end,
 })

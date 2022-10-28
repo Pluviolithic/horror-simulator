@@ -43,10 +43,4 @@ return {
 			currentPunchingBag = bag,
 		}
 	end),
-	updateRequiredFear = makeActionCreator("updateRequiredFear", function(playerName, amount)
-		return {
-			playerName = playerName,
-			amount = amount,
-		}
-	end),
 }
