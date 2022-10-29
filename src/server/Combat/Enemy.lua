@@ -21,9 +21,10 @@ local function handleEnemy(enemy)
 	local damageValue = enemy.Configuration.Damage
 	local fightRange = enemy.Configuration.FightRange.Value
 
+	local runEnemyAnimations = false
 	local attackAnimations = enemy.Configuration.AttackAnims:GetChildren()
 	local currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
-	local attackTrack
+	local attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
 
 	local debounceTable = {}
 	local engagedPlayers = {}
@@ -37,13 +38,37 @@ local function handleEnemy(enemy)
 	NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
 	healthValue.Value = maxHealth
 
+	local function startEnemyAnimations()
+		runEnemyAnimations = true
+		repeat
+			print("looping")
+			attackTrack:Play()
+			attackTrack.Stopped:Wait()
+			attackTrack:Destroy()
+			currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
+			attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
+			task.wait(0.5)
+		until not runEnemyAnimations
+	end
+
+	local function endEnemyAnimations()
+		print("stopping enemy animations")
+		runEnemyAnimations = false
+		attackTrack:Stop()
+	end
+
+
 	local function removePlayer(player)
+
 		local playerIndex = table.find(engagedPlayers, player)
 		if not playerIndex then
 			return
 		end
+
 		table.remove(engagedPlayers, playerIndex)
+
 		if #engagedPlayers == 0 then
+			
 			local playersState = store:getState().Players
 			for inflictingPlayer in pairs(damageDealtByPlayer) do
 				if not playersState[inflictingPlayer.Name].CurrentEnemy then
@@ -58,6 +83,9 @@ local function handleEnemy(enemy)
 			damageDealtByPlayer = {}
 			healthValue.Value = maxHealth
 			enemyHumanoid.Health = maxHealth
+
+			endEnemyAnimations()
+
 		elseif engagedPlayers[1] ~= targetPlayer then
 			local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
 			enemyHumanoid.RootPart.CFrame = CFrame.lookAt(
@@ -83,42 +111,57 @@ local function handleEnemy(enemy)
 			return
 		else
 			store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
-			humanoid.Health = humanoid.MaxHealth
+			if not damageDealtByPlayer[player] then
+				humanoid.Health = humanoid.MaxHealth
+			end
 		end
 
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, healthValue, maxHealth)
-		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
-
-		local quit = false
-		local connection
-		connection = store.changed:connect(function(newState)
-			if newState.Players[player.Name].CurrentEnemy ~= enemy then
-				quit = true
-				Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-			end
-		end)
+		local connections = {}
+		local sentDisableUI = false
+		local cleanedUp = false
+		local runAnimations = true
 
 		local animationInstances =
 			animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
 		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack = humanoid:LoadAnimation(currentAnimation)
-		local runAnimations = true
 
-		task.spawn(function()
-			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
-			if quit then
+		local function cleanUpPlayer()
+			if cleanedUp then
 				return
 			end
+			cleanedUp = true
+
+			for _, connection in ipairs(connections) do
+				connection:disconnect()
+			end
+
 			runAnimations = false
 			currentTrack:Stop()
+
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			removePlayer(player)
-		end)
+		end
 
+		table.insert(connections, humanoid.Died:Connect(cleanUpPlayer))
+
+		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, healthValue, maxHealth)
+		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
+
+		table.insert(connections, store.changed:connect(function(newState)
+			if newState.Players[player.Name].CurrentEnemy ~= enemy then
+				cleanUpPlayer()
+			end
+		end))
+
+		table.insert(connections, humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(cleanUpPlayer))
+
+		--print("delay started")
 		humanoid.MoveToFinished:Wait()
-		connection:disconnect()
-		if quit then
+		--print("delay ended")
+
+		if cleanedUp then
 			return
 		end
 
@@ -144,16 +187,7 @@ local function handleEnemy(enemy)
 
 			targetPlayer = player
 
-			task.spawn(function()
-				repeat
-					attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
-					attackTrack:Play()
-					attackTrack.Stopped:Wait()
-					attackTrack:Destroy()
-					currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
-					task.wait(0.5)
-				until #engagedPlayers < 1 or not enemyHumanoid:IsDescendantOf(game)
-			end)
+			task.spawn(startEnemyAnimations)
 		end
 
 		task.wait(0.5)
@@ -185,16 +219,12 @@ local function handleEnemy(enemy)
 		end
 
 		if totalDamageDealt >= maxHealth then
-			quit = true
-			currentTrack:Stop()
-			runAnimations = false
 
-			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
+			cleanUpPlayer()
 
 			if resetBegan then
 				return
 			end
-			resetBegan = true
 
 			for otherPlayer, damage in pairs(damageDealtByPlayer) do
 				if not Players:FindFirstChild(otherPlayer.Name) then
@@ -202,21 +232,29 @@ local function handleEnemy(enemy)
 				end
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Kills"))
+
+				if not store:getState().Players[otherPlayer.Name].CurrentEnemy then
+					local otherHumanoid = otherPlayer.Character
+						and otherPlayer.Character:FindFirstChildOfClass "Humanoid"
+					if not otherHumanoid then
+						continue
+					end
+					otherHumanoid.Health = otherHumanoid.MaxHealth
+				end
 			end
 
 			enemy:Destroy()
 
 			task.delay(15, function()
-				handleEnemy(enemyClone)
 				enemyClone.Parent = workspace
+				handleEnemy(enemyClone)
 			end)
 
 			return
+		else
+			cleanUpPlayer()
 		end
 
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-
-		removePlayer(player)
 	end)
 end
 
