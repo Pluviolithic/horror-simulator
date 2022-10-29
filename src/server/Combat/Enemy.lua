@@ -44,6 +44,16 @@ local function handleEnemy(enemy)
 		end
 		table.remove(engagedPlayers, playerIndex)
 		if #engagedPlayers == 0 then
+			local playersState = store:getState().Players
+			for inflictingPlayer in pairs(damageDealtByPlayer) do
+				if not playersState[inflictingPlayer.Name].CurrentEnemy then
+					local humanoid = inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
+					if humanoid then
+						humanoid.Health = humanoid.MaxHealth
+					end
+				end
+			end
+
 			totalDamageDealt = 0
 			damageDealtByPlayer = {}
 			healthValue.Value = maxHealth
@@ -73,6 +83,7 @@ local function handleEnemy(enemy)
 			return
 		else
 			store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
+			humanoid.Health = humanoid.MaxHealth
 		end
 
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, healthValue, maxHealth)
@@ -112,14 +123,14 @@ local function handleEnemy(enemy)
 		end
 
 		task.spawn(function()
-			while runAnimations do
+			repeat
 				currentTrack:Play()
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
 				currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				task.wait(0.5)
-			end
+			until not runAnimations
 		end)
 
 		table.insert(engagedPlayers, player)
@@ -134,16 +145,18 @@ local function handleEnemy(enemy)
 			targetPlayer = player
 
 			task.spawn(function()
-				while #engagedPlayers > 0 and enemyHumanoid:IsDescendantOf(game) do
+				repeat
 					attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
 					attackTrack:Play()
 					attackTrack.Stopped:Wait()
 					attackTrack:Destroy()
 					currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
 					task.wait(0.5)
-				end
+				until #engagedPlayers < 1 or not enemyHumanoid:IsDescendantOf(game)
 			end)
 		end
+
+		task.wait(0.5)
 
 		while
 			runAnimations

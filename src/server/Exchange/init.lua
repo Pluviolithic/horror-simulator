@@ -71,9 +71,8 @@ local function handlePunchingBag(bag)
 			and store:getState().Players[player.Name].Fear >= store:getState().Players[player.Name].Strength * 5
 			and not cancelled
 		do
-			-- change "magic number 5" to be based on gamepasses
+			store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", - store:getState().Players[player.Name].Strength * 5))
 			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", 1))
-			store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", -5))
 			task.wait(0.6)
 		end
 
