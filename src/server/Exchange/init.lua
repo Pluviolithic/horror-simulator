@@ -71,7 +71,9 @@ local function handlePunchingBag(bag)
 			and store:getState().Players[player.Name].Fear >= store:getState().Players[player.Name].Strength * 5
 			and not cancelled
 		do
-			store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", - store:getState().Players[player.Name].Strength * 5))
+			store:dispatch(
+				actions.incrementPlayerStat(player.Name, "Fear", -store:getState().Players[player.Name].Strength * 5)
+			)
 			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", 1))
 			task.wait(0.6)
 		end
@@ -84,7 +86,6 @@ local function handlePunchingBag(bag)
 		inUse = false
 		humanoid.RootPart.CFrame = teleportPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
 		Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, true)
-		--kick player
 	end)
 end
 
