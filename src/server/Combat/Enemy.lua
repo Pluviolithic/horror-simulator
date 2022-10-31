@@ -67,7 +67,8 @@ local function handleEnemy(enemy)
 			local playersState = store:getState().Players
 			for inflictingPlayer in pairs(damageDealtByPlayer) do
 				if not playersState[inflictingPlayer.Name].CurrentEnemy then
-					local humanoid = inflictingPlayer.Character and inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
+					local humanoid = inflictingPlayer.Character
+						and inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
 					if humanoid then
 						humanoid.Health = humanoid.MaxHealth
 					end
