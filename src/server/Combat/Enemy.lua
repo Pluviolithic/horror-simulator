@@ -41,7 +41,6 @@ local function handleEnemy(enemy)
 	local function startEnemyAnimations()
 		runEnemyAnimations = true
 		repeat
-			print("looping")
 			attackTrack:Play()
 			attackTrack.Stopped:Wait()
 			attackTrack:Destroy()
@@ -52,14 +51,11 @@ local function handleEnemy(enemy)
 	end
 
 	local function endEnemyAnimations()
-		print("stopping enemy animations")
 		runEnemyAnimations = false
 		attackTrack:Stop()
 	end
 
-
 	local function removePlayer(player)
-
 		local playerIndex = table.find(engagedPlayers, player)
 		if not playerIndex then
 			return
@@ -68,11 +64,10 @@ local function handleEnemy(enemy)
 		table.remove(engagedPlayers, playerIndex)
 
 		if #engagedPlayers == 0 then
-			
 			local playersState = store:getState().Players
 			for inflictingPlayer in pairs(damageDealtByPlayer) do
 				if not playersState[inflictingPlayer.Name].CurrentEnemy then
-					local humanoid = inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
+					local humanoid = inflictingPlayer.Character and inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
 					if humanoid then
 						humanoid.Health = humanoid.MaxHealth
 					end
@@ -85,7 +80,6 @@ local function handleEnemy(enemy)
 			enemyHumanoid.Health = maxHealth
 
 			endEnemyAnimations()
-
 		elseif engagedPlayers[1] ~= targetPlayer then
 			local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
 			enemyHumanoid.RootPart.CFrame = CFrame.lookAt(
@@ -117,7 +111,6 @@ local function handleEnemy(enemy)
 		end
 
 		local connections = {}
-		local sentDisableUI = false
 		local cleanedUp = false
 		local runAnimations = true
 
@@ -140,7 +133,9 @@ local function handleEnemy(enemy)
 			currentTrack:Stop()
 
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
+			if store:getState().Players[player.Name].CurrentEnemy == enemy then
+				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
+			end
 			removePlayer(player)
 		end
 
@@ -149,17 +144,18 @@ local function handleEnemy(enemy)
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, healthValue, maxHealth)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
-		table.insert(connections, store.changed:connect(function(newState)
-			if newState.Players[player.Name].CurrentEnemy ~= enemy then
-				cleanUpPlayer()
-			end
-		end))
-
 		table.insert(connections, humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(cleanUpPlayer))
 
-		--print("delay started")
-		humanoid.MoveToFinished:Wait()
-		--print("delay ended")
+		table.insert(
+			connections,
+			store.changed:connect(function(newState)
+				if newState.Players[player.Name].CurrentEnemy ~= enemy then
+					cleanUpPlayer()
+				end
+			end)
+		)
+
+		task.wait(player:DistanceFromCharacter(enemyHumanoid.RootPart.Position) / humanoid.WalkSpeed)
 
 		if cleanedUp then
 			return
@@ -219,7 +215,6 @@ local function handleEnemy(enemy)
 		end
 
 		if totalDamageDealt >= maxHealth then
-
 			cleanUpPlayer()
 
 			if resetBegan then
@@ -254,7 +249,6 @@ local function handleEnemy(enemy)
 		else
 			cleanUpPlayer()
 		end
-
 	end)
 end
 
