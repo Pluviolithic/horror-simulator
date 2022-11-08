@@ -22,6 +22,7 @@ local function handleEnemy(enemy)
 	local damageValue = enemy.Configuration.Damage
 	local fightRange = enemy.Configuration.FightRange.Value
 	local gemAmountToDrop = enemy.Configuration.Gems.Value
+	local idleAnimationInstance = enemy.Configuration:FindFirstChild("IdleAnim") and enemy.Configuration.IdleAnim.Anim
 
 	local runEnemyAnimations = false
 	local attackAnimations = enemy.Configuration.AttackAnims:GetChildren()
@@ -35,12 +36,23 @@ local function handleEnemy(enemy)
 	local targetPlayer
 	local resetBegan = false
 	local totalDamageDealt = 0
+	local rootPart = enemyHumanoid.RootPart or enemy:FindFirstChild("RootPart")
 	local enemyClone = enemy:Clone()
+
+	if not rootPart then
+		error("Failed to find a root part for the provided enemy.")
+		return
+	end
 
 	NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
 	healthValue.Value = maxHealth
 
 	local function startEnemyAnimations()
+
+		for _, animation in ipairs(enemyHumanoid:GetPlayingAnimationTracks()) do
+			animation:Stop()
+		end
+
 		runEnemyAnimations = true
 		repeat
 			attackTrack:Play()
@@ -55,6 +67,12 @@ local function handleEnemy(enemy)
 	local function endEnemyAnimations()
 		runEnemyAnimations = false
 		attackTrack:Stop()
+
+		if idleAnimationInstance then
+			local idleTrack = enemyHumanoid:LoadAnimation(idleAnimationInstance)
+			idleTrack.Priority = Enum.AnimationPriority.Action
+			idleTrack:Play()
+		end
 	end
 
 	local function removePlayer(player)
@@ -85,12 +103,19 @@ local function handleEnemy(enemy)
 			endEnemyAnimations()
 		elseif engagedPlayers[1] ~= targetPlayer then
 			local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
-			enemyHumanoid.RootPart.CFrame = CFrame.lookAt(
-				enemyHumanoid.RootPart.Position,
-				lookAt + enemyHumanoid.RootPart.Position.Y * Vector3.new(0, 1, 0)
+			rootPart.CFrame = CFrame.lookAt(
+				rootPart.Position,
+				lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0)
 			)
 			targetPlayer = engagedPlayers[1]
 		end
+	end
+
+	-- set up idle animations
+	if idleAnimationInstance then
+		local idleTrack = enemyHumanoid:LoadAnimation(idleAnimationInstance)
+		idleTrack.Priority = Enum.AnimationPriority.Action
+		idleTrack:Play()
 	end
 
 	clickDetector.MouseClick:Connect(function(player)
@@ -158,7 +183,7 @@ local function handleEnemy(enemy)
 			end)
 		)
 
-		task.wait(player:DistanceFromCharacter(enemyHumanoid.RootPart.Position) / humanoid.WalkSpeed)
+		task.wait(player:DistanceFromCharacter(rootPart.Position) / humanoid.WalkSpeed)
 
 		if cleanedUp then
 			return
@@ -179,9 +204,9 @@ local function handleEnemy(enemy)
 		if #engagedPlayers == 1 then
 			-- rotate enemy to face player
 			local lookAt = player.Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
-			enemyHumanoid.RootPart.CFrame = CFrame.lookAt(
-				enemyHumanoid.RootPart.Position,
-				lookAt + enemyHumanoid.RootPart.Position.Y * Vector3.new(0, 1, 0)
+			rootPart.CFrame = CFrame.lookAt(
+				rootPart.Position,
+				lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0)
 			)
 
 			targetPlayer = player
@@ -260,9 +285,17 @@ local function handleEnemy(enemy)
 end
 
 for _, enemy in ipairs(CollectionService:GetTagged "Enemy") do
-	handleEnemy(enemy)
+	local success, error = pcall(handleEnemy, enemy)
+	if not success then
+		warn(error)
+	end
 end
 
-CollectionService:GetInstanceAddedSignal("Enemy"):Connect(handleEnemy)
+CollectionService:GetInstanceAddedSignal("Enemy"):Connect(function(enemy)
+	local success, error = pcall(handleEnemy, enemy)
+	if not success then
+		warn(error)
+	end
+end)
 
 return 0
