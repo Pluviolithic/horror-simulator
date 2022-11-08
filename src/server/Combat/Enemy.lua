@@ -5,6 +5,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 
 local server = ServerScriptService.Server
 local animations = ReplicatedStorage.CombatAnimations
+local gemRewardPercentage = 0.3
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
@@ -20,6 +21,7 @@ local function handleEnemy(enemy)
 	local healthValue = enemy.Configuration.Health
 	local damageValue = enemy.Configuration.Damage
 	local fightRange = enemy.Configuration.FightRange.Value
+	local gemAmountToDrop = enemy.Configuration.Gems.Value
 
 	local runEnemyAnimations = false
 	local attackAnimations = enemy.Configuration.AttackAnims:GetChildren()
@@ -228,6 +230,10 @@ local function handleEnemy(enemy)
 				end
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Kills"))
+
+				if damage >= maxHealth * gemRewardPercentage then
+					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Gems", gemAmountToDrop))
+				end
 
 				if not store:getState().Players[otherPlayer.Name].CurrentEnemy then
 					local otherHumanoid = otherPlayer.Character

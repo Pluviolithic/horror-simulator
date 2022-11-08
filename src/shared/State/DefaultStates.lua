@@ -8,6 +8,8 @@ return {
 		Kills = 0,
 		Rebirths = 0,
 
+		Gems = 0,
+
 		EquippedTool = "Fists",
 
 		LogInCount = 0,
