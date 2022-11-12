@@ -22,7 +22,7 @@ local function handleEnemy(enemy)
 	local damageValue = enemy.Configuration.Damage
 	local fightRange = enemy.Configuration.FightRange.Value
 	local gemAmountToDrop = enemy.Configuration.Gems.Value
-	local idleAnimationInstance = enemy.Configuration:FindFirstChild("IdleAnim") and enemy.Configuration.IdleAnim.Anim
+	local idleAnimationInstance = enemy.Configuration:FindFirstChild "IdleAnim" and enemy.Configuration.IdleAnim.Anim
 
 	local runEnemyAnimations = false
 	local attackAnimations = enemy.Configuration.AttackAnims:GetChildren()
@@ -36,11 +36,11 @@ local function handleEnemy(enemy)
 	local targetPlayer
 	local resetBegan = false
 	local totalDamageDealt = 0
-	local rootPart = enemyHumanoid.RootPart or enemy:FindFirstChild("RootPart")
+	local rootPart = enemyHumanoid.RootPart or enemy:FindFirstChild "RootPart"
 	local enemyClone = enemy:Clone()
 
 	if not rootPart then
-		error("Failed to find a root part for the provided enemy.")
+		error "Failed to find a root part for the provided enemy."
 		return
 	end
 
@@ -48,7 +48,6 @@ local function handleEnemy(enemy)
 	healthValue.Value = maxHealth
 
 	local function startEnemyAnimations()
-
 		for _, animation in ipairs(enemyHumanoid:GetPlayingAnimationTracks()) do
 			animation:Stop()
 		end
@@ -103,10 +102,7 @@ local function handleEnemy(enemy)
 			endEnemyAnimations()
 		elseif engagedPlayers[1] ~= targetPlayer then
 			local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
-			rootPart.CFrame = CFrame.lookAt(
-				rootPart.Position,
-				lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0)
-			)
+			rootPart.CFrame = CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
 			targetPlayer = engagedPlayers[1]
 		end
 	end
@@ -147,7 +143,7 @@ local function handleEnemy(enemy)
 		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack = humanoid:LoadAnimation(currentAnimation)
 
-		local function cleanUpPlayer()
+		local function cleanUpPlayer(skipPlayerRemoval)
 			if cleanedUp then
 				return
 			end
@@ -164,7 +160,9 @@ local function handleEnemy(enemy)
 			if store:getState().Players[player.Name].CurrentEnemy == enemy then
 				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			end
-			removePlayer(player)
+			if not skipPlayerRemoval then
+				removePlayer(player)
+			end
 		end
 
 		table.insert(connections, humanoid.Died:Connect(cleanUpPlayer))
@@ -204,10 +202,7 @@ local function handleEnemy(enemy)
 		if #engagedPlayers == 1 then
 			-- rotate enemy to face player
 			local lookAt = player.Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
-			rootPart.CFrame = CFrame.lookAt(
-				rootPart.Position,
-				lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0)
-			)
+			rootPart.CFrame = CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
 
 			targetPlayer = player
 
@@ -243,11 +238,12 @@ local function handleEnemy(enemy)
 		end
 
 		if totalDamageDealt >= maxHealth then
-			cleanUpPlayer()
+			cleanUpPlayer(true)
 
 			if resetBegan then
 				return
 			end
+			resetBegan = true
 
 			for otherPlayer, damage in pairs(damageDealtByPlayer) do
 				if not Players:FindFirstChild(otherPlayer.Name) then
