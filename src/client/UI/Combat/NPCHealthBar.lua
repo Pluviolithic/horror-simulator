@@ -1,40 +1,15 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 
-local function resizeHealthBar(healthBar, health, maxHealth)
-	healthBar.Size = UDim2.fromScale(health / maxHealth, 1)
-end
+local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 
-local function updateHealthBarText(healthBarText, health, maxHealth)
-	healthBarText.Text = string.format("%d / %d", health, maxHealth)
-end
-
-local currentHealthBarConnections = {}
-
-Remotes.Client:Get("SendNPCHealthBar"):Connect(function(NPCHealthBar, enabled, healthValue, maxHealth)
+Remotes.Client:Get("SendNPCHealthBar"):Connect(function(NPCHealthBar, enabled, humanoid)
 	if NPCHealthBar and not enabled then
 		NPCHealthBar.Enabled = false
-		if currentHealthBarConnections[NPCHealthBar] then
-			currentHealthBarConnections[NPCHealthBar]:Disconnect()
-		end
-		return
-	elseif not enabled then
-		return
+	elseif enabled then
+		HealthBar.new(NPCHealthBar.Frame.Background.Frame):connect(humanoid)
+		NPCHealthBar.Enabled = true
 	end
-
-	if healthValue then
-		local healthBar = NPCHealthBar.Frame.Background.Frame.Health
-		local healthBarText = NPCHealthBar.Frame.Background.Frame.HP
-
-		resizeHealthBar(healthBar, healthValue.Value, maxHealth)
-		updateHealthBarText(healthBarText, healthValue.Value, maxHealth)
-		currentHealthBarConnections[NPCHealthBar] = healthValue:GetPropertyChangedSignal("Value"):Connect(function()
-			resizeHealthBar(healthBar, healthValue.Value, maxHealth)
-			updateHealthBarText(healthBarText, healthValue.Value, maxHealth)
-		end)
-	end
-
-	NPCHealthBar.Enabled = true
 end)
 
 return 0

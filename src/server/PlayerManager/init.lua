@@ -9,6 +9,7 @@ local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local PlayerStatusUI = require(ServerScriptService.Server.PlayerManager.PlayerStatusUI)
 
 local profileStore = ProfileService.GetProfileStore("PlayerData", profileTemplate)
 
@@ -54,6 +55,7 @@ local function onPlayerAdded(player)
 	end)
 
 	initializeLeaderboard(player, profile.Data)
+	PlayerStatusUI.new(player):enable()
 
 	if player:IsDescendantOf(Players) then
 		profiles[player.Name] = profile

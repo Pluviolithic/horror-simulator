@@ -167,7 +167,7 @@ local function handleEnemy(enemy)
 
 		table.insert(connections, humanoid.Died:Connect(cleanUpPlayer))
 
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, healthValue, maxHealth)
+		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, enemy)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
 		table.insert(connections, humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(cleanUpPlayer))

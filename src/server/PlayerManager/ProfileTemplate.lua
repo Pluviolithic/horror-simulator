@@ -5,6 +5,7 @@ return {
 	Rebirths = 0,
 
 	Gems = 0,
+	Rank = 1,
 
 	EquippedTool = "Fists",
 
