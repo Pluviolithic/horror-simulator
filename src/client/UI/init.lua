@@ -1,5 +1,5 @@
-for _, module in ipairs(script:GetChildren()) do
-	require(module)
-end
+require(script.Combat)
+require(script.Shops)
+require(script.Displays)
 
 return 0
