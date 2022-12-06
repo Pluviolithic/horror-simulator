@@ -48,9 +48,11 @@ local function handleEnemy(enemy)
 	healthValue.Value = maxHealth
 
 	local function startEnemyAnimations()
+		--[[
 		for _, animation in ipairs(enemyHumanoid:GetPlayingAnimationTracks()) do
 			animation:Stop()
 		end
+		--]]
 
 		runEnemyAnimations = true
 		repeat
@@ -66,12 +68,13 @@ local function handleEnemy(enemy)
 	local function endEnemyAnimations()
 		runEnemyAnimations = false
 		attackTrack:Stop()
-
+		--[[
 		if idleAnimationInstance then
 			local idleTrack = enemyHumanoid:LoadAnimation(idleAnimationInstance)
 			idleTrack.Priority = Enum.AnimationPriority.Action
 			idleTrack:Play()
 		end
+		--]]
 	end
 
 	local function removePlayer(player)
@@ -110,7 +113,7 @@ local function handleEnemy(enemy)
 	-- set up idle animations
 	if idleAnimationInstance then
 		local idleTrack = enemyHumanoid:LoadAnimation(idleAnimationInstance)
-		idleTrack.Priority = Enum.AnimationPriority.Action
+		idleTrack.Priority = Enum.AnimationPriority.Idle
 		idleTrack:Play()
 	end
 
