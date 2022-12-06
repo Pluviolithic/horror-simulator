@@ -56,6 +56,7 @@ local function handleEnemy(enemy)
 
 		runEnemyAnimations = true
 		repeat
+			attackTrack.Priority = Enum.AnimationPriority.Action
 			attackTrack:Play()
 			attackTrack.Stopped:Wait()
 			attackTrack:Destroy()
