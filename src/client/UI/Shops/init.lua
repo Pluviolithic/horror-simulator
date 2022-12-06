@@ -5,10 +5,6 @@ local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.Collidab
 local ZoneUtils = require(ReplicatedStorage.Common.Utils.ZoneUtils)
 local Zone = require(ReplicatedStorage.Common.lib.ZonePlus)
 
-local function playerTriggeredShop(shop, enable)
-	shop:setEnabled(enable)
-end
-
 for _, module in ipairs(script:GetChildren()) do
 	local shop = require(module)
 	local zone = Zone.new(ZoneUtils.getTaggedForZone(shop.Trigger))
@@ -16,11 +12,11 @@ for _, module in ipairs(script:GetChildren()) do
 	zone:relocate()
 
 	zone.localPlayerEntered:Connect(function()
-		playerTriggeredShop(shop, true)
+		shop:setEnabled(true)
 	end)
 
 	zone.localPlayerExited:Connect(function()
-		playerTriggeredShop(shop, false)
+		shop:setEnabled(false)
 	end)
 
 	interfaces[shop] = true
