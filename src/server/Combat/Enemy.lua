@@ -1,5 +1,6 @@
-local CollectionService = game:GetService "CollectionService"
 local Players = game:GetService "Players"
+local ServerStorage = game:GetService "ServerStorage"
+local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
@@ -10,6 +11,9 @@ local gemRewardPercentage = 0.3
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
+
+local bossRespawnRate = ServerStorage.Config.Combat.BossRespawnRate
+local enemyRespawnRate = ServerStorage.Config.Combat.EnemyRespawnRate
 
 local function handleEnemy(enemy)
 	local clickDetector = enemy.Hitbox.ClickDetector
@@ -36,8 +40,10 @@ local function handleEnemy(enemy)
 	local targetPlayer
 	local resetBegan = false
 	local totalDamageDealt = 0
-	local rootPart = enemyHumanoid.RootPart or enemy:FindFirstChild "RootPart"
 	local enemyClone = enemy:Clone()
+	local isBoss = CollectionService:HasTag(enemy, "Boss")
+	local respawnRate = if isBoss then bossRespawnRate else enemyRespawnRate
+	local rootPart = enemyHumanoid.RootPart or enemy:FindFirstChild "RootPart"
 
 	if not rootPart then
 		error "Failed to find a root part for the provided enemy."
@@ -105,8 +111,10 @@ local function handleEnemy(enemy)
 
 			endEnemyAnimations()
 		elseif engagedPlayers[1] ~= targetPlayer then
-			local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
-			rootPart.CFrame = CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
+			if not isBoss then
+				local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
+				rootPart.CFrame = CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
+			end
 			targetPlayer = engagedPlayers[1]
 		end
 	end
@@ -194,7 +202,9 @@ local function handleEnemy(enemy)
 		-- rotate the player to face the enemy
 		local enemyDirection = rootPart.Position * Vector3.new(1, 0, 1)
 		local playerPosition = player.Character.HumanoidRootPart.Position
-		player.Character:PivotTo(CFrame.lookAt(playerPosition, enemyDirection + playerPosition.Y * Vector3.new(0, 1, 0)))
+		player.Character:PivotTo(
+			CFrame.lookAt(playerPosition, enemyDirection + playerPosition.Y * Vector3.new(0, 1, 0))
+		)
 
 		task.spawn(function()
 			repeat
@@ -209,9 +219,12 @@ local function handleEnemy(enemy)
 
 		table.insert(engagedPlayers, player)
 		if #engagedPlayers == 1 then
-			-- rotate enemy to face player
-			local playerDirection = playerPosition * Vector3.new(1, 0, 1)
-			rootPart.CFrame = CFrame.lookAt(rootPart.Position, playerDirection + rootPart.Position.Y * Vector3.new(0, 1, 0))
+			-- rotate enemy to face player if not boss and it is not already facing a player
+			if not isBoss then
+				local playerDirection = playerPosition * Vector3.new(1, 0, 1)
+				rootPart.CFrame =
+					CFrame.lookAt(rootPart.Position, playerDirection + rootPart.Position.Y * Vector3.new(0, 1, 0))
+			end
 
 			targetPlayer = player
 
@@ -277,7 +290,7 @@ local function handleEnemy(enemy)
 
 			enemy:Destroy()
 
-			task.delay(15, function()
+			task.delay(respawnRate, function()
 				enemyClone.Parent = workspace
 				handleEnemy(enemyClone)
 			end)
