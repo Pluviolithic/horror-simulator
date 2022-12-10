@@ -191,6 +191,11 @@ local function handleEnemy(enemy)
 			return
 		end
 
+		-- rotate the player to face the enemy
+		local enemyDirection = rootPart.Position * Vector3.new(1, 0, 1)
+		local playerPosition = player.Character.HumanoidRootPart.Position
+		player.Character:PivotTo(CFrame.lookAt(playerPosition, enemyDirection + playerPosition.Y * Vector3.new(0, 1, 0)))
+
 		task.spawn(function()
 			repeat
 				currentTrack:Play()
@@ -205,8 +210,8 @@ local function handleEnemy(enemy)
 		table.insert(engagedPlayers, player)
 		if #engagedPlayers == 1 then
 			-- rotate enemy to face player
-			local lookAt = player.Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
-			rootPart.CFrame = CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
+			local playerDirection = playerPosition * Vector3.new(1, 0, 1)
+			rootPart.CFrame = CFrame.lookAt(rootPart.Position, playerDirection + rootPart.Position.Y * Vector3.new(0, 1, 0))
 
 			targetPlayer = player
 
