@@ -6,20 +6,22 @@ local ZoneUtils = require(ReplicatedStorage.Common.Utils.ZoneUtils)
 local Zone = require(ReplicatedStorage.Common.lib.ZonePlus)
 
 for _, module in ipairs(script:GetChildren()) do
-	local shop = require(module)
-	local zone = Zone.new(ZoneUtils.getTaggedForZone(shop.Trigger))
+	task.spawn(function()
+		local shop = require(module)
+		local zone = Zone.new(ZoneUtils.getTaggedForZone(shop.Trigger))
 
-	zone:relocate()
+		zone:relocate()
 
-	zone.localPlayerEntered:Connect(function()
-		shop:setEnabled(true)
+		zone.localPlayerEntered:Connect(function()
+			shop:setEnabled(true)
+		end)
+
+		zone.localPlayerExited:Connect(function()
+			shop:setEnabled(false)
+		end)
+
+		interfaces[shop] = true
 	end)
-
-	zone.localPlayerExited:Connect(function()
-		shop:setEnabled(false)
-	end)
-
-	interfaces[shop] = true
 end
 
 return 0

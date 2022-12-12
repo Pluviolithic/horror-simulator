@@ -1,5 +1,4 @@
 local Players = game:GetService "Players"
-local ServerStorage = game:GetService "ServerStorage"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
@@ -12,8 +11,8 @@ local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 
-local bossRespawnRate = ServerStorage.Config.Combat.BossRespawnRate
-local enemyRespawnRate = ServerStorage.Config.Combat.EnemyRespawnRate
+local bossRespawnRate = ReplicatedStorage.Config.Combat.BossRespawnRate
+local enemyRespawnRate = ReplicatedStorage.Config.Combat.EnemyRespawnRate
 
 local function handleEnemy(enemy)
 	local clickDetector = enemy.Hitbox.ClickDetector
@@ -151,7 +150,7 @@ local function handleEnemy(enemy)
 		local runAnimations = true
 
 		local animationInstances =
-			animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
+			animations:FindFirstChild(store:getState().Players[player.Name].EquippedWeapon):GetChildren()
 		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack = humanoid:LoadAnimation(currentAnimation)
 

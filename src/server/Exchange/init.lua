@@ -37,7 +37,7 @@ local function handlePunchingBag(bag)
 		prompt.ActionText = "Stop Training"
 
 		local animationInstances =
-			animations:FindFirstChild(store:getState().Players[player.Name].EquippedTool):GetChildren()
+			animations:FindFirstChild(store:getState().Players[player.Name].EquippedWeapon):GetChildren()
 		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack = humanoid:LoadAnimation(currentAnimation)
 

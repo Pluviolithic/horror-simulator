@@ -11,7 +11,10 @@ return {
 		Gems = 0,
 		Rank = 1,
 
-		EquippedTool = "Fists",
+		OwnedWeapons = {
+			["Fists"] = true,
+		},
+		EquippedWeapon = "Fists",
 
 		LogInCount = 0,
 		HoursPlayed = 0,
