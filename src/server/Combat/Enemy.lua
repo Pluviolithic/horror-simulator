@@ -11,8 +11,10 @@ local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 
-local bossRespawnRate = ReplicatedStorage.Config.Combat.BossRespawnRate
-local enemyRespawnRate = ReplicatedStorage.Config.Combat.EnemyRespawnRate
+local bossRespawnRate = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
+local enemyRespawnRate = ReplicatedStorage.Config.Combat.EnemyRespawnRate.Value
+
+local weapons = ReplicatedStorage.Weapons
 
 local function handleEnemy(enemy)
 	local clickDetector = enemy.Hitbox.ClickDetector
@@ -164,6 +166,12 @@ local function handleEnemy(enemy)
 				connection:disconnect()
 			end
 
+			local weaponName = store:getState().Players[player.Name].EquippedWeapon
+			local wepaon = player.Character:FindFirstChild(weaponName)
+			if wepaon then
+				wepaon:Destroy()
+			end
+
 			runAnimations = false
 			currentTrack:Stop()
 
@@ -204,6 +212,13 @@ local function handleEnemy(enemy)
 		player.Character:PivotTo(
 			CFrame.lookAt(playerPosition, enemyDirection + playerPosition.Y * Vector3.new(0, 1, 0))
 		)
+
+		-- attach currently equipped weapon to player's hand
+		local weaponName = store:getState().Players[player.Name].EquippedWeapon
+		if weaponName ~= "Fists" then
+			local weaponAccessory = weapons[store:getState().Players[player.Name].EquippedWeapon]:Clone()
+			player.Character.Humanoid:AddAccessory(weaponAccessory)
+		end
 
 		task.spawn(function()
 			repeat

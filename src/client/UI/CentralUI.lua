@@ -10,6 +10,7 @@ function CentralUI.new(UI)
 	local exit = UI:FindFirstChild("Close", true)
 
 	self._ui = UI
+	self._isOpen = false
 	self._eventConnections = {}
 	self._visibilityProperty = if UI:IsA "ScreenGui" then "Enabled" else "Visible"
 
@@ -24,6 +25,7 @@ end
 
 function CentralUI:setEnabled(enable)
 	self._ui[self._visibilityProperty] = enable
+	self._isOpen = enable
 	if not enable then
 		return
 	end

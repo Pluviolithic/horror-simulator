@@ -1,9 +1,12 @@
 local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local MarketplaceService = game:GetService "MarketplaceService"
 
 local player = Players.LocalPlayer
 
+local Remotes = require(ReplicatedStorage.Common.Remotes)
+local Table = require(ReplicatedStorage.Common.Utils.Table)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 
@@ -13,7 +16,21 @@ local gamepassPrices = ReplicatedStorage.Config.GamepassPrices
 WeaponShop.Trigger = "WeaponShop"
 WeaponShop._itemButtons = WeaponShop._ui.LeftBackground.ScrollingFrame:GetChildren()
 
-function WeaponShop:_initializeButtons()
+function WeaponShop:_initialize()
+	store.changed:connect(function(newState, oldState)
+		if not self._isOpen then
+			return
+		end
+		local newPlayerState = newState.GameState.Players[player.Name]
+		local oldPlayerState = oldState.GameState.Players[player.Name]
+		if
+			newPlayerState.EquippedWeapon ~= oldPlayerState.EquippedWeapon
+			or not Table.ShallowIsEqual(newPlayerState.OwnedWeapons, oldPlayerState.OwnedWeapons)
+		then
+			WeaponShop:Refresh()
+		end
+	end)
+
 	for _, button in ipairs(WeaponShop._itemButtons) do
 		if button:IsA "UIGridLayout" then
 			continue
@@ -40,10 +57,17 @@ function WeaponShop:_initializeButtons()
 			focusedDisplay.DamageIcon.Visible = true
 
 			if playerState.OwnedWeapons[button.Name] then
-				focusedDisplay.GreenButton.Text.Text = "Equip"
 				focusedDisplay.GreenButton.Visible = true
+				if playerState.EquippedWeapon == button.Name then
+					focusedDisplay.GreenButton.Text.Text = "Equipped"
+					return
+				end
+
+				focusedDisplay.GreenButton.Text.Text = "Equip"
 				self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
 					print "equipping weapon"
+					Remotes.Client:Get("EquipWeapon"):CallServerAsync(button.Name)
+					print "action complete"
 				end)
 			else
 				if button:FindFirstChild "GamepassText" then
@@ -58,6 +82,7 @@ function WeaponShop:_initializeButtons()
 
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
 						print "purchasing gamepass"
+						MarketplaceService:PromptGamePassPurchase(player, button.ID.Value)
 					end)
 				else
 					focusedDisplay.GemPrice.Text = button.GemPrice.Text
@@ -68,6 +93,8 @@ function WeaponShop:_initializeButtons()
 					focusedDisplay.GreenButton.Visible = true
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
 						print "purchasing weapon"
+						Remotes.Client:Get("PurchaseWeapon"):CallServerAsync(button.Name)
+						print "transaction complete"
 					end)
 				end
 			end
@@ -148,6 +175,6 @@ function WeaponShop:OnOpen()
 	self:Refresh()
 end
 
-WeaponShop:_initializeButtons()
+WeaponShop:_initialize()
 
 return WeaponShop

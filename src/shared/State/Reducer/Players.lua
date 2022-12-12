@@ -46,4 +46,20 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	givePlayerWeapon = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				OwnedWeapons = Llama.Dictionary.mergeDeep(state[action.playerName].OwnedWeapons, {
+					[action.weaponName] = true,
+				}),
+			},
+		})
+	end,
+	equipWeapon = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				EquippedWeapon = action.weaponName,
+			},
+		})
+	end,
 })

@@ -43,4 +43,16 @@ return {
 			currentPunchingBag = bag,
 		}
 	end),
+	equipWeapon = makeActionCreator("equipWeapon", function(playerName, weaponName)
+		return {
+			playerName = playerName,
+			weaponName = weaponName,
+		}
+	end),
+	givePlayerWeapon = makeActionCreator("givePlayerWeapon", function(playerName, weaponName)
+		return {
+			playerName = playerName,
+			weaponName = weaponName,
+		}
+	end),
 }
