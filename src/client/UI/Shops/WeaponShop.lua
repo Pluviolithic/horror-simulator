@@ -91,9 +91,9 @@ function WeaponShop:ClearFocusedDisplay()
 
 	focusedDisplay.GreenButton.Visible = false
 
-    if self._eventConnections["PurchaseButton"] then
-        self._eventConnections["PurchaseButton"]:Disconnect()
-    end
+	if self._eventConnections["PurchaseButton"] then
+		self._eventConnections["PurchaseButton"]:Disconnect()
+	end
 end
 
 function WeaponShop:Refresh()
