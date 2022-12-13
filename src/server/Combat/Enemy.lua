@@ -216,7 +216,7 @@ local function handleEnemy(enemy)
 		-- attach currently equipped weapon to player's hand
 		local weaponName = store:getState().Players[player.Name].EquippedWeapon
 		if weaponName ~= "Fists" then
-			local weaponAccessory = weapons[store:getState().Players[player.Name].EquippedWeapon]:Clone()
+			local weaponAccessory = weapons[weaponName]:Clone()
 			player.Character.Humanoid:AddAccessory(weaponAccessory)
 		end
 
@@ -247,6 +247,8 @@ local function handleEnemy(enemy)
 
 		task.wait(0.5)
 
+		local damageMultiplier = weapons[weaponName].Damage.Value
+
 		while
 			runAnimations
 			and humanoid.Health > 0
@@ -256,13 +258,12 @@ local function handleEnemy(enemy)
 			and store:getState().Players[player.Name].CurrentEnemy == enemy
 		do
 			local damageToDeal =
-				math.clamp(store:getState().Players[player.Name].Strength, 0, maxHealth - totalDamageDealt)
+				math.clamp(store:getState().Players[player.Name].Strength * damageMultiplier, 0, maxHealth - totalDamageDealt)
 			totalDamageDealt += damageToDeal
 			damageDealtByPlayer[player] = (damageDealtByPlayer[player] or 0) + damageToDeal
 			healthValue.Value = maxHealth - totalDamageDealt
 
 			-- now receive damage from enemy
-
 			humanoid.Health -= damageValue.Value
 
 			-- need to quick exit for this one
