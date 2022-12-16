@@ -15,8 +15,6 @@ ZonePlus = "legendoj1/zoneplus@3.2.2"
 Janitor = "howmanysmall/janitor@1.13.14"
 Datastructures = "howmanysmall/datastructures@1.1.0"
 
-Fusion = "elttob/fusion@0.1.1-beta"
-
 [server-dependencies]
 Cmdr = "evaera/cmdr@1.9.0"
 ProfileService = "jakebball/profileservice@1.5.0"
