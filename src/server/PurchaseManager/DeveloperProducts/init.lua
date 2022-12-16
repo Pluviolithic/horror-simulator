@@ -4,20 +4,20 @@ local gamepasses = require(script.Gamepasses)
 local products = require(script.Products)
 
 MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gamepassID, purchased)
-    if not purchased then
-        return
-    end
+	if not purchased then
+		return
+	end
 
-    local success, err = gamepasses(player, gamepassID)
+	local success, err = gamepasses(player, gamepassID)
 	if success then
-        return
-    end
+		return
+	end
 
-    if err then
-        warn(err)
-    else
-        warn "No such product is indexed for purchasing."
-    end
+	if err then
+		warn(err)
+	else
+		warn "No such product is indexed for purchasing."
+	end
 end)
 
 MarketplaceService.ProcessReceipt = function(receiptInfo)
