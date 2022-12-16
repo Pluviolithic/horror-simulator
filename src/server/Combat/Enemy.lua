@@ -257,8 +257,11 @@ local function handleEnemy(enemy)
 			and store:getState().Players[player.Name]
 			and store:getState().Players[player.Name].CurrentEnemy == enemy
 		do
-			local damageToDeal =
-				math.clamp(store:getState().Players[player.Name].Strength * damageMultiplier, 0, maxHealth - totalDamageDealt)
+			local damageToDeal = math.clamp(
+				store:getState().Players[player.Name].Strength * damageMultiplier,
+				0,
+				maxHealth - totalDamageDealt
+			)
 			totalDamageDealt += damageToDeal
 			damageDealtByPlayer[player] = (damageDealtByPlayer[player] or 0) + damageToDeal
 			healthValue.Value = maxHealth - totalDamageDealt

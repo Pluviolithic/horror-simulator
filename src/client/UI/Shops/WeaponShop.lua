@@ -11,7 +11,8 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 
 local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
-local gamepassPrices = ReplicatedStorage.Config.GamepassPrices
+local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
+local gamepassPrices = ReplicatedStorage.Config.GamepassData.Prices
 
 WeaponShop.Trigger = "WeaponShop"
 WeaponShop._itemButtons = WeaponShop._ui.LeftBackground.ScrollingFrame:GetChildren()
@@ -65,9 +66,7 @@ function WeaponShop:_initialize()
 
 				focusedDisplay.GreenButton.Text.Text = "Equip"
 				self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
-					print "equipping weapon"
 					Remotes.Client:Get("EquipWeapon"):CallServerAsync(button.Name)
-					print "action complete"
 				end)
 			else
 				if button:FindFirstChild "GamepassText" then
@@ -81,8 +80,11 @@ function WeaponShop:_initialize()
 					focusedDisplay.GreenButton.Visible = true
 
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
-						print "purchasing gamepass"
-						MarketplaceService:PromptGamePassPurchase(player, button.ID.Value)
+						local id = gamepassIDs.VIP.Value
+						if button.Name == "Scythe" then
+							id = gamepassIDs.Scythe.Value
+						end
+						MarketplaceService:PromptGamePassPurchase(player, id)
 					end)
 				else
 					focusedDisplay.GemPrice.Text = button.GemPrice.Text
@@ -92,9 +94,10 @@ function WeaponShop:_initialize()
 					focusedDisplay.GreenButton.Text.Text = "Purchase"
 					focusedDisplay.GreenButton.Visible = true
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
-						print "purchasing weapon"
+						if playerState.Cash < tonumber(button.GemPrice.Text) then
+							return
+						end
 						Remotes.Client:Get("PurchaseWeapon"):CallServerAsync(button.Name)
-						print "transaction complete"
 					end)
 				end
 			end

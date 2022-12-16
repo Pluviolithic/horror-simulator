@@ -21,6 +21,7 @@ Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player, weaponName)
 	if playerState.Gems >= weapons[weaponName].Price.Value then
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -weapons[weaponName].Price.Value))
 		store:dispatch(actions.givePlayerWeapon(player.Name, weaponName))
+		store:dispatch(actions.equipWeapon(player.Name, weaponName))
 		return 0
 	end
 
