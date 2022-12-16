@@ -36,7 +36,7 @@ local function handlePunchingBag(bag)
 		Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, false)
 		prompt.ActionText = "Stop Training"
 
-		local animationInstances = animations:FindFirstChild(store:getState().Players[player.Name].Fists):GetChildren()
+		local animationInstances = animations:FindFirstChild("Fists"):GetChildren()
 		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack = humanoid:LoadAnimation(currentAnimation)
 
