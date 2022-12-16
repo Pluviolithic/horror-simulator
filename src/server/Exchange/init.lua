@@ -34,6 +34,7 @@ local function handlePunchingBag(bag)
 
 		store:dispatch(actions.setCurrentPunchingBag(player.Name, bag))
 		Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, false)
+		humanoid.RootPart.CFrame = bag.HumanoidLockPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
 		prompt.ActionText = "Stop Training"
 
 		local animationInstances = animations:FindFirstChild("Fists"):GetChildren()
