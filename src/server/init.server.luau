@@ -1,9 +1,9 @@
 local ServerScriptService = game:GetService "ServerScriptService"
 local server = ServerScriptService.Server
 
-require(server.PlayerManager)
+require(server.Cmdr)
 require(server.Combat)
 require(server.Exchange)
-require(server.Cmdr)
-require(server.PlayerManager.Collisions)
+require(server.PlayerManager)
 require(server.PurchaseManager)
+require(server.PlayerManager.Collisions)

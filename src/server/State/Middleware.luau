@@ -4,8 +4,8 @@ local ServerScriptService = game:GetService "ServerScriptService"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 --local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
-local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
 
 local function updateClientMiddleware(nextDispatch)
@@ -38,8 +38,9 @@ end
 local function updateLeaderboardMiddleware(nextDispatch)
 	return function(action)
 		if action.type == "incrementPlayerStat" then
-			local player = Players:FindFirstChild(action.playerName)
-			local stat = player and player.leaderstats:FindFirstChild(action.statName)
+			local player: Player? = Players:FindFirstChild(action.playerName)
+			local leaderstats: Folder? = if player then player:FindFirstChild("leaderstats") :: Folder? else nil
+			local stat: StringValue? = if leaderstats then leaderstats:FindFirstChild(action.statName) :: StringValue? else nil
 			if stat then
 				stat.Value = formatter.formatNumberWithSuffix(profiles[action.playerName].Data[action.statName])
 			end

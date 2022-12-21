@@ -8,7 +8,7 @@ type HealthBar = typeof(setmetatable(
 	{} :: {
 		_healthBar: ImageLabel,
 		_healthBarText: TextLabel,
-		_healthBarConnection: RBXScriptConnection,
+		_healthBarConnection: RBXScriptConnection?,
 	},
 	HealthBar
 ))

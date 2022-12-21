@@ -9,4 +9,4 @@ local reducer = require(common.State.Reducer)
 local middleware = require(server.State.Middleware)
 local defaultStates = require(common.State.DefaultStates)
 
-return Rodux.Store.new(reducer, defaultStates.gameState, middleware)
+return Rodux.Store.new(reducer, defaultStates.GameState, middleware)

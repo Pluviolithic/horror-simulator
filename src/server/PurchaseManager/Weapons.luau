@@ -5,10 +5,10 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 
-local weapons = ReplicatedStorage.Weapons
+local weapons: Folder = ReplicatedStorage.Weapons
 
-Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player, weaponName)
-	if typeof(weaponName) ~= "string" or not weapons:FindFirstChild(weaponName) then
+Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player: Player, weaponName: string)
+	if typeof(weaponName) ~= "string" then
 		return 1
 	end
 
@@ -18,8 +18,16 @@ Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player, weaponName)
 		return 1
 	end
 
-	if playerState.Gems >= weapons[weaponName].Price.Value then
-		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -weapons[weaponName].Price.Value))
+	-- define weapon here
+	local price: (NumberValue | IntValue)? = if weapons:FindFirstChild(weaponName) then weapons[weaponName]:FindFirstChild("Price") else nil
+
+	if not price then
+		warn("Weapon or weapon price configured incorrectly for weapon: " .. weaponName)
+		return 1
+	end
+
+	if playerState.Gems >= price.Value then
+		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -price.Value))
 		store:dispatch(actions.givePlayerWeapon(player.Name, weaponName))
 		store:dispatch(actions.equipWeapon(player.Name, weaponName))
 		return 0
@@ -28,7 +36,7 @@ Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player, weaponName)
 	return 1
 end)
 
-Remotes.Server:Get("EquipWeapon"):SetCallback(function(player, weaponName)
+Remotes.Server:Get("EquipWeapon"):SetCallback(function(player: Player, weaponName: string)
 	if typeof(weaponName) ~= "string" or not weapons:FindFirstChild(weaponName) then
 		return 1
 	end
