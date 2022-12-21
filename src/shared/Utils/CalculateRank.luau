@@ -1,4 +1,4 @@
-local ranksAndRequirements = {
+local ranksAndRequirements: { [number]: number } = {
 	[1] = 1,
 	[2] = 100,
 	[3] = 200,
@@ -7,9 +7,9 @@ local ranksAndRequirements = {
 	-- Highly customized, so math is undesirable
 }
 
-return function(strength)
-	local userRank = 0
-	for rank, requirement in ipairs(ranksAndRequirements) do
+return function(strength): number
+	local userRank: number = 0
+	for rank, requirement in ranksAndRequirements do
 		if strength >= requirement then
 			userRank = rank
 		end

@@ -1,6 +1,6 @@
-local Table = {}
+local Table: {[string]: (...any) -> any} = {}
 
-function Table.ShallowIsEqual(a, b)
+function Table.ShallowIsEqual(a, b): boolean
 	if a == b then
 		return true
 	end
@@ -9,13 +9,13 @@ function Table.ShallowIsEqual(a, b)
 		return false
 	end
 
-	for k, v in pairs(a) do
+	for k, v in a do
 		if not Table.ShallowIsEqual(v, b[k]) then
 			return false
 		end
 	end
 
-	for k, v in pairs(b) do
+	for k, v in b do
 		if not Table.ShallowIsEqual(v, a[k]) then
 			return false
 		end

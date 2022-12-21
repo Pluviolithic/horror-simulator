@@ -10,3 +10,6 @@ roblox.toml
 # Packages should not be tracked
 Packages/
 ServerPackages/
+
+#luau-lsp sourcemap file
+sourcemap.json
