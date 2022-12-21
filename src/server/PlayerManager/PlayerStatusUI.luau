@@ -8,13 +8,30 @@ local store = require(ServerScriptService.Server.State.Store)
 local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 local playerUITemplate = ReplicatedStorage.PlayerUI:Clone()
 
-function PlayerStatusUI.new(player)
+type PlayerStatusUI = typeof(setmetatable(
+	{} :: {
+		_player: Player,
+		_playerUI: GuiObject,
+		_activePlayerUI: GuiObject,
+		_listener: RBXScriptConnection,
+		_healthBar: HealthBar.HealthBar,
+	},
+	PlayerStatusUI
+))
+
+function PlayerStatusUI.new(player: Player): PlayerStatusUI
 	local self = setmetatable({}, PlayerStatusUI)
 
 	self._player = player
 	self._playerUI = playerUITemplate:Clone()
 
-	return self
+	return setmetatable({
+		_listener = nil,
+		_healthBar = nil,
+		_activePlayerUI = nil,
+		_player = player,
+		_playerUI = playerUITemplate:Clone(),
+	}, PlayerStatusUI)
 end
 
 function PlayerStatusUI:_updateUIFields(state)
@@ -24,7 +41,7 @@ function PlayerStatusUI:_updateUIFields(state)
 	playerUIFrame.PlayerName.Text = self._player.Name
 	playerUIFrame.Rank.Text = "Rank " .. playerState.Rank
 
-	local humanoid = self._player.Character and self._player.Character:FindFirstChildWhichIsA "Humanoid"
+	local humanoid: Humanoid = self._player.Character and self._player.Character:FindFirstChildWhichIsA "Humanoid"
 
 	if not humanoid then
 		return
@@ -38,7 +55,7 @@ function PlayerStatusUI:_updateUIFields(state)
 	end
 end
 
-function PlayerStatusUI:_applyUI(character)
+function PlayerStatusUI:_applyUI(character: Model)
 	if self._activePlayerUI then
 		self._activePlayerUI:Destroy()
 		self._listener:disconnect()
@@ -59,12 +76,12 @@ function PlayerStatusUI:_applyUI(character)
 end
 
 function PlayerStatusUI:enable()
-	local character = self._player.Character
+	local character: Model = self._player.Character
 	if character then
 		self:_applyUI(character)
 	end
 	self._player.CharacterAppearanceLoaded:Connect(function(newCharacter)
-		self:_applyUI(newCharacter)
+		self:_applyUI(newCharacter:WaitForChild "Humanoid")
 	end)
 end
 

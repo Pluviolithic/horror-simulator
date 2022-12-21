@@ -13,19 +13,25 @@ return {
 			playerName = playerName,
 		}
 	end),
-	updatePlayerWithProfile = makeActionCreator("updatePlayerWithProfile", function(playerName: string, profileData: any)
-		return {
-			playerName = playerName,
-			profileData = profileData,
-		}
-	end),
-	incrementPlayerStat = makeActionCreator("incrementPlayerStat", function(playerName: string, statName: string, incrementAmount: number)
-		return {
-			incrementAmount = incrementAmount,
-			playerName = playerName,
-			statName = statName,
-		}
-	end),
+	updatePlayerWithProfile = makeActionCreator(
+		"updatePlayerWithProfile",
+		function(playerName: string, profileData: any)
+			return {
+				playerName = playerName,
+				profileData = profileData,
+			}
+		end
+	),
+	incrementPlayerStat = makeActionCreator(
+		"incrementPlayerStat",
+		function(playerName: string, statName: string, incrementAmount: number)
+			return {
+				incrementAmount = incrementAmount,
+				playerName = playerName,
+				statName = statName,
+			}
+		end
+	),
 	switchPlayerEnemy = makeActionCreator("switchPlayerEnemy", function(playerName: string, enemy: Model)
 		return {
 			enemy = enemy,

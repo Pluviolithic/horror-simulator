@@ -13,7 +13,7 @@ local PlayerStatusUI = require(ServerScriptService.Server.PlayerManager.PlayerSt
 
 local profileStore = ProfileService.GetProfileStore("PlayerData", profileTemplate)
 
-local function initializeLeaderboard(player, data)
+local function initializeLeaderboard(player: Player, data: typeof(profileTemplate))
 	local leaderstats = Instance.new "Folder"
 	leaderstats.Name = "leaderstats"
 
@@ -40,7 +40,7 @@ local function initializeLeaderboard(player, data)
 	leaderstats.Parent = player
 end
 
-local function onPlayerAdded(player)
+local function onPlayerAdded(player: Player)
 	local profile = profileStore:LoadProfileAsync("Player_" .. player.UserId)
 	store:dispatch(actions.addPlayer(player.Name))
 	if not profile then
@@ -64,7 +64,7 @@ local function onPlayerAdded(player)
 	end
 end
 
-for _, player in ipairs(Players:GetPlayers()) do
+for _, player in Players:GetPlayers() do
 	task.spawn(onPlayerAdded, player)
 end
 

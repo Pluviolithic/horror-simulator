@@ -4,11 +4,11 @@ HealthBar.__index = HealthBar
 local robloxHealthGreen: Color3 = Color3.fromRGB(0, 255, 17)
 local robloxHealthRed: Color3 = Color3.fromRGB(255, 0, 0)
 
-type HealthBar = typeof(setmetatable(
+export type HealthBar = typeof(setmetatable(
 	{} :: {
 		_healthBar: ImageLabel,
 		_healthBarText: TextLabel,
-		_healthBarConnection: RBXScriptConnection?,
+		_healthBarConnection: RBXScriptConnection,
 	},
 	HealthBar
 ))
@@ -43,7 +43,7 @@ function HealthBar:connect(humanoid: Humanoid | Model)
 	if self._healthBarConnection then
 		self._healthBarConnection:Disconnect()
 	end
-	if typeof(humanoid) == "Humanoid" then
+	if humanoid.ClassName == "Humanoid" then
 		self._healthBarConnection = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
 			self:update(humanoid.Health, humanoid.MaxHealth)
 		end)
