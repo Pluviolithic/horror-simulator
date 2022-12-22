@@ -4,7 +4,7 @@ local server = ServerScriptService.Server
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 
-return function(_, player, stat, amount)
+return function(_, player: Player, stat: string, amount: number)
 	local playerData = store:getState().Players[player.Name]
 	if not playerData then
 		return

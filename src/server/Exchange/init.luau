@@ -11,14 +11,14 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local animations = ReplicatedStorage.CombatAnimations
 local disableSwitch = Instance.new "BindableEvent"
 
-local function handlePunchingBag(bag)
-	local prompt = bag.HumanoidLockPart.Prompt
-	local teleportPart = bag.TPPart
-	local inUse = false
+local function handlePunchingBag(bag: Model)
+	local prompt: ProximityPrompt = bag.HumanoidLockPart.Prompt
+	local teleportPart: BasePart = bag.TPPart
+	local inUse: boolean = false
 
-	prompt.Triggered:Connect(function(player)
+	prompt.Triggered:Connect(function(player: Player)
 		local playerState = store:getState().Players[player.Name]
-		local cancelled = false
+		local cancelled: boolean = false
 
 		if inUse or playerState.CurrentPunchingBag or playerState.Fear < playerState.Strength * 5 then
 			if store:getState().Players[player.Name].CurrentPunchingBag == bag then
@@ -27,7 +27,7 @@ local function handlePunchingBag(bag)
 			return
 		end
 
-		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
+		local humanoid: Humanoid = if player.Character then player.Character:FindFirstChildOfClass "Humanoid" else nil
 		if not humanoid then
 			return
 		end
@@ -37,12 +37,12 @@ local function handlePunchingBag(bag)
 		humanoid.RootPart.CFrame = bag.HumanoidLockPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
 		prompt.ActionText = "Stop Training"
 
-		local animationInstances = animations:FindFirstChild("Fists"):GetChildren()
-		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
-		local currentTrack = humanoid:LoadAnimation(currentAnimation)
+		local animationInstances: { Animation } = animations:FindFirstChild("Fists"):GetChildren()
+		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
+		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 
 		local connection
-		connection = disableSwitch.Event:Connect(function(disablingPlayer)
+		connection = disableSwitch.Event:Connect(function(disablingPlayer: Player)
 			if disablingPlayer == player then
 				cancelled = true
 				connection:Disconnect()
@@ -89,7 +89,7 @@ local function handlePunchingBag(bag)
 	end)
 end
 
-for _, punchingBag in ipairs(CollectionService:GetTagged "PunchingBag") do
+for _, punchingBag in CollectionService:GetTagged "PunchingBag" do
 	handlePunchingBag(punchingBag)
 end
 

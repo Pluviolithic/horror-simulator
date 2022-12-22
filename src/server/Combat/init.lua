@@ -1,4 +1,4 @@
-for _, module in ipairs(script:GetChildren()) do
+for _, module in script:GetChildren() do
 	require(module)
 end
 
