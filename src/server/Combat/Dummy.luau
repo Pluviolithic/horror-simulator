@@ -9,19 +9,19 @@ local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 
-local fightRange = 2
+local fightRange: number = 2
 
 local function handleDummy(dummy)
-	local clickDetector = dummy.Hitbox.ClickDetector
-	local goalPosition = dummy.Hitbox.Position
-	local fear = dummy.Configuration.Fear.Value
+	local clickDetector: ClickDetector = dummy.Hitbox.ClickDetector
+	local goalPosition: Vector3 = dummy.Hitbox.Position
+	local fear: number = dummy.Configuration.Fear.Value
 	local NPCUI = dummy:FindFirstChild("NPCUI", true)
 
 	NPCUI:FindFirstChild("NPCName", true).Text = "Dummy"
 
-	local debounceTable = {}
+	local debounceTable: {boolean} = {}
 
-	clickDetector.MouseClick:Connect(function(player)
+	clickDetector.MouseClick:Connect(function(player: Player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
 		if debounceTable[player.UserId] or not humanoid then
 			return
@@ -41,8 +41,8 @@ local function handleDummy(dummy)
 		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
-		local failed = false
-		local connection
+		local failed: boolean = false
+		local connection: typeof(store.changed:connect(function() end)) = nil
 		connection = store.changed:connect(function(newState)
 			if newState.Players[player.Name].CurrentEnemy ~= dummy then
 				failed = true
@@ -63,11 +63,11 @@ local function handleDummy(dummy)
 			return
 		end
 
-		local animationInstances =
-			animations:FindFirstChild(store:getState().Players[player.Name].EquippedWeapon):GetChildren()
-		local currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
-		local currentTrack = humanoid:LoadAnimation(currentAnimation)
-		local runAnimations = true
+		local animationInstances: {Animation} =
+			animations[store:getState().Players[player.Name].EquippedWeapon]:GetChildren() :: {Animation}
+		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
+		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
+		local runAnimations: boolean = true
 
 		task.spawn(function()
 			while runAnimations do
@@ -107,7 +107,7 @@ local function handleDummy(dummy)
 	end)
 end
 
-for _, dummy in ipairs(CollectionService:GetTagged "Dummy") do
+for _, dummy in CollectionService:GetTagged "Dummy" do
 	handleDummy(dummy)
 end
 

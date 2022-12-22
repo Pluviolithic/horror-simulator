@@ -25,7 +25,6 @@ jobs:
     - name: Lint
       run: |
         selene ./src
-        selene ./src --pattern **/*.luau
 
   style:
     name: Style

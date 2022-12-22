@@ -3,8 +3,8 @@ local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
-local server: ModuleScript = ServerScriptService.Server
-local animations: Folder = ReplicatedStorage.CombatAnimations
+local server = ServerScriptService.Server
+local animations = ReplicatedStorage.CombatAnimations
 local gemRewardPercentage: number = 0.3
 
 local store = require(server.State.Store)
@@ -14,17 +14,17 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local bossRespawnRate: number = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
 local enemyRespawnRate: number = ReplicatedStorage.Config.Combat.EnemyRespawnRate.Value
 
-local weapons: Folder = ReplicatedStorage.Weapons
+local weapons = ReplicatedStorage.Weapons
 
-local function handleEnemy(enemy: Model)
+local function handleEnemy(enemy)
 	local clickDetector: ClickDetector = enemy.Hitbox.ClickDetector
 	local goalPosition: Vector3 = enemy.Hitbox.Position
-	local enemyHumanoid: Humanoid = enemy.Humanoid
+	local enemyHumanoid = enemy.Humanoid
 	local maxHealth: number = enemyHumanoid.MaxHealth
 
-	local NPCUI: GuiObject = enemy:FindFirstChild("NPCUI", true)
-	local healthValue: NumberValue | IntValue = enemy.Configuration.Health
-	local damageValue: NumberValue | IntValue = enemy.Configuration.Damage
+	local NPCUI = enemy:FindFirstChild("NPCUI", true)
+	local healthValue: NumberValue = enemy.Configuration.Health
+	local damageValue: NumberValue = enemy.Configuration.Damage
 	local fightRange: number = enemy.Configuration.FightRange.Value
 	local gemAmountToDrop: number = enemy.Configuration.Gems.Value
 	local idleAnimationInstance: Animation = if enemy.Configuration:FindFirstChild "IdleAnim"
@@ -46,7 +46,7 @@ local function handleEnemy(enemy: Model)
 	local enemyClone: Model = enemy:Clone()
 	local isBoss: boolean = CollectionService:HasTag(enemy, "Boss")
 	local respawnRate: number = if isBoss then bossRespawnRate else enemyRespawnRate
-	local rootPart: BasePart = if enemyHumanoid.RootPart then enemy:FindFirstChild "RootPart" else nil
+	local rootPart = if enemyHumanoid.RootPart then enemy:FindFirstChild "RootPart" else nil
 
 	if not rootPart then
 		error "Failed to find a root part for the provided enemy."
@@ -97,7 +97,7 @@ local function handleEnemy(enemy: Model)
 
 		if #engagedPlayers == 0 then
 			local playersState = store:getState().Players
-			for inflictingPlayer in pairs(damageDealtByPlayer) do
+			for inflictingPlayer in damageDealtByPlayer do
 				if not playersState[inflictingPlayer.Name].CurrentEnemy then
 					local humanoid = if inflictingPlayer.Character
 						then inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
@@ -114,12 +114,19 @@ local function handleEnemy(enemy: Model)
 			table.clear(damageDealtByPlayer)
 
 			endEnemyAnimations()
-		elseif engagedPlayers[1] ~= targetPlayer then
+		elseif targetPlayer == player then
 			if not isBoss then
-				local lookAt = engagedPlayers[1].Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1)
-				rootPart.CFrame = CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
+				for _, engagedPlayer in ipairs(engagedPlayers) do
+					if not engagedPlayer.Character or not engagedPlayer.Character:FindFirstChildOfClass "Humanoid" then
+						continue
+					end
+					local humanoidRootPart: BasePart = engagedPlayer.Character.HumanoidRootPart
+					local lookAt: Vector3 = humanoidRootPart.Position * Vector3.new(1, 0, 1)
+					rootPart.CFrame = CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
+					targetPlayer = engagedPlayer
+					break
+				end
 			end
-			targetPlayer = engagedPlayers[1]
 		end
 	end
 
@@ -131,7 +138,7 @@ local function handleEnemy(enemy: Model)
 	end
 
 	clickDetector.MouseClick:Connect(function(player: Player)
-		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
+		local humanoid = if player.Character then player.Character:FindFirstChildOfClass "Humanoid" else nil
 		if debounceTable[player.UserId] or not humanoid then
 			return
 		end
@@ -155,11 +162,11 @@ local function handleEnemy(enemy: Model)
 		local runAnimations: boolean = true
 
 		local animationInstances: { Animation } =
-			animations:FindFirstChild(store:getState().Players[player.Name].EquippedWeapon):GetChildren()
+			animations[store:getState().Players[player.Name].EquippedWeapon]:GetChildren() :: {Animation}
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 
-		local function cleanUpPlayer(skipPlayerRemoval: boolean)
+		local function cleanUpPlayer(skipPlayerRemoval: boolean?)
 			if cleanedUp then
 				return
 			end
@@ -174,7 +181,7 @@ local function handleEnemy(enemy: Model)
 			end
 
 			local weaponName: string = store:getState().Players[player.Name].EquippedWeapon
-			local wepaon: Model = player.Character:FindFirstChild(weaponName)
+			local wepaon: Accessory? = if player.Character then player.Character:FindFirstChild(weaponName) :: Accessory else nil
 			if wepaon then
 				wepaon:Destroy()
 			end
@@ -224,7 +231,7 @@ local function handleEnemy(enemy: Model)
 		local weaponName: string = store:getState().Players[player.Name].EquippedWeapon
 		if weaponName ~= "Fists" then
 			local weaponAccessory: Accessory = weapons[weaponName]:Clone()
-			player.Character.Humanoid:AddAccessory(weaponAccessory)
+			humanoid:AddAccessory(weaponAccessory)
 		end
 
 		task.spawn(function()
@@ -327,7 +334,7 @@ local function handleEnemy(enemy: Model)
 	end)
 end
 
-for _, enemy in ipairs(CollectionService:GetTagged "Enemy") do
+for _, enemy in CollectionService:GetTagged "Enemy" do
 	local success, error = pcall(handleEnemy, enemy)
 	if not success then
 		warn(error)

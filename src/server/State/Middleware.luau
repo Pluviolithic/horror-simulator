@@ -38,11 +38,8 @@ end
 local function updateLeaderboardMiddleware(nextDispatch)
 	return function(action)
 		if action.type == "incrementPlayerStat" then
-			local player: Player? = Players:FindFirstChild(action.playerName)
-			local leaderstats: Folder? = if player then player:FindFirstChild "leaderstats" :: Folder? else nil
-			local stat: StringValue? = if leaderstats
-				then leaderstats:FindFirstChild(action.statName) :: StringValue?
-				else nil
+			local player = Players:FindFirstChild(action.playerName)
+			local stat: StringValue? = if player and player:FindFirstChild "leaderstats" then player.leaderstats:FindFirstChild(action.statName) else nil
 			if stat then
 				stat.Value = formatter.formatNumberWithSuffix(profiles[action.playerName].Data[action.statName])
 			end
