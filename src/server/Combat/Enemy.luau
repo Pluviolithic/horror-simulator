@@ -46,7 +46,7 @@ local function handleEnemy(enemy)
 	local enemyClone: Model = enemy:Clone()
 	local isBoss: boolean = CollectionService:HasTag(enemy, "Boss")
 	local respawnRate: number = if isBoss then bossRespawnRate else enemyRespawnRate
-	local rootPart = if enemyHumanoid.RootPart then enemy:FindFirstChild "RootPart" else nil
+	local rootPart = if enemyHumanoid.RootPart then enemyHumanoid.RootPart else enemy:FindFirstChild "RootPart"
 
 	if not rootPart then
 		error "Failed to find a root part for the provided enemy."

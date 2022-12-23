@@ -50,7 +50,7 @@ function HealthBar:connect(humanoid: Humanoid | Model)
 		self:update(humanoid.Health, humanoid.MaxHealth)
 	else
 		local humanoidInstance: Humanoid = humanoid:FindFirstChildOfClass "Humanoid"
-		local healthValue: IntValue | NumberValue = humanoid:FindFirstChild("Configuration").Health
+		local healthValue: NumberValue = humanoid:FindFirstChild("Configuration").Health
 		self._healthBarConnection = healthValue:GetPropertyChangedSignal("Value"):Connect(function()
 			self:update(healthValue.Value, humanoidInstance.MaxHealth)
 		end)
