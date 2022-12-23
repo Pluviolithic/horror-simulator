@@ -9,8 +9,8 @@ local Promise = require(ReplicatedStorage.Common.lib.Promise)
 local store = require(Client.State.Store)
 
 return Promise.new(function(resolve)
-	local connection
-	local currentThread = coroutine.running()
+	local connection: typeof(store.changed:connect(function() end)) = nil
+	local currentThread: thread = coroutine.running()
 
 	if store:getState().GameState.Players[player.Name] then
 		resolve(store:getState().GameState.Players[player.Name])
@@ -25,5 +25,5 @@ return Promise.new(function(resolve)
 	end)
 
 	coroutine.yield()
-	resolve(store:getState().GameState.Players[player.Name])
+	resolve()
 end)

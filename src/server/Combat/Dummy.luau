@@ -19,7 +19,7 @@ local function handleDummy(dummy)
 
 	NPCUI:FindFirstChild("NPCName", true).Text = "Dummy"
 
-	local debounceTable: {boolean} = {}
+	local debounceTable: { boolean } = {}
 
 	clickDetector.MouseClick:Connect(function(player: Player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
@@ -63,8 +63,8 @@ local function handleDummy(dummy)
 			return
 		end
 
-		local animationInstances: {Animation} =
-			animations[store:getState().Players[player.Name].EquippedWeapon]:GetChildren() :: {Animation}
+		local animationInstances: { Animation } =
+			animations[store:getState().Players[player.Name].EquippedWeapon]:GetChildren() :: { Animation }
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 		local runAnimations: boolean = true

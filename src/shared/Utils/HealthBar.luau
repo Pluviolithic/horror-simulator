@@ -43,7 +43,7 @@ function HealthBar:connect(humanoid: Humanoid | Model)
 	if self._healthBarConnection then
 		self._healthBarConnection:Disconnect()
 	end
-	if humanoid.ClassName == "Humanoid" then
+	if typeof(humanoid) == "Humanoid" then
 		self._healthBarConnection = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
 			self:update(humanoid.Health, humanoid.MaxHealth)
 		end)

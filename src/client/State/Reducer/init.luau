@@ -5,7 +5,7 @@ local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local reducerModules = script:GetChildren()
 local reducers = {}
 
-for _, reducer in ipairs(reducerModules) do
+for _, reducer in reducerModules do
 	reducers[reducer.Name] = require(reducer)
 end
 

@@ -10,14 +10,21 @@ local Table = require(ReplicatedStorage.Common.Utils.Table)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 
-local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
+local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop") :: {
+	Trigger: string,
+	_itemButtons: { GuiObject },
+	_initialize: () -> (),
+	Refresh: () -> (),
+	ClearFocusedDisplay: () -> (),
+} & CentralUI.CentralUI
+
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local gamepassPrices = ReplicatedStorage.Config.GamepassData.Prices
 
 WeaponShop.Trigger = "WeaponShop"
 WeaponShop._itemButtons = WeaponShop._ui.LeftBackground.ScrollingFrame:GetChildren()
 
-function WeaponShop:_initialize()
+function WeaponShop:_initialize(): ()
 	store.changed:connect(function(newState, oldState)
 		if not self._isOpen then
 			return
@@ -32,7 +39,7 @@ function WeaponShop:_initialize()
 		end
 	end)
 
-	for _, button in ipairs(WeaponShop._itemButtons) do
+	for _, button in WeaponShop._itemButtons do
 		if button:IsA "UIGridLayout" then
 			continue
 		end
@@ -80,7 +87,7 @@ function WeaponShop:_initialize()
 					focusedDisplay.GreenButton.Visible = true
 
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
-						local id = gamepassIDs.VIP.Value
+						local id: number = gamepassIDs.VIP.Value
 						if button.Name == "Scythe" then
 							id = gamepassIDs.Scythe.Value
 						end
@@ -128,11 +135,11 @@ end
 
 function WeaponShop:Refresh()
 	local playerState = store:getState().GameState.Players[player.Name]
-	local restAreLocked = false
+	local restAreLocked: boolean = false
 
 	self:ClearFocusedDisplay()
 
-	for _, button in ipairs(self._itemButtons) do
+	for _, button in self._itemButtons do
 		if button:IsA "UIGridLayout" then
 			continue
 		end

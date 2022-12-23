@@ -2,7 +2,7 @@ local Players = game:GetService "Players"
 local PhysicsService = game:GetService "PhysicsService"
 
 local function disableCharacterCollisions(character: Model)
-	for _, part in ipairs(character:GetDescendants()) do
+	for _, part in character:GetDescendants() do
 		if part:IsA "BasePart" then
 			PhysicsService:SetPartCollisionGroup(part, "PlayerCharacters")
 		end

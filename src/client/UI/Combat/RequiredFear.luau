@@ -11,14 +11,14 @@ local Promise = require(ReplicatedStorage.Common.lib.Promise)
 local store = require(Client.State.Store)
 
 Promise.new(function(resolve)
-	local requiredFearUI = CollectionService:GetTagged("RequiredFear")[1]
+	local requiredFearUI: TextLabel = CollectionService:GetTagged("RequiredFear")[1]
 	if not requiredFearUI then
 		requiredFearUI = CollectionService:GetInstanceAddedSignal("RequiredFear"):Wait()
 	end
 	resolve(requiredFearUI)
 end):andThen(function(requiredFearUI)
 	playerStatePromise:andThen(function(playerState)
-		requiredFearUI.Text = playerState.Strength * 5
+		requiredFearUI.Text = store:getState().GameState.Players[player.Name].Strength * 5
 		store.changed:connect(function(newState)
 			requiredFearUI.Text = newState.GameState.Players[player.Name].Strength * 5
 		end)

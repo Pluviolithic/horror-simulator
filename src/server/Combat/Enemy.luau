@@ -57,12 +57,6 @@ local function handleEnemy(enemy)
 	healthValue.Value = maxHealth
 
 	local function startEnemyAnimations(): ()
-		--[[
-		for _, animation in ipairs(enemyHumanoid:GetPlayingAnimationTracks()) do
-			animation:Stop()
-		end
-		--]]
-
 		runEnemyAnimations = true
 		repeat
 			attackTrack.Priority = Enum.AnimationPriority.Action
@@ -78,13 +72,6 @@ local function handleEnemy(enemy)
 	local function endEnemyAnimations(): ()
 		runEnemyAnimations = false
 		attackTrack:Stop()
-		--[[
-		if idleAnimationInstance then
-			local idleTrack = enemyHumanoid:LoadAnimation(idleAnimationInstance)
-			idleTrack.Priority = Enum.AnimationPriority.Action
-			idleTrack:Play()
-		end
-		--]]
 	end
 
 	local function removePlayer(player: Player): ()
@@ -116,13 +103,14 @@ local function handleEnemy(enemy)
 			endEnemyAnimations()
 		elseif targetPlayer == player then
 			if not isBoss then
-				for _, engagedPlayer in ipairs(engagedPlayers) do
+				for _, engagedPlayer in engagedPlayers do
 					if not engagedPlayer.Character or not engagedPlayer.Character:FindFirstChildOfClass "Humanoid" then
 						continue
 					end
 					local humanoidRootPart: BasePart = engagedPlayer.Character.HumanoidRootPart
 					local lookAt: Vector3 = humanoidRootPart.Position * Vector3.new(1, 0, 1)
-					rootPart.CFrame = CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
+					rootPart.CFrame =
+						CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
 					targetPlayer = engagedPlayer
 					break
 				end
@@ -162,11 +150,11 @@ local function handleEnemy(enemy)
 		local runAnimations: boolean = true
 
 		local animationInstances: { Animation } =
-			animations[store:getState().Players[player.Name].EquippedWeapon]:GetChildren() :: {Animation}
+			animations[store:getState().Players[player.Name].EquippedWeapon]:GetChildren()
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 
-		local function cleanUpPlayer(skipPlayerRemoval: boolean?)
+		local function cleanUpPlayer(skipPlayerRemoval: boolean?): ()
 			if cleanedUp then
 				return
 			end
@@ -181,7 +169,9 @@ local function handleEnemy(enemy)
 			end
 
 			local weaponName: string = store:getState().Players[player.Name].EquippedWeapon
-			local wepaon: Accessory? = if player.Character then player.Character:FindFirstChild(weaponName) :: Accessory else nil
+			local wepaon: Accessory? = if player.Character
+				then player.Character:FindFirstChild(weaponName) :: Accessory
+				else nil
 			if wepaon then
 				wepaon:Destroy()
 			end

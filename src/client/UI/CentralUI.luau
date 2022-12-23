@@ -3,9 +3,21 @@ local StarterPlayer = game:GetService "StarterPlayer"
 local CentralUI = {}
 CentralUI.__index = CentralUI
 
-local collidableInterfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local collidableInterfaces: { [typeof(setmetatable({}, CentralUI))]: boolean } =
+	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
-function CentralUI.new(UI)
+export type CentralUI = typeof(setmetatable(
+	{} :: {
+		_ui: GuiObject,
+		_isOpen: boolean,
+		_eventConnections: { RBXScriptConnection },
+		_visibilityProperty: string,
+		OnOpen: ((...any) -> any)?,
+	},
+	CentralUI
+))
+
+function CentralUI.new(UI: GuiObject): CentralUI
 	local self = setmetatable({}, CentralUI)
 	local exit = UI:FindFirstChild("Close", true)
 
@@ -23,15 +35,16 @@ function CentralUI.new(UI)
 	return self
 end
 
-function CentralUI:setEnabled(enable)
+function CentralUI:setEnabled(enable: boolean?): ()
 	self._ui[self._visibilityProperty] = enable
 	self._isOpen = enable
+
 	if not enable then
 		return
 	end
 
 	-- may change the blanket closure to be more nuanced in future
-	for interface in pairs(collidableInterfaces) do
+	for interface in collidableInterfaces do
 		if interface ~= self then
 			interface:setEnabled(false)
 		end

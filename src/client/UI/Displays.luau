@@ -10,11 +10,16 @@ local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
 local store = require(Client.State.Store)
 
+type pair<T, U> = {
+	first: T,
+	second: U,
+}
+
 local function updateDisplays(state, displays)
 	local playerState = state.GameState.Players[player.Name]
-	for _, displayData in ipairs(displays) do
-		local display = displayData[1]
-		local format = displayData[2]
+	for _, displayData in displays do
+		local display = displayData.first
+		local format = displayData.second
 		if format then
 			display.Text = format(playerState[display.Name])
 		else
@@ -24,22 +29,22 @@ local function updateDisplays(state, displays)
 end
 
 Promise.new(function(resolve)
-	local interfaces = {
-		Jumpscares = player.PlayerGui:WaitForChild "Jumpscares",
-		MainUI = player.PlayerGui:WaitForChild "MainUI",
-		Pets = player.PlayerGui:WaitForChild "Pets",
+	local interfaces: { [string]: GuiObject } = {
 		Rank = player.PlayerGui:WaitForChild "Rank",
+		MainUI = player.PlayerGui:WaitForChild "MainUI",
+		Pets = player.PlayerGui:WaitForChild "PetInventory",
 		WeaponShop = player.PlayerGui:WaitForChild "WeaponShop",
+		Jumpscares = player.PlayerGui:WaitForChild "Jumpscares",
 	}
 	resolve(interfaces)
 end):andThen(function(interfaces)
-	local displays = {
-		{ interfaces.MainUI.Strength.Amount },
-		{ interfaces.MainUI.Fear.Amount },
-		{ interfaces.MainUI.Gems.Amount },
+	local displays: { pair<GuiObject, (((...any) -> any)?)> } = {
+		{ first = interfaces.MainUI.Strength.Amount },
+		{ first = interfaces.MainUI.Fear.Amount },
+		{ first = interfaces.MainUI.Gems.Amount },
 		{
-			interfaces.WeaponShop.LeftBackground.Gems,
-			function(gems)
+			first = interfaces.WeaponShop.LeftBackground.Gems,
+			second = function(gems)
 				return formatter.formatNumberWithSuffix(gems) .. " Gems"
 			end,
 		},
