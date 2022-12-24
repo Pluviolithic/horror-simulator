@@ -43,14 +43,23 @@ function HealthBar:connect(humanoid: Humanoid | Model)
 	if self._healthBarConnection then
 		self._healthBarConnection:Disconnect()
 	end
-	if typeof(humanoid) == "Humanoid" then
+	if humanoid:IsA "Humanoid" then
 		self._healthBarConnection = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
 			self:update(humanoid.Health, humanoid.MaxHealth)
 		end)
 		self:update(humanoid.Health, humanoid.MaxHealth)
 	else
-		local humanoidInstance: Humanoid = humanoid:FindFirstChildOfClass "Humanoid"
-		local healthValue: NumberValue = humanoid:FindFirstChild("Configuration").Health
+		local humanoidInstance: Humanoid? = humanoid:FindFirstChildOfClass "Humanoid"
+
+		if not humanoidInstance then
+			warn("HealthBar:connect() - NPC does not have a humanoid instance")
+			return
+		elseif not humanoid:FindFirstChild("Configuration") then
+			warn("HealthBar:connect() - NPC does not have a configuration folder")
+			return
+		end
+
+		local healthValue: NumberValue = humanoid.Configuration.Health
 		self._healthBarConnection = healthValue:GetPropertyChangedSignal("Value"):Connect(function()
 			self:update(healthValue.Value, humanoidInstance.MaxHealth)
 		end)

@@ -81,7 +81,7 @@ function PlayerStatusUI:enable()
 		self:_applyUI(character)
 	end
 	self._player.CharacterAppearanceLoaded:Connect(function(newCharacter)
-		self:_applyUI(newCharacter:WaitForChild "Humanoid")
+		self:_applyUI(newCharacter)
 	end)
 end
 

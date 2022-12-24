@@ -3,9 +3,6 @@ local StarterPlayer = game:GetService "StarterPlayer"
 local CentralUI = {}
 CentralUI.__index = CentralUI
 
-local collidableInterfaces: { [typeof(setmetatable({}, CentralUI))]: boolean } =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
-
 export type CentralUI = typeof(setmetatable(
 	{} :: {
 		_ui: GuiObject,
@@ -16,6 +13,9 @@ export type CentralUI = typeof(setmetatable(
 	},
 	CentralUI
 ))
+
+local collidableInterfaces: { [CentralUI]: boolean } =
+	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 function CentralUI.new(UI: GuiObject): CentralUI
 	local self = setmetatable({}, CentralUI)
