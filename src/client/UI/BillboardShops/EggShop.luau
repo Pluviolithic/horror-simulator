@@ -1,8 +1,17 @@
+local Players = game:GetService "Players"
+local StarterPlayer = game:GetService "StarterPlayer"
 local UserInputService = game:GetService "UserInputService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local CollectionService = game:GetService "CollectionService"
+local MarketplaceService = game:GetService "MarketplaceService"
+
+local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
+local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
+
+local eggGemPrice: number = 50
 
 local listeners: { [BillboardGui]: (Enum.KeyCode) -> () } = {}
 local validInputs: { [Enum.KeyCode]: boolean } = {
@@ -11,10 +20,51 @@ local validInputs: { [Enum.KeyCode]: boolean } = {
 	[Enum.KeyCode.T] = true,
 }
 
-local function handleShop(shop): ()
+local function handlePurchaseResults(rewards: { string }): () end
 
+local function handleShop(shop): ()
+	local debounce: boolean = true
 	local function buyEgg(count: number, auto: boolean): ()
-		print("buying " .. tostring(count) .. " eggs; isauto: " .. tostring(auto))
+		if not debounce then
+			return
+		end
+		debounce = false
+		task.delay(0.5, function()
+			debounce = true
+		end)
+
+		local playerState = store:getState().GameState.Players[player.Name]
+
+		if playerState.Gems < eggGemPrice * count then
+			return
+		end
+
+		if count == 1 then
+			print("buying " .. tostring(count) .. " eggs; isauto: " .. tostring(auto))
+			Remotes.Client:Get("HatchEggs"):CallServerAsync(count, auto)
+			return
+		end
+
+		local success, message = pcall(MarketplaceService.HasPass, MarketplaceService, tripleHatchGamepassID)
+		if not success then
+			warn("Failed to verify 3x gamepass ownership: " .. message)
+			return
+		end
+
+		local realCount: number = count
+		if count == 3 then
+			if not message then
+				MarketplaceService:PromptGamePassPurchase(player, tripleHatchGamepassID)
+			end
+		elseif auto then
+			if message then
+				realCount = 3
+			end
+		end
+
+		print("buying " .. tostring(realCount) .. " eggs; isauto: " .. tostring(auto))
+
+		handlePurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(realCount, auto))
 	end
 
 	shop.Background.Open1.Activated:Connect(function()

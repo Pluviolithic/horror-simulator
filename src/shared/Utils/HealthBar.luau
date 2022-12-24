@@ -52,10 +52,10 @@ function HealthBar:connect(humanoid: Humanoid | Model)
 		local humanoidInstance: Humanoid? = humanoid:FindFirstChildOfClass "Humanoid"
 
 		if not humanoidInstance then
-			warn("HealthBar:connect() - NPC does not have a humanoid instance")
+			warn "HealthBar:connect() - NPC does not have a humanoid instance"
 			return
-		elseif not humanoid:FindFirstChild("Configuration") then
-			warn("HealthBar:connect() - NPC does not have a configuration folder")
+		elseif not humanoid:FindFirstChild "Configuration" then
+			warn "HealthBar:connect() - NPC does not have a configuration folder"
 			return
 		end
 
