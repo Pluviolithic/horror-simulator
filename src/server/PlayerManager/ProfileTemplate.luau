@@ -7,6 +7,9 @@ return {
 	Gems = 0,
 	Rank = 1,
 
+	UnlockedAreas = {
+		["Clown Town"] = true,
+	},
 	OwnedWeapons = {
 		["Fists"] = true,
 	},

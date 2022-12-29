@@ -20,9 +20,14 @@ local validInputs: { [Enum.KeyCode]: boolean } = {
 	[Enum.KeyCode.T] = true,
 }
 
-local function handlePurchaseResults(rewards: { string }): () end
+local function handlePurchaseResults(rewards: { string }?): ()
+	if not rewards then
+		return
+	end
+end
 
 local function handleShop(shop): ()
+	local areaName: string = shop.Name:sub(1, -5)
 	local debounce: boolean = true
 	local function buyEgg(count: number, auto: boolean): ()
 		if not debounce then
@@ -41,7 +46,7 @@ local function handleShop(shop): ()
 
 		if count == 1 then
 			print("buying " .. tostring(count) .. " eggs; isauto: " .. tostring(auto))
-			Remotes.Client:Get("HatchEggs"):CallServerAsync(count, auto)
+			handlePurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(count, auto, areaName))
 			return
 		end
 
@@ -57,6 +62,7 @@ local function handleShop(shop): ()
 				MarketplaceService:PromptGamePassPurchase(player, tripleHatchGamepassID)
 			end
 		elseif auto then
+			-- verify user has the auto gamepass here
 			if message then
 				realCount = 3
 			end
@@ -64,7 +70,7 @@ local function handleShop(shop): ()
 
 		print("buying " .. tostring(realCount) .. " eggs; isauto: " .. tostring(auto))
 
-		handlePurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(realCount, auto))
+		handlePurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(realCount, auto, areaName))
 	end
 
 	shop.Background.Open1.Activated:Connect(function()

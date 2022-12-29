@@ -10,6 +10,7 @@ local Remotes = Net.CreateDefinitions {
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
 	SendNPCHealthBar = Net.Definitions.ServerToClientEvent(),
 	SetControlsEnabled = Net.Definitions.ServerToClientEvent(),
+	AutoHatchResponses = Net.Definitions.ServerToClientEvent(),
 }
 
 return Remotes
