@@ -12,13 +12,13 @@ return Promise.new(function(resolve)
 	local connection: typeof(store.changed:connect(function() end)) = nil
 	local currentThread: thread = coroutine.running()
 
-	if store:getState().GameState.Players[player.Name] then
-		resolve(store:getState().GameState.Players[player.Name])
+	if store:getState().Players[player.Name] and next(store:getState().Players[player.Name]) then
+		resolve(store:getState().Players[player.Name])
 		return
 	end
 
 	connection = store.changed:connect(function(newState)
-		if newState.GameState.Players[player.Name] then
+		if newState.Players[player.Name] and next(newState.Players[player.Name]) then
 			connection:disconnect()
 			coroutine.resume(currentThread)
 		end

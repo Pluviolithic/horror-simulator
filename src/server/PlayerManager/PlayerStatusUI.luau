@@ -6,6 +6,7 @@ PlayerStatusUI.__index = PlayerStatusUI
 
 local store = require(ServerScriptService.Server.State.Store)
 local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
+local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 local playerUITemplate = ReplicatedStorage.PlayerUI:Clone()
 
 type PlayerStatusUI = typeof(setmetatable(
@@ -36,6 +37,9 @@ end
 
 function PlayerStatusUI:_updateUIFields(state)
 	local playerState = state.Players[self._player.Name]
+	if not playerState or not next(playerState) then
+		return
+	end
 	local playerUIFrame = self._activePlayerUI.Frame
 
 	playerUIFrame.PlayerName.Text = self._player.Name

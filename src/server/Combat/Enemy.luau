@@ -251,7 +251,7 @@ local function handleEnemy(enemy)
 
 		task.wait(0.5)
 
-		local damageMultiplier = weapons[weaponName].Damage.Value
+		local damageMultiplier = if weaponName == "Fists" then 1 else weapons[weaponName].Damage.Value
 
 		while
 			runAnimations

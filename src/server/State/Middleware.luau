@@ -2,15 +2,22 @@ local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 --local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
+local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
 local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
 
 local function updateClientMiddleware(nextDispatch)
 	return function(action)
-		Remotes.Server:Get("SendRoduxAction"):SendToAllPlayers(action)
+		local replicationRule = replicationRules[action.type]
+		if replicationRule == Enum.ReplicationRules.All then
+			Remotes.Server:Get("SendRoduxAction"):SendToAllPlayers(action)
+		elseif replicationRule == Enum.ReplicationRules.Individual then
+			Remotes.Server:Get("SendRoduxAction"):SendToPlayer(Players[action.playerName], action)
+		end
 		return nextDispatch(action)
 	end
 end

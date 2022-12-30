@@ -16,7 +16,8 @@ type pair<T, U> = {
 }
 
 local function updateDisplays(state, displays)
-	local playerState = state.GameState.Players[player.Name]
+	local playerState = state.Players[player.Name]
+	print(playerState)
 	for _, displayData in displays do
 		local display = displayData.first
 		local format = displayData.second

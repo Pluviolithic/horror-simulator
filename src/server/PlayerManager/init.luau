@@ -78,8 +78,19 @@ Players.PlayerRemoving:Connect(function(player)
 end)
 
 -- move this to a more relevant location in future
-Remotes.Server:Get("GetGlobalState"):SetCallback(function()
-	return store:getState()
+Remotes.Server:Get("GetGlobalState"):SetCallback(function(player: Player)
+	local currentState = store:getState()
+	local replicatedState = {
+		Players = {},
+	}
+
+	for otherPlayer in currentState.Players do
+		replicatedState.Players[otherPlayer] = {}
+	end
+
+	replicatedState.Players[player.Name] = currentState.Players[player.Name]
+
+	return replicatedState
 end)
 
 return 0
