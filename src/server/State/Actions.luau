@@ -61,4 +61,10 @@ return {
 			weaponName = weaponName,
 		}
 	end),
+	givePlayerPets = makeActionCreator("givePlayerPets", function(playerName: string, petNames: { [string]: boolean })
+		return {
+			playerName = playerName,
+			petNames = petNames,
+		}
+	end),
 }

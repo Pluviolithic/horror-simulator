@@ -62,4 +62,11 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	givePlayerPets = function(state, action)
+		return Llama.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				OwnedPets = Llama.Dictionary.mergeDeep(state[action.playerName].OwnedPets, action.petNames),
+			},
+		})
+	end,
 })

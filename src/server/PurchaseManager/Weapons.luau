@@ -36,7 +36,7 @@ Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player: Player, weapon
 end)
 
 Remotes.Server:Get("EquipWeapon"):SetCallback(function(player: Player, weaponName: string)
-	if typeof(weaponName) ~= "string" or not weapons:FindFirstChild(weaponName) then
+	if not weapons:FindFirstChild(weaponName) then
 		return 1
 	end
 

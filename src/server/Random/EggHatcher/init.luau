@@ -1,3 +1,4 @@
+local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 local ServerScriptService = game:GetService "ServerScriptService"
@@ -5,23 +6,34 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local rarities = require(script.Rarities)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
+local actions = require(ServerScriptService.Server.State.Actions)
 
 local eggGemPrice: number = 50
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 
-local function getWeightedRandom(weights): string
+local function getWeightedRandom(weights: { [string]: { [string]: string | number } }): string
 	local sum = 0
 	for _, weight in weights do
-		sum += weight
+		sum += weight.Rarity
 	end
 
 	local random = math.random() * sum
 	for pet, weight in weights do
-		random -= weight
+		random -= weight.Rarity
 		if random <= 0 then
 			return pet
 		end
 	end
+
+	return next(weights) :: string
+end
+
+local function awardPetsToPlayer(player: Player, pets: { string }): ()
+	local newPets = {}
+	for _, pet in pets do
+		newPets[pet] = true
+	end
+	store:dispatch(actions.givePlayerPets(player.Name, newPets))
 end
 
 Remotes.Server
@@ -33,7 +45,9 @@ Remotes.Server
 		end
 
 		if count == 1 then
-			return { getWeightedRandom(rarities[areaName]) }
+			local results = { getWeightedRandom(rarities[areaName]) }
+			awardPetsToPlayer(player, results)
+			return results
 		end
 
 		local success, message = pcall(MarketplaceService.HasPass, MarketplaceService, tripleHatchGamepassID)
@@ -44,6 +58,20 @@ Remotes.Server
 		end
 
 		if auto then
+			task.spawn(function()
+				while playerState.Gems >= eggGemPrice and Players:FindFirstChild(player.Name) do
+					local results: { string } = {}
+					for i = 1, math.min(3, math.floor(playerState.Cash / 50)) do
+						results[i] = getWeightedRandom(rarities[areaName])
+					end
+					awardPetsToPlayer(player, results)
+					Remotes.Server:Get("AutoHatchResponses"):SendToClient(player, results)
+
+					task.wait(1)
+
+					playerState = store:getState().Players[player.Name]
+				end
+			end)
 			return nil
 		end
 
@@ -55,5 +83,6 @@ Remotes.Server
 		for i = 1, math.min(3, math.floor(playerState.Cash / 50)) do
 			results[i] = getWeightedRandom(rarities[areaName])
 		end
+		awardPetsToPlayer(player, results)
 		return results
 	end)
