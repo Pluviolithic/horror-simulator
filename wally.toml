@@ -6,6 +6,7 @@ realm = "shared"
 registry = "https://github.com/upliftgames/wally-index"
 
 [dependencies]
+t = "osyrisrblx/t@3.0.0"
 Rodux = "roblox/rodux@3.0.0"
 Llama = "shanebutt/llama@1.1.0"
 
