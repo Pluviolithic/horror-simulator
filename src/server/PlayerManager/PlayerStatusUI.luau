@@ -6,7 +6,6 @@ PlayerStatusUI.__index = PlayerStatusUI
 
 local store = require(ServerScriptService.Server.State.Store)
 local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
-local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 local playerUITemplate = ReplicatedStorage.PlayerUI:Clone()
 
 type PlayerStatusUI = typeof(setmetatable(
