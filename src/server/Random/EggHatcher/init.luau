@@ -86,3 +86,5 @@ Remotes.Server
 		awardPetsToPlayer(player, results)
 		return results
 	end)
+
+return 0
