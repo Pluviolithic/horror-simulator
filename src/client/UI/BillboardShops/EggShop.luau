@@ -12,6 +12,8 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 
 local eggGemPrice: number = 50
+-- eventually add to config folder
+local maxActivationDistance: number = 15
 
 local listeners: { [BillboardGui]: (Enum.KeyCode) -> () } = {}
 local validInputs: { [Enum.KeyCode]: boolean } = {
@@ -103,11 +105,15 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 
 	for shop in listeners do
-		if shop.CurrentDistance <= shop.MaxDistance then
+		if shop.CurrentDistance <= maxActivationDistance then
 			listeners[shop](input.KeyCode)
 			break
 		end
 	end
+end)
+
+Remotes.Client:Get("AutoHatchResponse"):Connect(function(rewards: { string })
+	handlePurchaseResults(rewards)
 end)
 
 for _, shop in CollectionService:GetTagged "EggShop" do

@@ -28,7 +28,16 @@ local function getWeightedRandom(weights: { [string]: { [string]: string | numbe
 	return next(weights) :: string
 end
 
+local function getMaxHatches(gems: number, areaName: string): { string }
+	local results: { string } = {}
+	for i = 1, math.min(3, math.floor(gems / 50)) do
+		results[i] = getWeightedRandom(rarities[areaName])
+	end
+	return results
+end
+
 local function awardPetsToPlayer(player: Player, pets: { string }): ()
+	store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -eggGemPrice * #pets))
 	local newPets = {}
 	for _, pet in pets do
 		newPets[pet] = true
@@ -60,10 +69,7 @@ Remotes.Server
 		if auto then
 			task.spawn(function()
 				while playerState.Gems >= eggGemPrice and Players:FindFirstChild(player.Name) do
-					local results: { string } = {}
-					for i = 1, math.min(3, math.floor(playerState.Cash / 50)) do
-						results[i] = getWeightedRandom(rarities[areaName])
-					end
+					local results: { string } = getMaxHatches(playerState.Gems, areaName)
 					awardPetsToPlayer(player, results)
 					Remotes.Server:Get("AutoHatchResponses"):SendToClient(player, results)
 
@@ -78,11 +84,7 @@ Remotes.Server
 		if not message then
 			return nil
 		end
-
-		local results: { string } = {}
-		for i = 1, math.min(3, math.floor(playerState.Cash / 50)) do
-			results[i] = getWeightedRandom(rarities[areaName])
-		end
+		local results: { string } = getMaxHatches(playerState.Gems, areaName)
 		awardPetsToPlayer(player, results)
 		return results
 	end)
