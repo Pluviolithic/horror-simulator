@@ -11,7 +11,6 @@ local store = Rodux.Store.new(reducer, currentState, middleware)
 
 -- resolve server actions on the client
 Remotes.Client:Get("SendRoduxAction"):Connect(function(action)
-	print(action)
 	store:dispatch(action)
 end)
 
