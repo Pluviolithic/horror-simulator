@@ -2,11 +2,8 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 
-local reducerModules = script:GetChildren()
-local reducers = {}
-
-for _, reducer in reducerModules do
-	reducers[reducer.Name] = require(reducer)
-end
+local reducers = {
+	Players = require(ReplicatedStorage.Common.State.Reducer.Players),
+}
 
 return Rodux.combineReducers(reducers)

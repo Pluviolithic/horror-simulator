@@ -7,7 +7,7 @@ local reducer = require(StarterPlayer.StarterPlayerScripts.Client.State.Reducer)
 local middleware = require(StarterPlayer.StarterPlayerScripts.Client.State.Middleware)
 
 local currentState = Remotes.Client:Get("GetGlobalState"):CallServer()
-local store = Rodux.Store.new(reducer, { GameState = currentState }, middleware)
+local store = Rodux.Store.new(reducer, currentState, middleware)
 
 -- resolve server actions on the client
 Remotes.Client:Get("SendRoduxAction"):Connect(function(action)

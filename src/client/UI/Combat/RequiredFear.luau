@@ -18,9 +18,9 @@ Promise.new(function(resolve)
 	resolve(requiredFearUI)
 end):andThen(function(requiredFearUI)
 	playerStatePromise:andThen(function()
-		requiredFearUI.Text = store:getState().GameState.Players[player.Name].Strength * 5
+		requiredFearUI.Text = store:getState().Players[player.Name].Strength * 5
 		store.changed:connect(function(newState)
-			requiredFearUI.Text = newState.GameState.Players[player.Name].Strength * 5
+			requiredFearUI.Text = newState.Players[player.Name].Strength * 5
 		end)
 	end)
 end)

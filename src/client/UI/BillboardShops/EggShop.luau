@@ -38,7 +38,7 @@ local function handleShop(shop): ()
 			debounce = true
 		end)
 
-		local playerState = store:getState().GameState.Players[player.Name]
+		local playerState = store:getState().Players[player.Name]
 
 		if playerState.Gems < eggGemPrice * count then
 			return

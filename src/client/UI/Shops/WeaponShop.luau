@@ -29,8 +29,8 @@ function WeaponShop:_initialize(): ()
 		if not self._isOpen then
 			return
 		end
-		local newPlayerState = newState.GameState.Players[player.Name]
-		local oldPlayerState = oldState.GameState.Players[player.Name]
+		local newPlayerState = newState.Players[player.Name]
+		local oldPlayerState = oldState.Players[player.Name]
 		if
 			newPlayerState.EquippedWeapon ~= oldPlayerState.EquippedWeapon
 			or not Table.ShallowIsEqual(newPlayerState.OwnedWeapons, oldPlayerState.OwnedWeapons)
@@ -45,7 +45,7 @@ function WeaponShop:_initialize(): ()
 		end
 
 		button.Activated:Connect(function()
-			local playerState = store:getState().GameState.Players[player.Name]
+			local playerState = store:getState().Players[player.Name]
 			local focusedDisplay = WeaponShop._ui.RightBackground
 
 			if button:FindFirstChild "Locked" and button.Locked.Visible then
@@ -134,7 +134,7 @@ function WeaponShop:ClearFocusedDisplay()
 end
 
 function WeaponShop:Refresh()
-	local playerState = store:getState().GameState.Players[player.Name]
+	local playerState = store:getState().Players[player.Name]
 	local restAreLocked: boolean = false
 
 	self:ClearFocusedDisplay()

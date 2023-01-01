@@ -36,6 +36,9 @@ end
 
 function PlayerStatusUI:_updateUIFields(state)
 	local playerState = state.Players[self._player.Name]
+	if not playerState or not next(playerState) then
+		return
+	end
 	local playerUIFrame = self._activePlayerUI.Frame
 
 	playerUIFrame.PlayerName.Text = self._player.Name
