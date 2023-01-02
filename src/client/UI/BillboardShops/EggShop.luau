@@ -13,9 +13,14 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 
+local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
+
 local eggGemPrice: number = 50
+local hatchDisplayTime: number = 4
 -- eventually add to config folder
 local maxActivationDistance: number = 15
+
+local rarityColorConfig = ReplicatedStorage.Config.RarityColors
 
 local listeners: { [BillboardGui]: (Enum.KeyCode) -> () } = {}
 local validInputs: { [Enum.KeyCode]: boolean } = {
@@ -24,14 +29,63 @@ local validInputs: { [Enum.KeyCode]: boolean } = {
 	[Enum.KeyCode.T] = true,
 }
 
-local function handlePurchaseResults(resultPromise): ()
-	if not resultPromise then
+local function configureHatchUI(detailedResults: { [string]: any }, single: boolean): ()
+	if single then
+		local petName: string = next(detailedResults) :: string
+		hatchingUI.Single.Pet.PetImage.Image = detailedResults[petName].ImageID.Value
+		hatchingUI.Single.Pet.PetName.Text = petName
+		hatchingUI.Single.Pet.Rarity.Text = detailedResults[petName].RarityName.Value
+		hatchingUI.Single.Pet.Rarity.TextColor3 = rarityColorConfig[detailedResults[petName].RarityName.Value].Value
+
+		hatchingUI.Single.Visible = true
+		hatchingUI.Triple.Visible = false
+
+		hatchingUI.Enabled = true
+		task.wait(hatchDisplayTime)
+		hatchingUI.Enabled = false
 		return
 	end
 
-	resultPromise:andThen(function(results)
-		print(results)
-	end)
+	local i: number = 1
+	for petName, pet in detailedResults do
+		hatchingUI.Triple["Pet" .. i].PetImage.Image = pet.ImageID.Value
+		hatchingUI.Triple["Pet" .. i].PetName.Text = petName
+		hatchingUI.Triple["Pet" .. i].Rarity.Text = pet.RarityName.Value
+		hatchingUI.Triple["Pet" .. i].Rarity.TextColor3 = rarityColorConfig[pet.RarityName.Value].Value
+
+		hatchingUI.Triple.Visible = true
+		hatchingUI.Single.Visible = false
+		i += 1
+	end
+
+	hatchingUI.Enabled = true
+	task.wait(hatchDisplayTime)
+	hatchingUI.Enabled = false
+end
+
+function displayPurchaseResults(results: { string }?, areaName: string?, count: number?, auto: boolean?): ()
+	if not results then
+		warn "Failed to purchase eggs"
+		return
+	end
+
+	local detailedResults = {}
+
+	for _, petName in results :: { string } do
+		detailedResults[petName] = ReplicatedStorage.Pets[areaName][petName]
+	end
+
+	if #results :: { string } == 1 then
+		configureHatchUI(detailedResults, true)
+	elseif #results :: { string } == 3 then
+		configureHatchUI(detailedResults, false)
+	end
+
+	if auto then
+		Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName):andThen(function(newResults: { string }?)
+			displayPurchaseResults(newResults, areaName, count, auto)
+		end)
+	end
 end
 
 local function handleShop(shop): ()
@@ -52,8 +106,10 @@ local function handleShop(shop): ()
 			return
 		end
 
-		if count == 1 then
-			handlePurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(count, auto, areaName))
+		if (count == 1 or playerState.Gems < eggGemPrice * 3) and not auto then
+			Remotes.Client:Get("HatchEggs"):CallServerAsync(1, areaName):andThen(function(results)
+				displayPurchaseResults(results, areaName, count, auto)
+			end)
 			return
 		end
 
@@ -64,24 +120,29 @@ local function handleShop(shop): ()
 			return
 		end
 
-		local realCount: number = count
 		if count == 3 then
 			if not message then
 				MarketplaceService:PromptGamePassPurchase(player, tripleHatchGamepassID)
+				return
 			end
-		elseif auto then
+		end
+
+		if auto then
+			count = if success and message then 3 else 1
 			success, message =
 				pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, autoHatchGamepassID)
 			if not success then
 				warn("Failed to verify auto hatch gamepass ownership: " .. message)
 				return
-			end
-			if message then
-				realCount = 3
+			elseif success and not message then
+				MarketplaceService:PromptGamePassPurchase(player, autoHatchGamepassID)
+				return
 			end
 		end
 
-		handlePurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(realCount, auto, areaName))
+		Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName):andThen(function(results: { string }?)
+			displayPurchaseResults(results, areaName, count, auto)
+		end)
 	end
 
 	shop.Background.Open1.Activated:Connect(function()
@@ -108,7 +169,7 @@ local function handleShop(shop): ()
 end
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed or not validInputs[input.KeyCode] then
+	if gameProcessed or not validInputs[input.KeyCode] or hatchingUI.Enabled then
 		return
 	end
 
@@ -119,11 +180,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		end
 	end
 end)
---[[
-Remotes.Client:Get("AutoHatchResponse"):Connect(function(rewards: { string })
-	handlePurchaseResults(rewards)
-end)
-]]
 
 for _, shop in CollectionService:GetTagged "EggShop" do
 	handleShop(shop)

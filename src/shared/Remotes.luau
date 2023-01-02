@@ -8,7 +8,7 @@ local Remotes = Net.CreateDefinitions {
 		Net.Middleware.RateLimit {
 			MaxRequestsPerMinute = 20,
 		},
-		Net.Middleware.TypeChecking(t.number, t.boolean, t.string),
+		Net.Middleware.TypeChecking(t.number, t.string),
 	},
 	EquipWeapon = Net.Definitions.ServerFunction {
 		Net.Middleware.RateLimit {
@@ -31,7 +31,6 @@ local Remotes = Net.CreateDefinitions {
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
 	SendNPCHealthBar = Net.Definitions.ServerToClientEvent(),
 	SetControlsEnabled = Net.Definitions.ServerToClientEvent(),
-	AutoHatchResponses = Net.Definitions.ServerToClientEvent(),
 }
 
 return Remotes

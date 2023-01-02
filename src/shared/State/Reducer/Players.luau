@@ -63,9 +63,13 @@ return Rodux.createReducer({}, {
 		})
 	end,
 	givePlayerPets = function(state, action)
+		local newOwnedPets = table.clone(state[action.playerName].OwnedPets)
+		for _, petName in ipairs(action.petNames) do
+			newOwnedPets[petName] = if newOwnedPets[petName] then newOwnedPets[petName] + 1 else 1
+		end
 		return Sift.Dictionary.mergeDeep(state, {
 			[action.playerName] = {
-				OwnedPets = Sift.Dictionary.mergeDeep(state[action.playerName].OwnedPets, action.petNames),
+				OwnedPets = newOwnedPets,
 			},
 		})
 	end,

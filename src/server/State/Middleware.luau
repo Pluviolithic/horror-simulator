@@ -28,16 +28,17 @@ end
 local function savePlayerDataMiddleware(nextDispatch)
 	return function(action)
 		if profiles[action.playerName] then
+			local data = profiles[action.playerName].Data
 			if action.type == "incrementPlayerStat" then
-				profiles[action.playerName].Data[action.statName] += (action.incrementAmount or 1)
+				data[action.statName] += (action.incrementAmount or 1)
 			elseif action.type == "givePlayerWeapon" then
-				profiles[action.playerName].Data.OwnedWeapons[action.weaponName] = true
+				data.OwnedWeapons[action.weaponName] = true
 			elseif action.type == "givePlayerPets" then
 				for petName in pairs(action.petNames) do
-					profiles[action.playerName].Data.OwnedPets[petName] = true
+					data.OwnedPets[petName] = if data.OwnedPets[petName] then data.OwnedPets[petName] + 1 else 1
 				end
 			elseif action.type == "equipWeapon" then
-				profiles[action.playerName].Data.EquippedWeapon = action.weaponName
+				data.EquippedWeapon = action.weaponName
 			elseif action.type == "resetPlayerData" then
 				profiles[action.playerName].Data = table.clone(profileTemplate)
 			end
