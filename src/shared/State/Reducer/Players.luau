@@ -17,7 +17,7 @@ return Rodux.createReducer({}, {
 	end,
 	updatePlayerWithProfile = function(state, action)
 		return Sift.Dictionary.mergeDeep(state, {
-			[action.playerName] = Sift.Dictionary.mergeDeep(action.profileData, defaultStates.PlayerState),
+			[action.playerName] = Sift.Dictionary.mergeDeep(defaultStates.PlayerState, action.profileData),
 		})
 	end,
 	incrementPlayerStat = function(state, action)

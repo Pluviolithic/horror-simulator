@@ -32,6 +32,10 @@ local function savePlayerDataMiddleware(nextDispatch)
 				profiles[action.playerName].Data[action.statName] += (action.incrementAmount or 1)
 			elseif action.type == "givePlayerWeapon" then
 				profiles[action.playerName].Data.OwnedWeapons[action.weaponName] = true
+			elseif action.type == "givePlayerPets" then
+				for petName in pairs(action.petNames) do
+					profiles[action.playerName].Data.OwnedPets[petName] = true
+				end
 			elseif action.type == "equipWeapon" then
 				profiles[action.playerName].Data.EquippedWeapon = action.weaponName
 			elseif action.type == "resetPlayerData" then

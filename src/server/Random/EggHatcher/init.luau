@@ -9,6 +9,8 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 
 local eggGemPrice: number = 50
+
+local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 
 local function getWeightedRandom(weights: { [string]: { [string]: string | number } }): string
@@ -49,17 +51,19 @@ Remotes.Server
 	:Get("HatchEggs")
 	:SetCallback(function(player: Player, count: number, auto: boolean, areaName: string): { string }?
 		local playerState = store:getState().Players[player.Name]
+
 		if not playerState.UnlockedAreas[areaName] or playerState.Gems < eggGemPrice then
-			return
+			return nil
 		end
 
-		if count == 1 then
+		if count == 1 and not auto then
 			local results = { getWeightedRandom(rarities[areaName]) }
 			awardPetsToPlayer(player, results)
 			return results
 		end
 
-		local success, message = pcall(MarketplaceService.HasPass, MarketplaceService, tripleHatchGamepassID)
+		local success, message =
+			pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, tripleHatchGamepassID)
 
 		if not success then
 			warn("Failed to verify 3x gamepass ownership: " .. message)
@@ -67,9 +71,21 @@ Remotes.Server
 		end
 
 		if auto then
+			local hasTriple = message
+
+			success, message =
+				pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, autoHatchGamepassID)
+
+			if not success then
+				warn("Failed to verify auto hatch gamepass ownership: " .. message)
+				return nil
+			end
+
 			task.spawn(function()
 				while playerState.Gems >= eggGemPrice and Players:FindFirstChild(player.Name) do
-					local results: { string } = getMaxHatches(playerState.Gems, areaName)
+					local results: { string } = if hasTriple
+						then getMaxHatches(playerState.Gems, areaName)
+						else { getWeightedRandom(rarities[areaName]) }
 					awardPetsToPlayer(player, results)
 					Remotes.Server:Get("AutoHatchResponses"):SendToClient(player, results)
 

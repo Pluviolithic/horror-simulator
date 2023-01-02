@@ -11,6 +11,7 @@ return {
 		Gems = 0,
 		Rank = 1,
 
+		OwnedPets = {},
 		UnlockedAreas = {
 			["Clown Town"] = true,
 		},

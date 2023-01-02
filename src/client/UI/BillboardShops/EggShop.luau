@@ -9,6 +9,8 @@ local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+
+local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 
 local eggGemPrice: number = 50
@@ -22,14 +24,18 @@ local validInputs: { [Enum.KeyCode]: boolean } = {
 	[Enum.KeyCode.T] = true,
 }
 
-local function handlePurchaseResults(rewards: { string }?): ()
-	if not rewards then
+local function handlePurchaseResults(resultPromise): ()
+	if not resultPromise then
 		return
 	end
+
+	resultPromise:andThen(function(results)
+		print(results)
+	end)
 end
 
 local function handleShop(shop): ()
-	local areaName: string = shop.Name:sub(1, -5)
+	local areaName: string = shop.Name:sub(1, -6)
 	local debounce: boolean = true
 	local function buyEgg(count: number, auto: boolean): ()
 		if not debounce then
@@ -47,12 +53,12 @@ local function handleShop(shop): ()
 		end
 
 		if count == 1 then
-			print("buying " .. tostring(count) .. " eggs; isauto: " .. tostring(auto))
 			handlePurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(count, auto, areaName))
 			return
 		end
 
-		local success, message = pcall(MarketplaceService.HasPass, MarketplaceService, tripleHatchGamepassID)
+		local success, message =
+			pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, tripleHatchGamepassID)
 		if not success then
 			warn("Failed to verify 3x gamepass ownership: " .. message)
 			return
@@ -64,13 +70,16 @@ local function handleShop(shop): ()
 				MarketplaceService:PromptGamePassPurchase(player, tripleHatchGamepassID)
 			end
 		elseif auto then
-			-- verify user has the auto gamepass here
+			success, message =
+				pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, autoHatchGamepassID)
+			if not success then
+				warn("Failed to verify auto hatch gamepass ownership: " .. message)
+				return
+			end
 			if message then
 				realCount = 3
 			end
 		end
-
-		print("buying " .. tostring(realCount) .. " eggs; isauto: " .. tostring(auto))
 
 		handlePurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(realCount, auto, areaName))
 	end
@@ -88,7 +97,6 @@ local function handleShop(shop): ()
 	end)
 
 	listeners[shop] = function(keyCode: Enum.KeyCode): ()
-		print("Egg shop interacted with via the " .. tostring(keyCode) .. " key")
 		if keyCode == Enum.KeyCode.E then
 			buyEgg(1, false)
 		elseif keyCode == Enum.KeyCode.R then
@@ -105,16 +113,17 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 
 	for shop in listeners do
-		if shop.CurrentDistance <= maxActivationDistance then
+		if player:DistanceFromCharacter(shop.Adornee.Position) <= maxActivationDistance then
 			listeners[shop](input.KeyCode)
 			break
 		end
 	end
 end)
-
+--[[
 Remotes.Client:Get("AutoHatchResponse"):Connect(function(rewards: { string })
 	handlePurchaseResults(rewards)
 end)
+]]
 
 for _, shop in CollectionService:GetTagged "EggShop" do
 	handleShop(shop)
