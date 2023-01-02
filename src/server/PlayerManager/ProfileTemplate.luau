@@ -7,6 +7,7 @@ return {
 	Gems = 0,
 	Rank = 1,
 
+	FoundPets = {},
 	OwnedPets = {},
 	UnlockedAreas = {
 		["Clown Town"] = true,

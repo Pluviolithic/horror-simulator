@@ -34,7 +34,8 @@ local function savePlayerDataMiddleware(nextDispatch)
 			elseif action.type == "givePlayerWeapon" then
 				data.OwnedWeapons[action.weaponName] = true
 			elseif action.type == "givePlayerPets" then
-				for petName in pairs(action.petNames) do
+				for _, petName in pairs(action.petNames) do
+					data.FoundPets[petName] = true
 					data.OwnedPets[petName] = if data.OwnedPets[petName] then data.OwnedPets[petName] + 1 else 1
 				end
 			elseif action.type == "equipWeapon" then

@@ -9,12 +9,14 @@ local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 
 local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
+local hatching: boolean = false
 local eggGemPrice: number = 50
 local hatchDisplayTime: number = 4
 -- eventually add to config folder
@@ -22,6 +24,7 @@ local maxActivationDistance: number = 15
 
 local rarityColorConfig = ReplicatedStorage.Config.RarityColors
 
+local petAreas: { [string]: string } = {}
 local listeners: { [BillboardGui]: (Enum.KeyCode) -> () } = {}
 local validInputs: { [Enum.KeyCode]: boolean } = {
 	[Enum.KeyCode.E] = true,
@@ -30,6 +33,9 @@ local validInputs: { [Enum.KeyCode]: boolean } = {
 }
 
 local function configureHatchUI(detailedResults: { [string]: any }, single: boolean): ()
+
+	task.wait(3)
+
 	if single then
 		local petName: string = next(detailedResults) :: string
 		hatchingUI.Single.Pet.PetImage.Image = detailedResults[petName].ImageID.Value
@@ -43,6 +49,7 @@ local function configureHatchUI(detailedResults: { [string]: any }, single: bool
 		hatchingUI.Enabled = true
 		task.wait(hatchDisplayTime)
 		hatchingUI.Enabled = false
+		hatching = false
 		return
 	end
 
@@ -61,6 +68,7 @@ local function configureHatchUI(detailedResults: { [string]: any }, single: bool
 	hatchingUI.Enabled = true
 	task.wait(hatchDisplayTime)
 	hatchingUI.Enabled = false
+	hatching = false
 end
 
 function displayPurchaseResults(results: { string }?, areaName: string?, count: number?, auto: boolean?): ()
@@ -92,9 +100,10 @@ local function handleShop(shop): ()
 	local areaName: string = shop.Name:sub(1, -6)
 	local debounce: boolean = true
 	local function buyEgg(count: number, auto: boolean): ()
-		if not debounce then
+		if not debounce or hatching then
 			return
 		end
+		hatching = true
 		debounce = false
 		task.delay(0.5, function()
 			debounce = true
@@ -103,6 +112,7 @@ local function handleShop(shop): ()
 		local playerState = store:getState().Players[player.Name]
 
 		if playerState.Gems < eggGemPrice * count then
+			hatching = false
 			return
 		end
 
@@ -117,12 +127,14 @@ local function handleShop(shop): ()
 			pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, tripleHatchGamepassID)
 		if not success then
 			warn("Failed to verify 3x gamepass ownership: " .. message)
+			hatching = false
 			return
 		end
 
 		if count == 3 then
 			if not message then
 				MarketplaceService:PromptGamePassPurchase(player, tripleHatchGamepassID)
+				hatching = false
 				return
 			end
 		end
@@ -133,9 +145,11 @@ local function handleShop(shop): ()
 				pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, autoHatchGamepassID)
 			if not success then
 				warn("Failed to verify auto hatch gamepass ownership: " .. message)
+				hatching = false
 				return
 			elseif success and not message then
 				MarketplaceService:PromptGamePassPurchase(player, autoHatchGamepassID)
+				hatching = false
 				return
 			end
 		end
@@ -181,9 +195,36 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 end)
 
+for _, petArea in ReplicatedStorage.Pets:GetChildren() do
+	for _, pet in petArea:GetChildren() do
+		petAreas[pet.Name] = petArea.Name
+	end
+end
+
 for _, shop in CollectionService:GetTagged "EggShop" do
 	handleShop(shop)
 end
 CollectionService:GetInstanceAddedSignal("EggShop"):Connect(handleShop)
+
+local function updateFoundsDisplay(foundPets): ()
+	for petName in foundPets do
+		local petUI = player.PlayerGui[petAreas[petName] .. "EggUI"].Background.Pets[petName]
+		petUI.PetName.Text = petName
+		petUI.PetImage.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		petUI.PetImage.ImageTransparency = 0
+	end
+end
+
+playerStatePromise:andThen(function()
+	updateFoundsDisplay(store:getState().Players[player.Name].FoundPets)
+	store.changed:connect(function(newState, oldState)
+		if newState.Players[player.Name].FoundPets == oldState.Players[player.Name].FoundPets then
+			return
+		end
+		task.delay(3.5, function()
+			updateFoundsDisplay(newState.Players[player.Name].FoundPets)
+		end)
+	end)
+end)
 
 return 0
