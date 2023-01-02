@@ -33,7 +33,6 @@ local validInputs: { [Enum.KeyCode]: boolean } = {
 }
 
 local function configureHatchUI(detailedResults: { [string]: any }, single: boolean): ()
-
 	task.wait(3)
 
 	if single then
