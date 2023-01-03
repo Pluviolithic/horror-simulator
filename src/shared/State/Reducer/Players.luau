@@ -76,4 +76,13 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	awardGamepassToPlayer = function(state, action)
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				AwardedGamepasses = Sift.Dictionary.mergeDeep(state[action.playerName].AwardedGamepasses, {
+					[action.gamepassID] = true,
+				}),
+			},
+		})
+	end,
 })

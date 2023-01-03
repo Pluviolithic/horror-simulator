@@ -7,6 +7,7 @@ return {
 	Gems = 0,
 	Rank = 1,
 
+	AwardedGamepasses = {},
 	FoundPets = {},
 	OwnedPets = {},
 	UnlockedAreas = {

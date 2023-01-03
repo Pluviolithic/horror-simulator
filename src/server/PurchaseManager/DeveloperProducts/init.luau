@@ -1,7 +1,10 @@
 local MarketplaceService = game:GetService "MarketplaceService"
+local ServerScriptService = game:GetService "ServerScriptService"
 
-local gamepasses = require(script.Gamepasses)
 local products = require(script.Products)
+local gamepasses = require(script.Gamepasses)
+local store = require(ServerScriptService.Server.State.Store)
+local actions = require(ServerScriptService.Server.State.Actions)
 
 MarketplaceService.PromptGamePassPurchaseFinished:Connect(
 	function(player: Player, gamepassID: number, purchased: boolean)
@@ -11,6 +14,7 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(
 
 		local success, err = gamepasses(player, gamepassID)
 		if success then
+			store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
 			return
 		end
 

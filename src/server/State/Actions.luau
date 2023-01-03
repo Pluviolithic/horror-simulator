@@ -67,4 +67,10 @@ return {
 			petNames = petNames,
 		}
 	end),
+	awardGamepassToPlayer = makeActionCreator("awardGamepassToPlayer", function(playerName: string, gamepassID: number)
+		return {
+			playerName = playerName,
+			gamepassID = gamepassID,
+		}
+	end),
 }

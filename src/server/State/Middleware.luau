@@ -38,6 +38,8 @@ local function savePlayerDataMiddleware(nextDispatch)
 					data.FoundPets[petName] = true
 					data.OwnedPets[petName] = if data.OwnedPets[petName] then data.OwnedPets[petName] + 1 else 1
 				end
+			elseif action.type == "awardGamepassToPlayer" then
+				data.AwardedGamepasses[action.gamepassID] = true
 			elseif action.type == "equipWeapon" then
 				data.EquippedWeapon = action.weaponName
 			elseif action.type == "resetPlayerData" then
