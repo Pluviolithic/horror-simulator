@@ -10,13 +10,15 @@ local function checkIfObtainedRewards(player: Player)
 	local playerState = store:getState().Players[player.Name]
 	if not playerState or not playerState.AwardedGamepasses then
 		local connection
+		local thread = coroutine.running()
 		connection = store.changed:connect(function(newState)
 			if newState.Players[player.Name].AwardedGamepasses then
 				connection:disconnect()
-				checkIfObtainedRewards(player)
+				coroutine.resume(thread)
 			end
 		end)
-		return
+		coroutine.yield()
+		playerState = store:getState().Players[player.Name]
 	end
 
 	for gamepassID, rewarder in rewarders do
@@ -45,7 +47,7 @@ Players.PlayerAdded:Connect(checkIfObtainedRewards)
 
 return function(player: Player, gamepassID: number): (boolean, string?)
 	if not rewarders[gamepassID] then
-		return
+		return false
 	end
 
 	return pcall(rewarders[gamepassID], player)
