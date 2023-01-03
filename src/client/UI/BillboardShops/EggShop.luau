@@ -13,11 +13,13 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
+local fasterHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["FasterHatch"].Value
 
 local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
-local hatching: boolean = false
+local hatchTime: number = 3
 local eggGemPrice: number = 50
+local hatching: boolean = false
 local hatchDisplayTime: number = 4
 -- eventually add to config folder
 local maxActivationDistance: number = 15
@@ -33,7 +35,8 @@ local validInputs: { [Enum.KeyCode]: boolean } = {
 }
 
 local function configureHatchUI(detailedResults: { [string]: any }, single: boolean): ()
-	task.wait(3)
+
+	task.wait(hatchTime)
 
 	if single then
 		local petName: string = next(detailedResults) :: string
@@ -224,6 +227,19 @@ playerStatePromise:andThen(function()
 			updateFoundsDisplay(newState.Players[player.Name].FoundPets)
 		end)
 	end)
+end)
+
+MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player: Player, gamePassID: number, purchased: boolean)
+	if gamePassID == fasterHatchGamepassID and purchased then
+		hatchTime = 1.5
+	end
+end)
+
+task.spawn(function()
+	local success, err = pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, fasterHatchGamepassID)
+	if success and err then
+		hatchTime = 1.5
+	end
 end)
 
 return 0
