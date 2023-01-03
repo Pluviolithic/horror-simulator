@@ -35,7 +35,6 @@ local validInputs: { [Enum.KeyCode]: boolean } = {
 }
 
 local function configureHatchUI(detailedResults: { [string]: any }, single: boolean): ()
-
 	task.wait(hatchTime)
 
 	if single then
@@ -229,14 +228,20 @@ playerStatePromise:andThen(function()
 	end)
 end)
 
-MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player: Player, gamePassID: number, purchased: boolean)
-	if gamePassID == fasterHatchGamepassID and purchased then
-		hatchTime = 1.5
+MarketplaceService.PromptGamePassPurchaseFinished:Connect(
+	function(purchasingPlayer: Player, gamePassID: number, purchased: boolean)
+		if purchasingPlayer ~= player then
+			return
+		end
+		if gamePassID == fasterHatchGamepassID and purchased then
+			hatchTime = 1.5
+		end
 	end
-end)
+)
 
 task.spawn(function()
-	local success, err = pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, fasterHatchGamepassID)
+	local success, err =
+		pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, fasterHatchGamepassID)
 	if success and err then
 		hatchTime = 1.5
 	end
