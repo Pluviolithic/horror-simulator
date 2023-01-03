@@ -1,6 +1,6 @@
-local Players = game:GetService("Players")
-local MarketplaceService = game:GetService("MarketplaceService")
-local ServerScriptService = game:GetService("ServerScriptService")
+local Players = game:GetService "Players"
+local MarketplaceService = game:GetService "MarketplaceService"
+local ServerScriptService = game:GetService "ServerScriptService"
 
 local rewarders = require(script.Rewarders)
 local store = require(ServerScriptService.Server.State.Store)
@@ -18,17 +18,18 @@ local function checkIfObtainedRewards(player: Player)
 		end)
 		return
 	end
-	
+
 	for gamepassID, rewarder in rewarders do
 		if not playerState.AwardedGamepasses[gamepassID] then
-			local success, err = pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, gamepassID)
+			local success, err =
+				pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, gamepassID)
 			if not success then
 				warn(err)
 				continue
 			end
 			if err then
 				if pcall(rewarder, player) then
-					store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID)))
+					store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
 				end
 			end
 		end
