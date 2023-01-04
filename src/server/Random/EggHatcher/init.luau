@@ -6,7 +6,6 @@ local rarities = require(script.Rarities)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
-local stateChecks = require(ReplicatedStorage.Common.Utils.Player.StateChecks)
 
 local eggGemPrice: number = 50
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
@@ -40,7 +39,7 @@ Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: numb
 		return nil
 	end
 
-	if stateChecks:HasSpace(player, "OwnedPets", count, playerState.MaxPets) then
+	if playerState.CurrentPetCount + count > playerState.MaxPetCount then
 		return nil
 	end
 

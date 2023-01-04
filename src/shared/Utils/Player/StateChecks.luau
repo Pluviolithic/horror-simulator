@@ -1,3 +1,4 @@
+-- deprecated
 local RunService = game:GetService "RunService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"

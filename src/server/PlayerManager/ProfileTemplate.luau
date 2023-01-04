@@ -7,7 +7,8 @@ return {
 	Gems = 0,
 	Rank = 1,
 
-	MaxPets = 30,
+	CurrentPetCount = 0,
+	MaxPetCount = 30,
 
 	AwardedGamepasses = {},
 	FoundPets = {},

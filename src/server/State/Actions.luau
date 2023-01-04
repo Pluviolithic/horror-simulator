@@ -73,4 +73,10 @@ return {
 			gamepassID = gamepassID,
 		}
 	end),
+	increaseMaxPetCount = makeActionCreator("increaseMaxPetCount", function(playerName: string, amount: number)
+		return {
+			playerName = playerName,
+			amount = amount,
+		}
+	end),
 }

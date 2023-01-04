@@ -9,7 +9,6 @@ local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
-local stateChecks = require(ReplicatedStorage.Common.Utils.Player.StateChecks)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
@@ -73,7 +72,7 @@ local function configureHatchUI(detailedResults: { [string]: any }, single: bool
 	hatching = false
 end
 
-function displayPurchaseResults(results: { string }?, areaName: string?, count: number?, auto: boolean?): ()
+function displayPurchaseResults(results: { string }?, areaName: string, count: number, auto: boolean): ()
 	if not results then
 		warn "Failed to purchase eggs"
 		return
@@ -92,6 +91,11 @@ function displayPurchaseResults(results: { string }?, areaName: string?, count: 
 	end
 
 	if auto then
+		local playerState = store:getState().Players[player.Name]
+		if playerState.CurrentPetCount + count > playerState.MaxPetCount or playerState.Gems < count * eggGemPrice then
+			hatching = false
+			return
+		end
 		Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName):andThen(function(newResults: { string }?)
 			displayPurchaseResults(newResults, areaName, count, auto)
 		end)
@@ -118,7 +122,7 @@ local function handleShop(shop): ()
 			return
 		end
 
-		if stateChecks:HasSpace(player, "OwnedPets", count, playerState.MaxPets) then
+		if playerState.CurrentPetCount + count > playerState.MaxPetCount then
 			hatching = false
 			return
 		end
@@ -190,7 +194,7 @@ local function handleShop(shop): ()
 end
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed or not validInputs[input.KeyCode] or hatchingUI.Enabled then
+	if gameProcessed or not validInputs[input.KeyCode] or hatching then
 		return
 	end
 

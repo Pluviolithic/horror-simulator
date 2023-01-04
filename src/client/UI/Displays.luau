@@ -5,7 +5,6 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local player = Players.LocalPlayer
 local Client = StarterPlayer.StarterPlayerScripts.Client
 
-local stateChecks = require(ReplicatedStorage.Common.Utils.Player.StateChecks)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
@@ -33,9 +32,9 @@ Promise.new(function(resolve)
 	local interfaces: { [string]: GuiObject } = {
 		Rank = player.PlayerGui:WaitForChild "Rank",
 		MainUI = player.PlayerGui:WaitForChild "MainUI",
-		Pets = player.PlayerGui:WaitForChild "PetInventory",
 		WeaponShop = player.PlayerGui:WaitForChild "WeaponShop",
 		Jumpscares = player.PlayerGui:WaitForChild "Jumpscares",
+		PetInventory = player.PlayerGui:WaitForChild "PetInventory",
 	}
 	resolve(interfaces)
 end):andThen(function(interfaces)
@@ -50,9 +49,9 @@ end):andThen(function(interfaces)
 			end,
 		},
 		{
-			first = interfaces.Pets.Background.Storage,
+			first = interfaces.PetInventory.Background.Storage.Amount,
 			second = function(playerState)
-				return stateChecks:SumValues(playerState.OwnedPets) .. "/" .. playerState.MaxPets
+				return playerState.CurrentPetCount .. "/" .. playerState.MaxPetCount
 			end,
 		},
 	}

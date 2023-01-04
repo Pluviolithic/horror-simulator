@@ -73,6 +73,7 @@ return Rodux.createReducer({}, {
 			[action.playerName] = {
 				OwnedPets = newOwnedPets,
 				FoundPets = newFoundPets,
+				CurrentPetCount = state[action.playerName].CurrentPetCount + #action.petNames,
 			},
 		})
 	end,
@@ -82,6 +83,13 @@ return Rodux.createReducer({}, {
 				AwardedGamepasses = Sift.Dictionary.mergeDeep(state[action.playerName].AwardedGamepasses, {
 					[action.gamepassID] = true,
 				}),
+			},
+		})
+	end,
+	increaseMaxPetCount = function(state, action)
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				MaxPetCount = state[action.playerName].MaxPetCount + action.amount,
 			},
 		})
 	end,
