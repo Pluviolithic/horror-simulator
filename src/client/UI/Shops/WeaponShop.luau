@@ -133,9 +133,13 @@ function WeaponShop:ClearFocusedDisplay()
 	end
 end
 
-function WeaponShop:Refresh()
+function WeaponShop:Refresh(): ()
 	local playerState = store:getState().Players[player.Name]
 	local restAreLocked: boolean = false
+
+	if not playerState or not next(playerState) then
+		return
+	end
 
 	self:ClearFocusedDisplay()
 
@@ -186,6 +190,6 @@ function WeaponShop:OnOpen()
 	self:Refresh()
 end
 
-WeaponShop:_initialize()
+task.spawn(WeaponShop._initialize, WeaponShop)
 
 return WeaponShop
