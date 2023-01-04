@@ -9,6 +9,7 @@ local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local stateChecks = require(ReplicatedStorage.Common.Utils.Player.StateChecks)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
@@ -115,6 +116,11 @@ local function handleShop(shop): ()
 		if playerState.Gems < eggGemPrice * count then
 			hatching = false
 			return
+		end
+
+		if stateChecks.HasSpace(player, "OwnedPets", count, playerState.MaxPets) then
+			hatching = false
+			return nil
 		end
 
 		if (count == 1 or playerState.Gems < eggGemPrice * 3) and not auto then
