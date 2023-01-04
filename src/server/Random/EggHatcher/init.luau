@@ -40,7 +40,7 @@ Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: numb
 		return nil
 	end
 
-	if stateChecks.HasSpace(player, "OwnedPets", count, playerState.MaxPets) then
+	if stateChecks:HasSpace(player, "OwnedPets", count, playerState.MaxPets) then
 		return nil
 	end
 

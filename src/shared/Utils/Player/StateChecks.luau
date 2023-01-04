@@ -12,11 +12,17 @@ else
 	store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 end
 
-return {
-	HasSpace = function(player, category, amount, max)
-		local playerState = store:getState().Players[player.Name]
-		return Sift.Array.reduce(Sift.Dictionary.values(playerState[category]), function(acc, ownedCount)
-			return acc + ownedCount
-		end, 0) + amount <= max
-	end,
-}
+local StateChecks = {}
+
+function StateChecks:SumValues(player, category)
+	local playerState = store:getState().Players[player.Name]
+	return Sift.Array.reduce(Sift.Dictionary.values(playerState[category]), function(acc, ownedCount)
+		return acc + ownedCount
+	end, 0)
+end
+
+function StateChecks:HasSpace(player, category, amount, max)
+	return self:SumValues(player, category) + amount <= max
+end
+
+return StateChecks

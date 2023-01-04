@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local player = Players.LocalPlayer
 local Client = StarterPlayer.StarterPlayerScripts.Client
 
+local stateChecks = require(ReplicatedStorage.Common.Utils.Player.StateChecks)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
@@ -21,7 +22,7 @@ local function updateDisplays(state, displays)
 		local display = displayData.first
 		local format = displayData.second
 		if format then
-			display.Text = format(playerState[display.Name])
+			display.Text = format(playerState, display.Name)
 		else
 			display.Text = formatter.formatNumberWithSuffix(playerState[display.Parent.Name])
 		end
@@ -44,8 +45,14 @@ end):andThen(function(interfaces)
 		{ first = interfaces.MainUI.Gems.Amount },
 		{
 			first = interfaces.WeaponShop.LeftBackground.Gems,
-			second = function(gems)
-				return formatter.formatNumberWithSuffix(gems) .. " Gems"
+			second = function(playerState, displayName)
+				return formatter.formatNumberWithSuffix(playerState[displayName]) .. " Gems"
+			end,
+		},
+		{
+			first = interfaces.Pets.Background.Storage,
+			second = function(playerState)
+				return stateChecks:SumValues(playerState.OwnedPets) .. "/" .. playerState.MaxPets
 			end,
 		},
 	}

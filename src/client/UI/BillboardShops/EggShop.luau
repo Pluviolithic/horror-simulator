@@ -18,11 +18,11 @@ local fasterHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["FasterH
 
 local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
+-- eventually add most of these to a config folder
 local hatchTime: number = 3
 local eggGemPrice: number = 50
 local hatching: boolean = false
 local hatchDisplayTime: number = 4
--- eventually add to config folder
 local maxActivationDistance: number = 15
 
 local rarityColorConfig = ReplicatedStorage.Config.RarityColors
@@ -118,9 +118,9 @@ local function handleShop(shop): ()
 			return
 		end
 
-		if stateChecks.HasSpace(player, "OwnedPets", count, playerState.MaxPets) then
+		if stateChecks:HasSpace(player, "OwnedPets", count, playerState.MaxPets) then
 			hatching = false
-			return nil
+			return
 		end
 
 		if (count == 1 or playerState.Gems < eggGemPrice * 3) and not auto then
