@@ -22,35 +22,35 @@ function PetInventory:_initialize()
 		self:setEnabled(not self._isOpen)
 	end)
 
-    self._ui.Background.Storage.Buy.Activated:Connect(function()
-        local playerState = store:getState().Players[player.Name]
-        if playerState.MaxPetCount == 30 or playerState.MaxPetCount == 130 then
-            MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+50"].Value)
-        else
-            MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+100"].Value)
-        end
-    end)
+	self._ui.Background.Storage.Buy.Activated:Connect(function()
+		local playerState = store:getState().Players[player.Name]
+		if playerState.MaxPetCount == 30 or playerState.MaxPetCount == 130 then
+			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+50"].Value)
+		else
+			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+100"].Value)
+		end
+	end)
 
-    playerStatePromise:andThen(function()
-        self:Refresh()
+	playerStatePromise:andThen(function()
+		self:Refresh()
 
-        store.changed:connect(function(newState, oldState)
-            if newState.Players[player.Name].MaxPetCount ~= oldState.Players[player.Name].MaxPetCount then
-                self:Refresh()
-            end
-        end)
-    end)
+		store.changed:connect(function(newState, oldState)
+			if newState.Players[player.Name].MaxPetCount ~= oldState.Players[player.Name].MaxPetCount then
+				self:Refresh()
+			end
+		end)
+	end)
 end
 
 function PetInventory:Refresh()
-    local playerState = store:getState().Players[player.Name]
+	local playerState = store:getState().Players[player.Name]
 	if not playerState or not next(playerState) then
 		return
 	end
 
-    if playerState.MaxPetCount == 180 and self._ui.Background.Storage:FindFirstChild("Buy") then
-        self._ui.Background.Storage.Buy:Destroy()
-    end
+	if playerState.MaxPetCount == 180 and self._ui.Background.Storage:FindFirstChild "Buy" then
+		self._ui.Background.Storage.Buy:Destroy()
+	end
 end
 
 function PetInventory:ClearFocusedDisplay() end
