@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local RunService = game:GetService "RunService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local UserInputService = game:GetService "UserInputService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
@@ -23,6 +24,7 @@ local eggGemPrice: number = 50
 local hatching: boolean = false
 local hatchDisplayTime: number = 4
 local maxActivationDistance: number = 15
+local movementConnection: RBXScriptConnection = nil
 
 local autoLastEnabled = -1
 local autoLastDisabled = 0
@@ -110,7 +112,6 @@ local function handleShop(shop): ()
 	local areaName: string = shop.Name:sub(1, -6)
 	local debounce: boolean = true
 	local function buyEgg(count: number, auto: boolean): ()
-
 		if not debounce then
 			return
 		end
@@ -121,6 +122,9 @@ local function handleShop(shop): ()
 
 		if auto then
 			if autoLastEnabled > autoLastDisabled then
+				if movementConnection then
+					movementConnection:Disconnect()
+				end
 				autoLastDisabled = os.time()
 				return
 			else
@@ -179,6 +183,26 @@ local function handleShop(shop): ()
 				return
 			end
 		end
+
+		local t = 0
+		movementConnection = RunService.RenderStepped:Connect(function(delta)
+			t += delta
+			if t < 1 then
+				return
+			end
+			t = 0
+			if player:DistanceFromCharacter(shop.Adornee.Position) > maxActivationDistance then
+				if auto then
+					if autoLastEnabled > autoLastDisabled then
+						autoLastDisabled = os.time()
+					else
+						autoLastEnabled = os.time()
+					end
+				end
+				movementConnection:Disconnect()
+				hatching = false
+			end
+		end)
 
 		Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName):andThen(function(results: { string }?)
 			displayPurchaseResults(results, areaName, count, auto)
