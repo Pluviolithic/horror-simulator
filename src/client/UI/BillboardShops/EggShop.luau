@@ -24,6 +24,9 @@ local hatching: boolean = false
 local hatchDisplayTime: number = 4
 local maxActivationDistance: number = 15
 
+local autoLastEnabled = -1
+local autoLastDisabled = 0
+
 local rarityColorConfig = ReplicatedStorage.Config.RarityColors
 
 local petAreas: { [string]: string } = {}
@@ -69,7 +72,6 @@ local function configureHatchUI(detailedResults: { [string]: any }, single: bool
 	hatchingUI.Enabled = true
 	task.wait(hatchDisplayTime)
 	hatchingUI.Enabled = false
-	hatching = false
 end
 
 function displayPurchaseResults(results: { string }?, areaName: string, count: number, auto: boolean): ()
@@ -90,7 +92,7 @@ function displayPurchaseResults(results: { string }?, areaName: string, count: n
 		configureHatchUI(detailedResults, false)
 	end
 
-	if auto then
+	if auto and autoLastEnabled > autoLastDisabled then
 		local playerState = store:getState().Players[player.Name]
 		if playerState.CurrentPetCount + count > playerState.MaxPetCount or playerState.Gems < count * eggGemPrice then
 			hatching = false
@@ -99,6 +101,8 @@ function displayPurchaseResults(results: { string }?, areaName: string, count: n
 		Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName):andThen(function(newResults: { string }?)
 			displayPurchaseResults(newResults, areaName, count, auto)
 		end)
+	else
+		hatching = false
 	end
 end
 
@@ -106,21 +110,32 @@ local function handleShop(shop): ()
 	local areaName: string = shop.Name:sub(1, -6)
 	local debounce: boolean = true
 	local function buyEgg(count: number, auto: boolean): ()
-		if not debounce or hatching then
+
+		if not debounce then
 			return
 		end
-		hatching = true
 		debounce = false
 		task.delay(0.5, function()
 			debounce = true
 		end)
 
+		if auto then
+			if autoLastEnabled > autoLastDisabled then
+				autoLastDisabled = os.time()
+				return
+			else
+				autoLastEnabled = os.time()
+			end
+		end
+
 		local playerState = store:getState().Players[player.Name]
 
-		if playerState.Gems < eggGemPrice * count then
+		if playerState.Gems < eggGemPrice * count or hatching then
 			hatching = false
 			return
 		end
+
+		hatching = true
 
 		if playerState.CurrentPetCount + count > playerState.MaxPetCount then
 			hatching = false
@@ -194,7 +209,7 @@ local function handleShop(shop): ()
 end
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed or not validInputs[input.KeyCode] or hatching then
+	if gameProcessed or not validInputs[input.KeyCode] then
 		return
 	end
 
