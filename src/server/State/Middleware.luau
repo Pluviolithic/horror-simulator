@@ -15,7 +15,7 @@ local function updateClientMiddleware(nextDispatch)
 		local replicationRule = replicationRules[action.type]
 		if replicationRule == Enum.ReplicationRules.All then
 			Remotes.Server:Get("SendRoduxAction"):SendToAllPlayers(action)
-		elseif replicationRule == Enum.ReplicationRules.Individual then
+		elseif replicationRule ~= Enum.ReplicationRules.None then
 			Remotes.Server:Get("SendRoduxAction"):SendToPlayer(Players[action.playerName], action)
 		end
 		return nextDispatch(action)

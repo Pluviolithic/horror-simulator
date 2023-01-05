@@ -7,6 +7,10 @@ return {
 	addPlayer = Enum.ReplicationRules.All,
 	removePlayer = Enum.ReplicationRules.All,
 
+	--[[
+		DEPRECATED
+		Unless otherwise specified, the rule is individual for a given action
+		
 	equipWeapon = Enum.ReplicationRules.Individual,
 	givePlayerPets = Enum.ReplicationRules.Individual,
 	resetPlayerData = Enum.ReplicationRules.Individual,
@@ -18,4 +22,5 @@ return {
 	incrementPlayerStat = Enum.ReplicationRules.Individual,
 	setCurrentPunchingBag = Enum.ReplicationRules.Individual,
 	updatePlayerWithProfile = Enum.ReplicationRules.Individual,
+	]]
 }

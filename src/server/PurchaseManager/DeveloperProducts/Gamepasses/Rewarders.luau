@@ -15,9 +15,11 @@ return {
 		store:dispatch(actions.equipWeapon(player.Name, "Hero Blade"))
 	end,
 	[104653111] = function(player: Player)
+		print("giving player 50 more pet slots")
 		store:dispatch(actions.increaseMaxPetCount(player.Name, 50))
 	end,
 	[104653130] = function(player: Player)
+		print("giving player 100 more pet slots")
 		store:dispatch(actions.increaseMaxPetCount(player.Name, 100))
 	end,
 }
