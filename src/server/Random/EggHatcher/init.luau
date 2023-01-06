@@ -8,6 +8,7 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 
 local eggGemPrice: number = 50
+local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 
 local function getWeightedRandom(weights: { [string]: { [string]: string | number } }): string
@@ -35,7 +36,7 @@ end
 Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: number, areaName: string): { string }?
 	local playerState = store:getState().Players[player.Name]
 
-	if not playerState.UnlockedAreas[areaName] or playerState.Gems < eggGemPrice then
+	if areaRequirements[areaName].Value > playerState.Strength or playerState.Gems < eggGemPrice then
 		return nil
 	end
 

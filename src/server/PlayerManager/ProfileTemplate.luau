@@ -13,9 +13,6 @@ return {
 	AwardedGamepasses = {},
 	FoundPets = {},
 	OwnedPets = {},
-	UnlockedAreas = {
-		["Clown Town"] = true,
-	},
 	OwnedWeapons = {
 		["Fists"] = true,
 	},
