@@ -17,7 +17,7 @@ return Rodux.createReducer({}, {
 	end,
 	updatePlayerWithProfile = function(state, action)
 		return Sift.Dictionary.mergeDeep(state, {
-			[action.playerName] = Sift.Dictionary.mergeDeep(defaultStates.PlayerState, action.profileData),
+			[action.playerName] = Sift.Dictionary.mergeDeep(table.clone(defaultStates.PlayerState), action.profileData),
 		})
 	end,
 	incrementPlayerStat = function(state, action)
@@ -35,9 +35,11 @@ return Rodux.createReducer({}, {
 		})
 	end,
 	resetPlayerData = function(state, action)
-		return Sift.Dictionary.mergeDeep(state, {
-			[action.playerName] = defaultStates.PlayerState,
+		local newState = Sift.Dictionary.merge(state, {
+			[action.playerName] = table.clone(defaultStates.PlayerState),
 		})
+		print(newState)
+		return newState
 	end,
 	setCurrentPunchingBag = function(state, action)
 		return Sift.Dictionary.mergeDeep(state, {

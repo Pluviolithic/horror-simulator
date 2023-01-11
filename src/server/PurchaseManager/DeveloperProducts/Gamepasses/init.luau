@@ -24,7 +24,7 @@ local function checkIfObtainedRewards(player: Player)
 	for gamepassID, rewarder in rewarders do
 		if not playerState.AwardedGamepasses[gamepassID] then
 			local success, err =
-				pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, gamepassID)
+				pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, tonumber(gamepassID))
 			if not success then
 				warn(err)
 				continue

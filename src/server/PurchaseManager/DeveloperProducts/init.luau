@@ -8,7 +8,8 @@ local actions = require(ServerScriptService.Server.State.Actions)
 
 MarketplaceService.PromptGamePassPurchaseFinished:Connect(
 	function(player: Player, gamepassID: number, purchased: boolean)
-		if not purchased then
+		local playerState = store:getState().Players[player.Name]
+		if not purchased or playerState.AwardedGamepasses[gamepassID] then
 			return
 		end
 
