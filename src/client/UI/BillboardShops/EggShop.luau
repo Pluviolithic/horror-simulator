@@ -15,6 +15,8 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 local fasterHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["FasterHatch"].Value
+local doubleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["2XLuck"].Value
+local tripleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3XLuck"].Value
 
 local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
@@ -32,22 +34,28 @@ local autoLastDisabled = 0
 local rarityColorConfig = ReplicatedStorage.Config.RarityColors
 
 local petAreas: { [string]: string } = {}
+local rarityListeners: { (number) -> () } = {}
 local listeners: { [BillboardGui]: (Enum.KeyCode) -> () } = {}
 local validInputs: { [Enum.KeyCode]: boolean } = {
 	[Enum.KeyCode.E] = true,
 	[Enum.KeyCode.R] = true,
 	[Enum.KeyCode.T] = true,
 }
+local luckBoostedRarities = {
+	Rare = true,
+	Epic = true,
+	Legendary = true,
+}
 
-local function configureHatchUI(detailedResults: { [string]: any }, single: boolean): ()
+local function configureHatchUI(detailedResults: { any }, single: boolean): ()
 	task.wait(hatchTime)
 
 	if single then
-		local petName: string = next(detailedResults) :: string
-		hatchingUI.Single.Pet.PetImage.Image = detailedResults[petName].ImageID.Value
-		hatchingUI.Single.Pet.PetName.Text = petName
-		hatchingUI.Single.Pet.Rarity.Text = detailedResults[petName].RarityName.Value
-		hatchingUI.Single.Pet.Rarity.TextColor3 = rarityColorConfig[detailedResults[petName].RarityName.Value].Value
+		local pet = detailedResults[1]
+		hatchingUI.Single.Pet.PetImage.Image = pet.ImageID.Value
+		hatchingUI.Single.Pet.PetName.Text = pet.Name
+		hatchingUI.Single.Pet.Rarity.Text = pet.RarityName.Value
+		hatchingUI.Single.Pet.Rarity.TextColor3 = rarityColorConfig[pet.RarityName.Value].Value
 
 		hatchingUI.Single.Visible = true
 		hatchingUI.Triple.Visible = false
@@ -59,16 +67,14 @@ local function configureHatchUI(detailedResults: { [string]: any }, single: bool
 		return
 	end
 
-	local i: number = 1
-	for petName, pet in detailedResults do
+	for i, pet in detailedResults do
 		hatchingUI.Triple["Pet" .. i].PetImage.Image = pet.ImageID.Value
-		hatchingUI.Triple["Pet" .. i].PetName.Text = petName
+		hatchingUI.Triple["Pet" .. i].PetName.Text = pet.Name
 		hatchingUI.Triple["Pet" .. i].Rarity.Text = pet.RarityName.Value
 		hatchingUI.Triple["Pet" .. i].Rarity.TextColor3 = rarityColorConfig[pet.RarityName.Value].Value
 
 		hatchingUI.Triple.Visible = true
 		hatchingUI.Single.Visible = false
-		i += 1
 	end
 
 	hatchingUI.Enabled = true
@@ -85,7 +91,7 @@ function displayPurchaseResults(results: { string }?, areaName: string, count: n
 	local detailedResults = {}
 
 	for _, petName in results :: { string } do
-		detailedResults[petName] = ReplicatedStorage.Pets[areaName][petName]
+		table.insert(detailedResults, ReplicatedStorage.Pets[areaName][petName])
 	end
 
 	if #results :: { string } == 1 then
@@ -134,7 +140,11 @@ local function handleShop(shop): ()
 
 		local playerState = store:getState().Players[player.Name]
 
-		if playerState.Gems < eggGemPrice * count or hatching then
+		if hatching then
+			return
+		end
+
+		if playerState.Gems < eggGemPrice * count then
 			hatching = false
 			return
 		end
@@ -209,6 +219,42 @@ local function handleShop(shop): ()
 		end)
 	end
 
+	table.insert(rarityListeners, function(luck: number): ()
+		if luck == 0 then
+			return
+		end
+
+		local petUIs = shop.Background.Pets:GetChildren()
+		local petFolder = ReplicatedStorage.Pets[areaName]
+		local normalRarity = 0
+		local boostedRarity = 0
+		local boostedPetCount = 0
+
+		for _, petUI in petUIs do
+			local rarity = petFolder[petUI.Name].Rarity.Value
+
+			if not luckBoostedRarities[petFolder[petUI.Name].RarityName.Value] then
+				continue
+			end
+
+			normalRarity += rarity
+			boostedPetCount += 1
+			boostedRarity += rarity * luck
+
+			petUI.RarityText.Text = string.format("%.1f%%", rarity * luck):gsub("%.0", "")
+		end
+
+		local rarityReduceAmount = (boostedRarity - normalRarity) / (#petUIs - boostedPetCount)
+		for _, petUI in shop.Background.Pets:GetChildren() do
+			if luckBoostedRarities[petFolder[petUI.Name].RarityName.Value] then
+				continue
+			end
+
+			petUI.RarityText.Text =
+				string.format("%.1f%%", petFolder[petUI.Name].Rarity.Value - rarityReduceAmount):gsub("%.0", "")
+		end
+	end)
+
 	shop.Background.Open1.Activated:Connect(function()
 		buyEgg(1, false)
 	end)
@@ -219,6 +265,14 @@ local function handleShop(shop): ()
 
 	shop.Background.Auto.Activated:Connect(function()
 		buyEgg(1, true)
+	end)
+
+	shop.Background["2xLuck"].Activated:Connect(function()
+		MarketplaceService:PromptGamePassPurchase(player, doubleLuckGamepassID)
+	end)
+
+	shop.Background["3xLuck"].Activated:Connect(function()
+		MarketplaceService:PromptGamePassPurchase(player, tripleLuckGamepassID)
 	end)
 
 	listeners[shop] = function(keyCode: Enum.KeyCode): ()
@@ -265,10 +319,24 @@ local function updateFoundsDisplay(foundPets): ()
 	end
 end
 
+local function updateRarityListeners(luck: number): ()
+	for _, listener in rarityListeners do
+		listener(luck)
+	end
+end
+
 playerStatePromise:andThen(function()
+	updateRarityListeners(store:getState().Players[player.Name].Luck)
 	updateFoundsDisplay(store:getState().Players[player.Name].FoundPets)
 	store.changed:connect(function(newState, oldState)
-		if newState.Players[player.Name].FoundPets == oldState.Players[player.Name].FoundPets then
+		local newPlayerState = newState.Players[player.Name]
+		local oldPlayerState = oldState.Players[player.Name]
+
+		if newPlayerState.Luck ~= oldPlayerState.Luck then
+			updateRarityListeners(newPlayerState.Luck)
+		end
+
+		if newPlayerState.FoundPets == oldPlayerState.FoundPets then
 			return
 		end
 		task.delay(3.5, function()

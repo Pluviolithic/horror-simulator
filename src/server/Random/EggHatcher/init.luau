@@ -3,6 +3,7 @@ local MarketplaceService = game:GetService "MarketplaceService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local rarities = require(script.Rarities)
+local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
@@ -11,7 +12,47 @@ local eggGemPrice: number = 50
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
 
-local function getWeightedRandom(weights: { [string]: { [string]: string | number } }): string
+local luckBoostedRarities = {
+	Rare = true,
+	Epic = true,
+	Legendary = true,
+}
+
+local function getWeightedRandom(player: Player, weights: { [string]: { [string]: string | number } }): string
+	local luck = store:getState().Players[player.Name].Luck
+	local newWeights = {}
+
+	if luck ~= 0 then
+		local normalRarity = 0
+		local boostedRarity = 0
+		local boostedPetCount = 0
+		for pet, weight in weights do
+			if luckBoostedRarities[weight.RarityName] then
+				boostedPetCount += 1
+				normalRarity += weight.Rarity
+				boostedRarity += weight.Rarity * luck
+				newWeights[pet] = {
+					Rarity = weight.Rarity * luck,
+					RarityName = weight.RarityName,
+				}
+			end
+		end
+
+		local rarityReduceAmount = (boostedRarity - normalRarity) / (Sift.Dictionary.count(weights) - boostedPetCount)
+		for pet, weight in weights do
+			if not luckBoostedRarities[weight.RarityName] then
+				newWeights[pet] = {
+					Rarity = weight.Rarity - rarityReduceAmount,
+					RarityName = weight.RarityName,
+				}
+			end
+		end
+	end
+
+	if luck ~= 0 then
+		weights = newWeights
+	end
+
 	local sum = 0
 	for _, weight in weights do
 		sum += weight.Rarity
@@ -45,7 +86,7 @@ Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: numb
 	end
 
 	if count == 1 or playerState.Gems < 3 * eggGemPrice then
-		local results = { getWeightedRandom(rarities[areaName]) }
+		local results = { getWeightedRandom(player, rarities[areaName]) }
 		awardPetsToPlayer(player, results)
 		return results
 	end
@@ -62,7 +103,7 @@ Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: numb
 
 	local results: { string } = {}
 	for i = 1, 3 do
-		results[i] = getWeightedRandom(rarities[areaName])
+		results[i] = getWeightedRandom(player, rarities[areaName])
 	end
 	awardPetsToPlayer(player, results)
 

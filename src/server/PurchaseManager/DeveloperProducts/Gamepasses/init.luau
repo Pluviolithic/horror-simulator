@@ -46,9 +46,9 @@ end
 Players.PlayerAdded:Connect(checkIfObtainedRewards)
 
 return function(player: Player, gamepassID: number): (boolean, string?)
-	if not rewarders[gamepassID] then
+	if not rewarders[tostring(gamepassID)] then
 		return false
 	end
 
-	return pcall(rewarders[gamepassID], player)
+	return pcall(rewarders[tostring(gamepassID)], player)
 end

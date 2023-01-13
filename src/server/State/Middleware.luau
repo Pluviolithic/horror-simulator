@@ -4,7 +4,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 
 local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
-local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
+--local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
@@ -45,6 +45,8 @@ local function savePlayerDataMiddleware(nextDispatch)
 				data.AwardedGamepasses[action.gamepassID] = true
 			elseif action.type == "equipWeapon" then
 				data.EquippedWeapon = action.weaponName
+			elseif action.type == "increasePlayerLuck" then
+				data.Luck += action.amount
 			elseif action.type == "resetPlayerData" then
 				profiles[action.playerName].Data = table.clone(profileTemplate)
 			end
@@ -72,5 +74,5 @@ return {
 	savePlayerDataMiddleware,
 	updateLeaderboardMiddleware,
 	updateClientMiddleware,
-	Rodux.loggerMiddleware,
+	--Rodux.loggerMiddleware,
 }
