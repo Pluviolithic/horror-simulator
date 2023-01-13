@@ -95,4 +95,11 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	increasePlayerLuck = function(state, action)
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				Luck = state[action.playerName].Luck + action.amount,
+			},
+		})
+	end,
 })

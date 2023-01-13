@@ -14,10 +14,20 @@ return {
 		store:dispatch(actions.givePlayerWeapon(player.Name, "Hero Blade"))
 		store:dispatch(actions.equipWeapon(player.Name, "Hero Blade"))
 	end,
+	-- increase pet storage by 50
 	["104653111"] = function(player: Player)
 		store:dispatch(actions.increaseMaxPetCount(player.Name, 50))
 	end,
+	-- increase pet storage by 100
 	["104653130"] = function(player: Player)
 		store:dispatch(actions.increaseMaxPetCount(player.Name, 100))
+	end,
+	-- increase player luck multiplier by 2
+	["104655313"] = function(player: Player)
+		store:dispatch(actions.increasePlayerLuck(player.Name, 2))
+	end,
+	-- increase player luck multiplier by 3
+	["104655363"] = function(player: Player)
+		store:dispatch(actions.increasePlayerLuck(player.Name, 3))
 	end,
 }

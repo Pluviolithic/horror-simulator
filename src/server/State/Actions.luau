@@ -79,4 +79,10 @@ return {
 			amount = amount,
 		}
 	end),
+	increasePlayerLuck = makeActionCreator("increasePlayerLuck", function(playerName: string, amount: number)
+		return {
+			playerName = playerName,
+			amount = amount,
+		}
+	end),
 }

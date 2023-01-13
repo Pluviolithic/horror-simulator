@@ -8,6 +8,7 @@ return {
 		Kills = 0,
 		Rebirths = 0,
 
+		Luck = 0,
 		Gems = 0,
 		Rank = 1,
 
