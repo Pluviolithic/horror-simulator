@@ -57,6 +57,7 @@ local function handleEnemy(enemy)
 	healthValue.Value = maxHealth
 
 	local function startEnemyAnimations(): ()
+		local t = if isBoss then 1 else 0.5
 		runEnemyAnimations = true
 		repeat
 			attackTrack.Priority = Enum.AnimationPriority.Action
@@ -65,7 +66,7 @@ local function handleEnemy(enemy)
 			attackTrack:Destroy()
 			currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
 			attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
-			task.wait(0.5)
+			task.wait(t)
 		until not runEnemyAnimations
 	end
 
@@ -252,6 +253,7 @@ local function handleEnemy(enemy)
 		task.wait(0.5)
 
 		local damageMultiplier = if weaponName == "Fists" then 1 else weapons[weaponName].Damage.Value
+		local counter = 0
 
 		while
 			runAnimations
@@ -271,13 +273,16 @@ local function handleEnemy(enemy)
 			healthValue.Value = maxHealth - totalDamageDealt
 
 			-- now receive damage from enemy
-			humanoid.Health -= damageValue.Value
+			if not isBoss or counter % 2 == 0 then
+				humanoid.Health -= damageValue.Value
+			end
 
 			-- need to quick exit for this one
 			if totalDamageDealt >= maxHealth then
 				break
 			end
 
+			counter += 1
 			task.wait(1)
 		end
 
