@@ -1,6 +1,9 @@
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
+
 local HealthBar = {}
 HealthBar.__index = HealthBar
 
+local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local robloxHealthGreen: Color3 = Color3.fromRGB(0, 255, 17)
 local robloxHealthRed: Color3 = Color3.fromRGB(255, 0, 0)
 
@@ -26,7 +29,7 @@ function HealthBar:resize(health: number, maxHealth: number)
 end
 
 function HealthBar:updateText(health: number, maxHealth: number)
-	self._healthBarText.Text = string.format("%d / %d", health, maxHealth)
+	self._healthBarText.Text = formatter.formatNumberWithSuffix(health) .. "/" .. formatter.formatNumberWithSuffix(maxHealth)
 end
 
 function HealthBar:recolor(health: number, maxHealth: number)
