@@ -7,6 +7,9 @@ Remotes.Client:Get("SendNPCHealthBar"):Connect(function(NPCHealthBar: any, enabl
 	if NPCHealthBar and not enabled then
 		NPCHealthBar.Enabled = false
 	elseif enabled then
+		if not NPCHealthBar:FindFirstAncestor("NPCUI") then
+			return
+		end
 		HealthBar.new(NPCHealthBar.Frame.Background.Frame):connect(humanoid)
 		NPCHealthBar.Enabled = true
 	end
