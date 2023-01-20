@@ -8,7 +8,7 @@ return {
 	Gems = 0,
 	Rank = 1,
 
-	FearMultiplier = 0,
+	PetFearMultiplier = 0,
 
 	CurrentPetCount = 0,
 	MaxPetCount = 30,

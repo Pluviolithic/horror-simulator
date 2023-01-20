@@ -107,7 +107,7 @@ return Rodux.createReducer({}, {
 				EquippedPets = Sift.Dictionary.mergeDeep(state[action.playerName].EquippedPets, {
 					[action.petName] = true,
 				}),
-				FearMultiplier = state[action.playerName].FearMultiplier
+				PetFearMultiplier = state[action.playerName].PetFearMultiplier
 					+ ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value,
 				CurrentPetEquipCount = state[action.playerName].CurrentPetEquipCount + 1,
 			},
@@ -119,7 +119,7 @@ return Rodux.createReducer({}, {
 				EquippedPets = Sift.Dictionary.mergeDeep(state[action.playerName].EquippedPets, {
 					[action.petName] = Sift.None,
 				}),
-				FearMultiplier = state[action.playerName].FearMultiplier
+				PetFearMultiplier = state[action.playerName].PetFearMultiplier
 					- ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value,
 				CurrentPetEquipCount = state[action.playerName].CurrentPetEquipCount - 1,
 			},

@@ -37,6 +37,8 @@ function PetInventory:_initialize()
 		store.changed:connect(function(newState, oldState)
 			if newState.Players[player.Name].MaxPetCount ~= oldState.Players[player.Name].MaxPetCount then
 				self:Refresh()
+			elseif newState.Players[player.Name].MaxPetEquipCount ~= oldState.Players[player.Name].MaxPetEquipCount then
+				self:Refresh()
 			end
 		end)
 	end)
@@ -51,6 +53,8 @@ function PetInventory:Refresh()
 	if playerState.MaxPetCount == 180 and self._ui.Background.Storage:FindFirstChild "Buy" then
 		self._ui.Background.Storage.Buy:Destroy()
 	end
+
+	-- get rid of buy button if max equipped pets is at gamepass limit
 end
 
 function PetInventory:ClearFocusedDisplay() end
