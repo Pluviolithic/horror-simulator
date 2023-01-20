@@ -54,6 +54,18 @@ end):andThen(function(interfaces)
 				return playerState.CurrentPetCount .. "/" .. playerState.MaxPetCount
 			end,
 		},
+		{
+			first = interfaces.PetInventory.Background.Equipped.Amount,
+			second = function(playerState)
+				return playerState.CurrentPetEquipCount .. "/" .. playerState.MaxPetEquipCount
+			end,
+		},
+		{
+			first = interfaces.PetInventory.Background.Multiplier.Amount,
+			second = function(playerState)
+				return "X" .. playerState.PetFearMultiplier
+			end,
+		},
 	}
 
 	playerStatePromise:andThen(function()
