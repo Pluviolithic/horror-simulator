@@ -38,7 +38,6 @@ return Rodux.createReducer({}, {
 		local newState = Sift.Dictionary.merge(state, {
 			[action.playerName] = table.clone(defaultStates.PlayerState),
 		})
-		print(newState)
 		return newState
 	end,
 	setCurrentPunchingBag = function(state, action)
@@ -99,6 +98,30 @@ return Rodux.createReducer({}, {
 		return Sift.Dictionary.mergeDeep(state, {
 			[action.playerName] = {
 				Luck = state[action.playerName].Luck + action.amount,
+			},
+		})
+	end,
+	equipPet = function(state, action)
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				EquippedPets = Sift.Dictionary.mergeDeep(state[action.playerName].EquippedPets, {
+					[action.petName] = true,
+				}),
+				FearMultiplier = state[action.playerName].FearMultiplier
+					+ ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value,
+				CurrentPetEquipCount = state[action.playerName].CurrentPetEquipCount + 1,
+			},
+		})
+	end,
+	unequipPet = function(state, action)
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				EquippedPets = Sift.Dictionary.mergeDeep(state[action.playerName].EquippedPets, {
+					[action.petName] = Sift.None,
+				}),
+				FearMultiplier = state[action.playerName].FearMultiplier
+					- ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value,
+				CurrentPetEquipCount = state[action.playerName].CurrentPetEquipCount - 1,
 			},
 		})
 	end,

@@ -29,7 +29,9 @@ function HealthBar:resize(health: number, maxHealth: number)
 end
 
 function HealthBar:updateText(health: number, maxHealth: number)
-	self._healthBarText.Text = formatter.formatNumberWithSuffix(health) .. "/" .. formatter.formatNumberWithSuffix(maxHealth)
+	self._healthBarText.Text = formatter.formatNumberWithSuffix(health)
+		.. "/"
+		.. formatter.formatNumberWithSuffix(maxHealth)
 end
 
 function HealthBar:recolor(health: number, maxHealth: number)

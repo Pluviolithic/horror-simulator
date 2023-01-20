@@ -85,4 +85,16 @@ return {
 			amount = amount,
 		}
 	end),
+	equipPet = makeActionCreator("equipPet", function(playerName: string, petName: string)
+		return {
+			playerName = playerName,
+			petName = petName,
+		}
+	end),
+	unequipPet = makeActionCreator("unequipPet", function(playerName: string, petName: string)
+		return {
+			playerName = playerName,
+			petName = petName,
+		}
+	end),
 }
