@@ -15,7 +15,19 @@ local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
 	ClearFocusedDisplay: () -> (),
 } & CentralUI.CentralUI
 
+local pets = ReplicatedStorage.Pets
+local rarityTemplates = ReplicatedStorage.RarityTemplates
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
+
+local function getPet(petName: string): Instance?
+	for _, area in pets:GetChildren() do
+		local pet = area:FindFirstChild(petName)
+		if pet then
+			return pet
+		end
+	end
+	return nil
+end
 
 function PetInventory:_initialize()
 	player.PlayerGui:WaitForChild("MainUI").Pets.Activated:Connect(function()
@@ -35,11 +47,12 @@ function PetInventory:_initialize()
 		self:Refresh()
 
 		store.changed:connect(function(newState, oldState)
-			if newState.Players[player.Name].MaxPetCount ~= oldState.Players[player.Name].MaxPetCount then
-				self:Refresh()
-			elseif newState.Players[player.Name].MaxPetEquipCount ~= oldState.Players[player.Name].MaxPetEquipCount then
-				self:Refresh()
+			if newState.Players[player.Name].MaxPetCount == oldState.Players[player.Name].MaxPetCount then
+				return
+			elseif newState.Players[player.Name].MaxPetEquipCount == oldState.Players[player.Name].MaxPetEquipCount then
+				return
 			end
+			self:Refresh()
 		end)
 	end)
 end
@@ -55,6 +68,25 @@ function PetInventory:Refresh()
 	end
 
 	-- get rid of buy button if max equipped pets is at gamepass limit
+
+	-- TODO: template creation should take into account previously created templates instead of destroying and recreating them
+	-- clear the inventory
+	for _, rarityTemplate in pairs(self._ui.Background.ScrollingFrame:GetChildren()) do
+		if rarityTemplate:IsA "ImageButton" then
+			rarityTemplate:Destroy()
+		end
+	end
+
+	-- display all the owned pets in the inventory
+	for petName in playerState.OwnedPets do
+		local pet = getPet(petName)
+		local rarityTemplate = rarityTemplates[pet.RarityName.Value]:Clone()
+
+		rarityTemplate.PetImage.Image = pet.ImageID.Value
+		rarityTemplate.PetName.Text = petName
+		rarityTemplate.Name = petName
+		rarityTemplate.Parent = self._ui.Background.ScrollingFrame
+	end
 end
 
 function PetInventory:ClearFocusedDisplay() end
