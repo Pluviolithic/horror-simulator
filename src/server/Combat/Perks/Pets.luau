@@ -7,17 +7,18 @@ local actions = require(ServerScriptService.Server.State.Actions)
 
 local pets = ReplicatedStorage.Pets
 
-local function petExists(petName: string): boolean
+local function getPet(petName: string): Instance?
 	for _, area in pets:GetChildren() do
-		if area:FindFirstChild(petName) then
-			return true
+		local pet = area:FindFirstChild(petName)
+		if pet then
+			return pet
 		end
 	end
-	return false
+	return nil
 end
 
 Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string)
-	if not petExists(petName) then
+	if not getPet(petName) then
 		return 1
 	end
 
@@ -37,7 +38,7 @@ Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string)
 end)
 
 Remotes.Server:Get("UnequipPet"):Connect(function(player: Player, petName: string)
-	if not petExists(petName) then
+	if not getPet(petName) then
 		return 1
 	end
 
@@ -51,3 +52,5 @@ Remotes.Server:Get("UnequipPet"):Connect(function(player: Player, petName: strin
 
 	return 0
 end)
+
+return 0
