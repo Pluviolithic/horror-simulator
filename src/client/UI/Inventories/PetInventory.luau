@@ -78,14 +78,17 @@ function PetInventory:Refresh()
 	end
 
 	-- display all the owned pets in the inventory
-	for petName in playerState.OwnedPets do
+	for petName, quantity in playerState.OwnedPets do
 		local pet = getPet(petName)
 		local rarityTemplate = rarityTemplates[pet.RarityName.Value]:Clone()
 
 		rarityTemplate.PetImage.Image = pet.ImageID.Value
 		rarityTemplate.PetName.Text = petName
 		rarityTemplate.Name = petName
-		rarityTemplate.Parent = self._ui.Background.ScrollingFrame
+
+		for i = 1, quantity do
+			rarityTemplate:Clone().Parent = self._ui.Background.ScrollingFrame
+		end
 	end
 end
 
