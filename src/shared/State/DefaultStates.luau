@@ -23,6 +23,7 @@ return {
 		AwardedGamepasses = {},
 		FoundPets = {},
 		OwnedPets = {},
+		LockedPets = {},
 		EquippedPets = {},
 		OwnedWeapons = {
 			["Fists"] = true,

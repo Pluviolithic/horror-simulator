@@ -41,6 +41,15 @@ local function savePlayerDataMiddleware(nextDispatch)
 					data.OwnedPets[petName] = if data.OwnedPets[petName] then data.OwnedPets[petName] + 1 else 1
 				end
 				data.CurrentPetCount = data.CurrentPetCount + #action.petNames
+			elseif action.type == "lockPet" then
+				data.LockedPets[action.petName] = if data.LockedPets[action.petName]
+					then data.LockedPets[action.petName] + 1
+					else 1
+			elseif action.type == "unlockPet" then
+				data.LockedPets[action.petName] = if data.LockedPets[action.petName]
+						and data.LockedPets[action.PetName] > 1
+					then data.LockedPets[action.petName] - 1
+					else nil
 			elseif action.type == "increaseMaxPetCount" then
 				data.MaxPetCount += action.amount
 			elseif action.type == "awardGamepassToPlayer" then

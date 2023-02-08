@@ -77,6 +77,9 @@ function PetInventory:Refresh()
 		end
 	end
 
+	local focusedTemplate
+	local lockCounters = table.clone(playerState.LockedPets)
+
 	-- display all the owned pets in the inventory
 	for petName, quantity in playerState.OwnedPets do
 		local pet = getPet(petName)
@@ -84,10 +87,35 @@ function PetInventory:Refresh()
 
 		rarityTemplate.PetImage.Image = pet.ImageID.Value
 		rarityTemplate.PetName.Text = petName
+		rarityTemplate.Lock.Visible = false
+		rarityTemplate.Unlocked.Visible = false
 		rarityTemplate.Name = petName
 
-		for i = 1, quantity do
-			rarityTemplate:Clone().Parent = self._ui.Background.ScrollingFrame
+		for _ = 1, quantity do
+			local petTemplate = rarityTemplate:Clone()
+
+			local lockStatus
+			if lockCounters[petName] and lockCounters[petName] > 0 then
+				lockCounters[petName] -= 1
+				lockStatus = "Lock"
+			else
+				lockStatus = "Unlocked"
+			end
+
+			petTemplate.MouseEnter:Connect(function()
+				petTemplate[lockStatus].Visible = true
+			end)
+			petTemplate.MouseLeave:Connect(function()
+				if focusedTemplate == petTemplate then
+					return
+				end
+				petTemplate[lockStatus].Visible = false
+			end)
+			petTemplate.Activated:Connect(function()
+				focusedTemplate = petTemplate
+			end)
+
+			petTemplate.Parent = self._ui.Background.ScrollingFrame
 		end
 	end
 end

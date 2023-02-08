@@ -125,4 +125,24 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	lockPet = function(state, action)
+		local petLockCount = state[action.playerName].LockedPets[action.petName] or 0
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				LockedPets = Sift.Dictionary.mergeDeep(state[action.playerName].LockedPets, {
+					[action.petName] = petLockCount + 1,
+				}),
+			},
+		})
+	end,
+	unlockPet = function(state, action)
+		local petLockCount = state[action.playerName].LockedPets[action.petName] or 0
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				LockedPets = Sift.Dictionary.mergeDeep(state[action.playerName].LockedPets, {
+					[action.petName] = if petLockCount > 1 then petLockCount - 1 else Sift.None,
+				}),
+			},
+		})
+	end,
 })

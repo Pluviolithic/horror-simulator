@@ -97,4 +97,16 @@ return {
 			petName = petName,
 		}
 	end),
+	lockPet = makeActionCreator("lockPet", function(playerName: string, petName: string)
+		return {
+			playerName = playerName,
+			petName = petName,
+		}
+	end),
+	unlockPet = makeActionCreator("unlockPet", function(playerName: string, petName: string)
+		return {
+			playerName = playerName,
+			petName = petName,
+		}
+	end),
 }
