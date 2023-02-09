@@ -5,12 +5,17 @@ local MarketplaceService = game:GetService "MarketplaceService"
 
 local player = Players.LocalPlayer
 
+local Sift = require(ReplicatedStorage.Common.lib.Sift)
+local Remotes = require(ReplicatedStorage.Common.Remotes)
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory") :: {
 	_initialize: () -> (),
+	_focusedTemplate: Instance?,
+	_initializeLockButton: (ImageButton | any) -> (),
 	Refresh: () -> (),
 	ClearFocusedDisplay: () -> (),
 } & CentralUI.CentralUI
@@ -18,6 +23,10 @@ local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
 local pets = ReplicatedStorage.Pets
 local rarityTemplates = ReplicatedStorage.RarityTemplates
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
+
+local function multiplierComparator(a: { [any]: any }, b: { [any]: any }): boolean
+	return a.Multiplier > b.Multiplier
+end
 
 local function getPet(petName: string): Instance?
 	for _, area in pets:GetChildren() do
@@ -29,7 +38,7 @@ local function getPet(petName: string): Instance?
 	return nil
 end
 
-function PetInventory:_initialize()
+function PetInventory:_initialize(): ()
 	player.PlayerGui:WaitForChild("MainUI").Pets.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)
@@ -57,6 +66,49 @@ function PetInventory:_initialize()
 	end)
 end
 
+function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, locked: boolean): ()
+	local destructor = Janitor.new()
+	destructor:LinkToInstance(petTemplate)
+	if locked then
+		petTemplate.Lock.Visible = true
+		destructor:Add(
+			petTemplate.Lock.Activated:Connect(function()
+				petTemplate.Lock.Visible = false
+				destructor:Cleanup()
+				Remotes.Client:Get("UnlockPet"):SendToServer(petTemplate.PetName.Text)
+				self:_initializeLockButton(petTemplate, false)
+			end),
+			"Disconnect"
+		)
+	else
+		destructor:Add(
+			petTemplate.MouseEnter:Connect(function()
+				petTemplate.Unlocked.Visible = true
+			end),
+			"Disconnect"
+		)
+		destructor:Add(
+			petTemplate.MouseLeave:Connect(function()
+				if self._focusedTemplate == petTemplate then
+					return
+				end
+				petTemplate.Unlocked.Visible = false
+			end),
+			"Disconnect"
+		)
+		destructor:Add(
+			petTemplate.Unlocked.Activated:Connect(function()
+				petTemplate.Unlocked.Visible = false
+				petTemplate.Lock.Visible = true
+				destructor:Cleanup()
+				Remotes.Client:Get("LockPet"):SendToServer(petTemplate.PetName.Text)
+				self:_initializeLockButton(petTemplate, true)
+			end),
+			"Disconnect"
+		)
+	end
+end
+
 function PetInventory:Refresh()
 	local playerState = store:getState().Players[player.Name]
 	if not playerState or not next(playerState) then
@@ -69,7 +121,7 @@ function PetInventory:Refresh()
 
 	-- get rid of buy button if max equipped pets is at gamepass limit
 
-	-- TODO: template creation should take into account previously created templates instead of destroying and recreating them
+	-- TODO: template creation should (maybe) take into account previously created templates instead of destroying and recreating them
 	-- clear the inventory
 	for _, rarityTemplate in pairs(self._ui.Background.ScrollingFrame:GetChildren()) do
 		if rarityTemplate:IsA "ImageButton" then
@@ -77,10 +129,13 @@ function PetInventory:Refresh()
 		end
 	end
 
-	local focusedTemplate
 	local lockCounters = table.clone(playerState.LockedPets)
+	local equippedCounters = table.clone(playerState.EquippedPets)
 
-	-- display all the owned pets in the inventory
+	local equippedPetTemplates = {}
+	local lockedPetTemplates = {}
+	local petTemplates = {}
+
 	for petName, quantity in playerState.OwnedPets do
 		local pet = getPet(petName)
 		local rarityTemplate = rarityTemplates[pet.RarityName.Value]:Clone()
@@ -89,34 +144,56 @@ function PetInventory:Refresh()
 		rarityTemplate.PetName.Text = petName
 		rarityTemplate.Lock.Visible = false
 		rarityTemplate.Unlocked.Visible = false
+		rarityTemplate.Equipped.Visible = false
 		rarityTemplate.Name = petName
 
 		for _ = 1, quantity do
 			local petTemplate = rarityTemplate:Clone()
+			local details = {
+				PetTemplate = petTemplate,
+				Multiplier = pet.Multiplier.Value,
+			}
 
-			local lockStatus
 			if lockCounters[petName] and lockCounters[petName] > 0 then
 				lockCounters[petName] -= 1
-				lockStatus = "Lock"
+				self:_initializeLockButton(petTemplate, true)
+				details.Locked = true
+				table.insert(lockedPetTemplates, details)
 			else
-				lockStatus = "Unlocked"
+				self:_initializeLockButton(petTemplate, false)
+				details.Locked = false
 			end
 
-			petTemplate.MouseEnter:Connect(function()
-				petTemplate[lockStatus].Visible = true
-			end)
-			petTemplate.MouseLeave:Connect(function()
-				if focusedTemplate == petTemplate then
-					return
-				end
-				petTemplate[lockStatus].Visible = false
-			end)
-			petTemplate.Activated:Connect(function()
-				focusedTemplate = petTemplate
-			end)
+			if equippedCounters[petName] and equippedCounters[petName] > 0 then
+				equippedCounters[petName] -= 1
+				petTemplate.Equipped.Visible = true
+				details.Equipped = true
+				table.insert(equippedPetTemplates, details)
+			else
+				details.Equipped = false
+			end
 
-			petTemplate.Parent = self._ui.Background.ScrollingFrame
+			if not details.Locked and not details.Equipped then
+				table.insert(petTemplates, details)
+			end
+
+			petTemplate.Activated:Connect(function()
+				if self._focusedTemplate then
+					self._focusedTemplate.Unlocked.Visible = false
+				end
+				self._focusedTemplate = petTemplate
+			end)
 		end
+	end
+
+	table.sort(equippedPetTemplates, multiplierComparator)
+	table.sort(lockedPetTemplates, multiplierComparator)
+	table.sort(petTemplates, multiplierComparator)
+
+	local templates = Sift.Array.concat(equippedPetTemplates, lockedPetTemplates, petTemplates)
+
+	for _, template in templates do
+		template.PetTemplate.Parent = self._ui.Background.ScrollingFrame
 	end
 end
 
