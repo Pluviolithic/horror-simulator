@@ -15,14 +15,19 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory") :: {
 	_initialize: () -> (),
 	_focusedTemplate: Instance?,
-	_initializeLockButton: (ImageButton | any) -> (),
+	_initializeLockButton: (petTemplate: ImageButton | any) -> (),
 	Refresh: () -> (),
-	ClearFocusedDisplay: () -> (),
+	_focusedDestructor: typeof(Janitor.new())?,
+	_clearFocusedDisplay: () -> (),
+	_setFocusedDisplay: (details: { [any]: any }) -> (),
 } & CentralUI.CentralUI
 
 local pets = ReplicatedStorage.Pets
 local rarityTemplates = ReplicatedStorage.RarityTemplates
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
+
+local ableToEvolveColor = Color3.fromRGB(0, 229, 255)
+local unableToEvolveColor = Color3.fromRGB(255, 255, 255)
 
 local function multiplierComparator(a: { [any]: any }, b: { [any]: any }): boolean
 	return a.Multiplier > b.Multiplier
@@ -150,6 +155,9 @@ function PetInventory:Refresh()
 		for _ = 1, quantity do
 			local petTemplate = rarityTemplate:Clone()
 			local details = {
+				PetName = petName,
+				Quantity = quantity,
+				PetImage = pet.ImageID.Value,
 				PetTemplate = petTemplate,
 				Multiplier = pet.Multiplier.Value,
 			}
@@ -182,6 +190,7 @@ function PetInventory:Refresh()
 					self._focusedTemplate.Unlocked.Visible = false
 				end
 				self._focusedTemplate = petTemplate
+				self:_setFocusedDisplay(details)
 			end)
 		end
 	end
@@ -197,7 +206,45 @@ function PetInventory:Refresh()
 	end
 end
 
-function PetInventory:ClearFocusedDisplay() end
+function PetInventory:_clearFocusedDisplay()
+	if self._focusedDestructor then
+		self._focusedDestructor:Cleanup()
+		self._focusedDestructor = nil
+	end
+
+	self._ui.RightBackground.Icon.Visible = false
+	self._ui.RightBackground.Equip.Visible = false
+	self._ui.RightBackground.Delete.Visible = false
+	self._ui.RightBackground.Evolve.Visible = false
+	self._ui.RightBackground.PetName.Visible = false
+	self._ui.RightBackground.PetImage.Visible = false
+	self._ui.RightBackground.Multiplier.Visible = false
+end
+
+function PetInventory:_setFocusedDisplay(details)
+	self:_clearFocusedDisplay()
+	self._focusedDestructor = Janitor.new()
+
+	self._ui.RightBackground.Icon.Visible = true
+	self._ui.RightBackground.Equip.Visible = true
+	self._ui.RightBackground.Delete.Visible = true
+
+	self._ui.RightBackground.PetName.Text = details.PetName
+	self._ui.RightBackground.PetImage.Image = details.PetImage
+	self._ui.RightBackground.Multiplier.Text = "x" .. details.Multiplier
+	self._ui.RightBackground.Evolve.EvolveText.Text = "Evolve (" .. math.min(details.Quantity, 5) .. "/5)"
+
+	if details.Quantity > 4 then
+		self._ui.RightBackground.Evolve.ImageColor3 = ableToEvolveColor
+	else
+		self._ui.RightBackground.Evolve.ImageColor3 = unableToEvolveColor
+	end
+
+	self._ui.RightBackground.Evolve.Visible = true
+	self._ui.RightBackground.PetName.Visible = true
+	self._ui.RightBackground.PetImage.Visible = true
+	self._ui.RightBackground.Multiplier.Visible = true
+end
 
 function PetInventory:OnOpen()
 	self:Refresh()
