@@ -116,11 +116,15 @@ return Rodux.createReducer({}, {
 	end,
 	unequipPet = function(state, action)
 		local petEquipCount = state[action.playerName].EquippedPets[action.petName] or 0
+		local newEquippedPets = Sift.Dictionary.mergeDeep(state[action.playerName].EquippedPets, {
+			[action.petName] = if petEquipCount > 1 then petEquipCount - 1 else Sift.None,
+		})
+		if not newEquippedPets[action.petName] then
+			newEquippedPets[action.petName] = Sift.None
+		end
 		return Sift.Dictionary.mergeDeep(state, {
 			[action.playerName] = {
-				EquippedPets = Sift.Dictionary.mergeDeep(state[action.playerName].EquippedPets, {
-					[action.petName] = if petEquipCount > 1 then petEquipCount - 1 else Sift.None,
-				}),
+				EquippedPets = newEquippedPets,
 				PetFearMultiplier = state[action.playerName].PetFearMultiplier
 					- ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value,
 				CurrentPetEquipCount = state[action.playerName].CurrentPetEquipCount - 1,
@@ -139,11 +143,15 @@ return Rodux.createReducer({}, {
 	end,
 	unlockPet = function(state, action)
 		local petLockCount = state[action.playerName].LockedPets[action.petName] or 0
+		local newLockedPets = Sift.Dictionary.mergeDeep(state[action.playerName].LockedPets, {
+			[action.petName] = if petLockCount > 1 then petLockCount - 1 else Sift.None,
+		})
+		if not newLockedPets[action.petName] then
+			newLockedPets[action.petName] = Sift.None
+		end
 		return Sift.Dictionary.mergeDeep(state, {
 			[action.playerName] = {
-				LockedPets = Sift.Dictionary.mergeDeep(state[action.playerName].LockedPets, {
-					[action.petName] = if petLockCount > 1 then petLockCount - 1 else Sift.None,
-				}),
+				LockedPets = newLockedPets,
 			},
 		})
 	end,

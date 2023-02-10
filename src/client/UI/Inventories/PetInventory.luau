@@ -74,6 +74,11 @@ end
 function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, locked: boolean): ()
 	local destructor = Janitor.new()
 	destructor:LinkToInstance(petTemplate)
+
+	if self._focusedTemplate == petTemplate then
+		petTemplate.Unlocked.Visible = true
+	end
+
 	if locked then
 		petTemplate.Lock.Visible = true
 		destructor:Add(
@@ -134,6 +139,8 @@ function PetInventory:Refresh()
 		end
 	end
 
+	self._focusedTemplate = nil
+
 	local lockCounters = table.clone(playerState.LockedPets)
 	local equippedCounters = table.clone(playerState.EquippedPets)
 
@@ -186,7 +193,10 @@ function PetInventory:Refresh()
 			end
 
 			petTemplate.Activated:Connect(function()
-				if self._focusedTemplate then
+				if self._focusedTemplate == petTemplate then
+					self:_clearFocusedDisplay()
+					return
+				elseif self._focusedTemplate then
 					self._focusedTemplate.Unlocked.Visible = false
 				end
 				self._focusedTemplate = petTemplate
@@ -210,6 +220,7 @@ function PetInventory:_clearFocusedDisplay()
 	if self._focusedDestructor then
 		self._focusedDestructor:Cleanup()
 		self._focusedDestructor = nil
+		self._focusedTemplate = nil
 	end
 
 	self._ui.RightBackground.Icon.Visible = false
@@ -240,6 +251,12 @@ function PetInventory:_setFocusedDisplay(details)
 		self._ui.RightBackground.Evolve.ImageColor3 = unableToEvolveColor
 	end
 
+	if details.Equipped then
+		self._ui.RightBackground.Equip.EquipText.Text = "Unequip"
+	else
+		self._ui.RightBackground.Equip.EquipText.Text = "Equip"
+	end
+
 	self._ui.RightBackground.Evolve.Visible = true
 	self._ui.RightBackground.PetName.Visible = true
 	self._ui.RightBackground.PetImage.Visible = true
@@ -247,6 +264,7 @@ function PetInventory:_setFocusedDisplay(details)
 end
 
 function PetInventory:OnOpen()
+	self:_clearFocusedDisplay()
 	self:Refresh()
 end
 
