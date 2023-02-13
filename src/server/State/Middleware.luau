@@ -41,6 +41,12 @@ local function savePlayerDataMiddleware(nextDispatch)
 					data.OwnedPets[petName] = if data.OwnedPets[petName] then data.OwnedPets[petName] + 1 else 1
 				end
 				data.CurrentPetCount = data.CurrentPetCount + #action.petNames
+			elseif action.type == "deletePet" then
+				data.OwnedPets[action.petName] -= 1
+				if data.OwnedPets[action.petName] <= 0 then
+					data.OwnedPets[action.petName] = nil
+				end
+				data.CurrentPetCount -= 1
 			elseif action.type == "lockPet" then
 				data.LockedPets[action.petName] = if data.LockedPets[action.petName]
 					then data.LockedPets[action.petName] + 1

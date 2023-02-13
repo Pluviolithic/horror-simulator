@@ -109,4 +109,10 @@ return {
 			petName = petName,
 		}
 	end),
+	deletePet = makeActionCreator("deletePet", function(playerName: string, petName: string)
+		return {
+			playerName = playerName,
+			petName = petName,
+		}
+	end),
 }

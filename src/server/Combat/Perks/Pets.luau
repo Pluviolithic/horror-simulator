@@ -85,4 +85,20 @@ Remotes.Server:Get("UnlockPet"):Connect(function(player: Player, petName: string
 	return 0
 end)
 
+Remotes.Server:Get("DeletePet"):Connect(function(player: Player, petName: string)
+	if not getPet(petName) then
+		return 1
+	end
+
+	local playerState = store:getState().Players[player.Name]
+
+	if not playerState.OwnedPets[petName] then
+		return 1
+	end
+
+	store:dispatch(actions.deletePet(player.Name, petName))
+
+	return 0
+end)
+
 return 0

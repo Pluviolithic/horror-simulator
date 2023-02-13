@@ -129,7 +129,7 @@ function PetInventory:Refresh()
 		self._ui.Background.Storage.Buy:Destroy()
 	end
 
-	-- get rid of buy button if max equipped pets is at gamepass limit
+	-- TODO: get rid of buy button if max equipped pets is at gamepass limit
 
 	-- TODO: template creation should (maybe) take into account previously created templates instead of destroying and recreating them
 	-- clear the inventory
@@ -261,6 +261,20 @@ function PetInventory:_setFocusedDisplay(details)
 	self._ui.RightBackground.PetName.Visible = true
 	self._ui.RightBackground.PetImage.Visible = true
 	self._ui.RightBackground.Multiplier.Visible = true
+
+	self._focusedDestructor:Add(self._ui.RightBackground.Equip.Activated:Connect(function()
+		if details.Equipped then
+			Remotes.Client:Get("UnequipPet"):SendToServer(details.PetName)
+		else
+			Remotes.Client:Get("EquipPet"):SendToServer(details.PetName)
+		end
+	end))
+
+	self._focusedDestructor:Add(self._ui.RightBackground.Delete.Activated:Connect(function()
+		if not details.Locked then
+			Remotes.Client:Get("DeletePet"):SendToServer(details.PetName)
+		end
+	end))
 end
 
 function PetInventory:OnOpen()

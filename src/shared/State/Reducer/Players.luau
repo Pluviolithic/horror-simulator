@@ -155,4 +155,19 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	deletePet = function(state, action)
+		local petOwnedCount = state[action.playerName].OwnedPets[action.petName] or 0
+		local newOwnedPets = Sift.Dictionary.mergeDeep(state[action.playerName].OwnedPets, {
+			[action.petName] = if petOwnedCount > 1 then petOwnedCount - 1 else Sift.None,
+		})
+		if not newOwnedPets[action.petName] then
+			newOwnedPets[action.petName] = Sift.None
+		end
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				OwnedPets = newOwnedPets,
+				CurrentPetCount = state[action.playerName].CurrentPetCount - 1,
+			},
+		})
+	end,
 })
