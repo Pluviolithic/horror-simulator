@@ -170,4 +170,11 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	increaseMaxPetEquipCount = function(state, action)
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				MaxPetEquipCount = state[action.playerName].MaxPetEquipCount + action.amount,
+			},
+		})
+	end,
 })

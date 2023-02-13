@@ -57,6 +57,15 @@ function PetInventory:_initialize(): ()
 		end
 	end)
 
+	self._ui.Background.Equipped.Buy.Activated:Connect(function()
+		local playerState = store:getState().Players[player.Name]
+		if playerState.MaxPetEquipCount == 3 then
+			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+1PetEquipped"].Value)
+		else
+			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+2PetEquipped"].Value)
+		end
+	end)
+
 	playerStatePromise:andThen(function()
 		self:Refresh()
 
@@ -129,7 +138,9 @@ function PetInventory:Refresh()
 		self._ui.Background.Storage.Buy:Destroy()
 	end
 
-	-- TODO: get rid of buy button if max equipped pets is at gamepass limit
+	if playerState.MaxPetEquipCount == 6 and self._ui.Background.Equipped:FindFirstChild "Buy" then
+		self._ui.Background.Storage.Buy:Destroy()
+	end
 
 	-- TODO: template creation should (maybe) take into account previously created templates instead of destroying and recreating them
 	-- clear the inventory

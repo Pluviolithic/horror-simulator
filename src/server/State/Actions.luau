@@ -115,4 +115,13 @@ return {
 			petName = petName,
 		}
 	end),
+	increaseMaxPetEquipCount = makeActionCreator(
+		"increaseMaxPetEquipCount",
+		function(playerName: string, amount: number)
+			return {
+				playerName = playerName,
+				amount = amount,
+			}
+		end
+	),
 }

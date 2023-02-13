@@ -60,6 +60,8 @@ local function savePlayerDataMiddleware(nextDispatch)
 				end
 			elseif action.type == "increaseMaxPetCount" then
 				data.MaxPetCount += action.amount
+			elseif action.type == "increaseMaxPetEquipCount" then
+				data.MaxPetEquipCount += action.amount
 			elseif action.type == "awardGamepassToPlayer" then
 				data.AwardedGamepasses[action.gamepassID] = true
 			elseif action.type == "equipWeapon" then

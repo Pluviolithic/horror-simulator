@@ -3,6 +3,8 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 
+--TODO: switch all the ids to reference the config folder
+
 return {
 	-- scythe gamepass
 	["104651443"] = function(player: Player)
@@ -29,5 +31,13 @@ return {
 	-- increase player luck multiplier by 3
 	["104655363"] = function(player: Player)
 		store:dispatch(actions.increasePlayerLuck(player.Name, 3))
+	end,
+	-- increase pet equip limit by 1
+	["104654015"] = function(player: Player)
+		store:dispatch(actions.increaseMaxPetEquipCount(player.Name, 1))
+	end,
+	-- increase pet equip limit by 2
+	["104654052"] = function(player: Player)
+		store:dispatch(actions.increaseMaxPetEquipCount(player.Name, 2))
 	end,
 }
