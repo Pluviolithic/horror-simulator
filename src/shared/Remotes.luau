@@ -31,7 +31,7 @@ local Remotes = Net.CreateDefinitions {
 		Net.Middleware.RateLimit {
 			MaxRequestsPerMinute = 60,
 		},
-		Net.Middleware.TypeChecking(t.string),
+		Net.Middleware.TypeChecking(t.string, t.boolean),
 	},
 	UnequipPet = Net.Definitions.ClientToServerEvent {
 		Net.Middleware.RateLimit {

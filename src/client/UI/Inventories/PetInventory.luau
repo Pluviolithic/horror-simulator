@@ -43,6 +43,14 @@ local function getPet(petName: string): Instance?
 	return nil
 end
 
+local function shouldRefresh(newState, oldState): boolean
+	return newState.Players[player.Name].MaxPetCount ~= oldState.Players[player.Name].MaxPetCount
+		or newState.Players[player.Name].MaxPetEquipCount ~= oldState.Players[player.Name].MaxPetEquipCount
+		or newState.Players[player.Name].OwnedPets ~= oldState.Players[player.Name].OwnedPets
+		or newState.Players[player.Name].EquippedPets ~= oldState.Players[player.Name].EquippedPets
+		or newState.Players[player.Name].LockedPets ~= oldState.Players[player.Name].LockedPets
+end
+
 function PetInventory:_initialize(): ()
 	player.PlayerGui:WaitForChild("MainUI").Pets.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
@@ -70,9 +78,7 @@ function PetInventory:_initialize(): ()
 		self:Refresh()
 
 		store.changed:connect(function(newState, oldState)
-			if newState.Players[player.Name].MaxPetCount == oldState.Players[player.Name].MaxPetCount then
-				return
-			elseif newState.Players[player.Name].MaxPetEquipCount == oldState.Players[player.Name].MaxPetEquipCount then
+			if not shouldRefresh(newState, oldState) then
 				return
 			end
 			self:Refresh()
@@ -210,7 +216,6 @@ function PetInventory:Refresh()
 				elseif self._focusedTemplate then
 					self._focusedTemplate.Unlocked.Visible = false
 				end
-				self._focusedTemplate = petTemplate
 				self:_setFocusedDisplay(details)
 			end)
 		end
@@ -247,6 +252,9 @@ function PetInventory:_setFocusedDisplay(details)
 	self:_clearFocusedDisplay()
 	self._focusedDestructor = Janitor.new()
 
+	self._focusedTemplate = details.PetTemplate
+	details.PetTemplate.Unlocked.Visible = true
+
 	self._ui.RightBackground.Icon.Visible = true
 	self._ui.RightBackground.Equip.Visible = true
 	self._ui.RightBackground.Delete.Visible = true
@@ -277,7 +285,7 @@ function PetInventory:_setFocusedDisplay(details)
 		if details.Equipped then
 			Remotes.Client:Get("UnequipPet"):SendToServer(details.PetName)
 		else
-			Remotes.Client:Get("EquipPet"):SendToServer(details.PetName)
+			Remotes.Client:Get("EquipPet"):SendToServer(details.PetName, details.Locked)
 		end
 	end))
 

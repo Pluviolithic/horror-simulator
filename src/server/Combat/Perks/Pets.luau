@@ -17,7 +17,7 @@ local function getPet(petName: string): Instance?
 	return nil
 end
 
-Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string)
+Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string, locked: boolean)
 	if not getPet(petName) then
 		return 1
 	end
@@ -28,11 +28,14 @@ Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string)
 		return 1
 	end
 
-	if not playerState.OwnedPets[petName] or playerState.EquippedPets[petName] then
+	if not playerState.OwnedPets[petName] then
 		return 1
 	end
 
 	store:dispatch(actions.equipPet(player.Name, petName))
+	if not locked then
+		store:dispatch(actions.lockPet(player.Name, petName))
+	end
 
 	return 0
 end)
@@ -93,6 +96,10 @@ Remotes.Server:Get("DeletePet"):Connect(function(player: Player, petName: string
 	local playerState = store:getState().Players[player.Name]
 
 	if not playerState.OwnedPets[petName] then
+		return 1
+	end
+
+	if playerState.LockedPets[petName] and playerState.LockedPets[petName] >= playerState.OwnedPets[petName] then
 		return 1
 	end
 

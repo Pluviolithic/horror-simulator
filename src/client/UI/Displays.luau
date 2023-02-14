@@ -63,7 +63,7 @@ end):andThen(function(interfaces)
 		{
 			first = interfaces.PetInventory.Background.Multiplier.Amount,
 			second = function(playerState)
-				return "X" .. playerState.PetFearMultiplier
+				return "X" .. formatter.truncateMultiplier(playerState.PetFearMultiplier)
 			end,
 		},
 	}

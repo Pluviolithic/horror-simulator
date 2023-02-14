@@ -22,4 +22,8 @@ function Formatter.formatCash(n: number): string
 	return "$" .. Formatter.formatNumberWithSuffix(n)
 end
 
+function Formatter.truncateMultiplier(n: number): string
+	return string.format("%.2f", n):gsub("%.?0+$", "")
+end
+
 return Formatter

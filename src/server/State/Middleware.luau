@@ -58,6 +58,21 @@ local function savePlayerDataMiddleware(nextDispatch)
 						data.LockedPets[action.petName] = nil
 					end
 				end
+			elseif action.type == "equipPet" then
+				data.EquippedPets[action.petName] = if data.EquippedPets[action.petName]
+					then data.EquippedPets[action.petName] + 1
+					else 1
+				data.CurrentPetEquipCount += 1
+				data.PetFearMultiplier = data.PetFearMultiplier
+					+ ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value
+			elseif action.type == "unequipPet" then
+				data.EquippedPets[action.petName] -= 1
+				if data.EquippedPets[action.petName] <= 0 then
+					data.EquippedPets[action.petName] = nil
+				end
+				data.CurrentPetEquipCount -= 1
+				data.PetFearMultiplier = data.PetFearMultiplier
+					- ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value
 			elseif action.type == "increaseMaxPetCount" then
 				data.MaxPetCount += action.amount
 			elseif action.type == "increaseMaxPetEquipCount" then
