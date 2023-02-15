@@ -148,7 +148,7 @@ function PetInventory:Refresh()
 	end
 
 	if playerState.MaxPetEquipCount == 6 and self._ui.Background.Equipped:FindFirstChild "Buy" then
-		self._ui.Background.Storage.Buy:Destroy()
+		self._ui.Background.Equipped.Buy:Destroy()
 	end
 
 	-- TODO: template creation should (maybe) take into account previously created templates instead of destroying and recreating them
@@ -257,7 +257,7 @@ function PetInventory:_setFocusedDisplay(details)
 
 	self._focusedTemplate = details.PetTemplate
 
-	if not details.PetTemplate.Lock.Visible then
+	if not details.Locked then
 		details.PetTemplate.Unlocked.Visible = true
 	end
 
