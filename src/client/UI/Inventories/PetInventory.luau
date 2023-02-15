@@ -98,6 +98,9 @@ function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, lock
 		petTemplate.Lock.Visible = true
 		destructor:Add(
 			petTemplate.Lock.Activated:Connect(function()
+				if petTemplate.Equipped.Visible then
+					return
+				end
 				petTemplate.Lock.Visible = false
 				destructor:Cleanup()
 				Remotes.Client:Get("UnlockPet"):SendToServer(petTemplate.PetName.Text)
@@ -282,10 +285,12 @@ function PetInventory:_setFocusedDisplay(details)
 	self._ui.RightBackground.Multiplier.Visible = true
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Equip.Activated:Connect(function()
+		local playerState = store:getState().Players[player.Name]
 		if details.Equipped then
 			Remotes.Client:Get("UnequipPet"):SendToServer(details.PetName)
-		else
+		elseif playerState.CurrentPetEquipCount < playerState.MaxPetEquipCount then
 			Remotes.Client:Get("EquipPet"):SendToServer(details.PetName, details.Locked)
+			self:_clearFocusedDisplay()
 		end
 	end))
 
