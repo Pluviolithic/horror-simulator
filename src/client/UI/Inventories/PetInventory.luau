@@ -117,7 +117,7 @@ function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, lock
 		)
 		destructor:Add(
 			petTemplate.MouseLeave:Connect(function()
-				if self._focusedTemplate == petTemplate then
+				if self._focusedTemplate == petTemplate or petTemplate.Lock.Visible then
 					return
 				end
 				petTemplate.Unlocked.Visible = false
@@ -256,7 +256,10 @@ function PetInventory:_setFocusedDisplay(details)
 	self._focusedDestructor = Janitor.new()
 
 	self._focusedTemplate = details.PetTemplate
-	details.PetTemplate.Unlocked.Visible = true
+
+	if not details.PetTemplate.Lock.Visible then
+		details.PetTemplate.Unlocked.Visible = true
+	end
 
 	self._ui.RightBackground.Icon.Visible = true
 	self._ui.RightBackground.Equip.Visible = true
@@ -290,13 +293,15 @@ function PetInventory:_setFocusedDisplay(details)
 			Remotes.Client:Get("UnequipPet"):SendToServer(details.PetName)
 		elseif playerState.CurrentPetEquipCount < playerState.MaxPetEquipCount then
 			Remotes.Client:Get("EquipPet"):SendToServer(details.PetName, details.Locked)
-			self:_clearFocusedDisplay()
 		end
+		details.Equipped = not details.Equipped
+		self:_setFocusedDisplay(details)
 	end))
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Delete.Activated:Connect(function()
 		if not details.Locked then
 			Remotes.Client:Get("DeletePet"):SendToServer(details.PetName)
+			self:_clearFocusedDisplay()
 		end
 	end))
 end

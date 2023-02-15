@@ -52,6 +52,7 @@ Remotes.Server:Get("UnequipPet"):Connect(function(player: Player, petName: strin
 	end
 
 	store:dispatch(actions.unequipPet(player.Name, petName))
+	store:dispatch(actions.unlockPet(player.Name, petName))
 
 	return 0
 end)
