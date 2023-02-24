@@ -103,14 +103,16 @@ return {
 			petName = petName,
 		}
 	end),
-	unlockPet = makeActionCreator("unlockPet", function(playerName: string, petName: string)
+	unlockPet = makeActionCreator("unlockPet", function(playerName: string, petName: string, quantity: number?)
 		return {
+			quantity = quantity or 1,
 			playerName = playerName,
 			petName = petName,
 		}
 	end),
-	deletePet = makeActionCreator("deletePet", function(playerName: string, petName: string)
+	deletePet = makeActionCreator("deletePet", function(playerName: string, petName: string, quantity: number?)
 		return {
+			quantity = quantity or 1,
 			playerName = playerName,
 			petName = petName,
 		}

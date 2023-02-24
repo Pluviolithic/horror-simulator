@@ -1,8 +1,9 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
-local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
-local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
+local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
+local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
@@ -67,7 +68,9 @@ return Rodux.createReducer({}, {
 		local newOwnedPets = table.clone(state[action.playerName].OwnedPets)
 		local newFoundPets = table.clone(state[action.playerName].FoundPets)
 		for _, petName in ipairs(action.petNames) do
-			newFoundPets[petName] = true
+			if not petName:match "Evolved" then
+				newFoundPets[petName] = true
+			end
 			newOwnedPets[petName] = if newOwnedPets[petName] then newOwnedPets[petName] + 1 else 1
 		end
 		return Sift.Dictionary.mergeDeep(state, {
@@ -109,7 +112,7 @@ return Rodux.createReducer({}, {
 					[action.petName] = petEquipCount + 1,
 				}),
 				PetFearMultiplier = state[action.playerName].PetFearMultiplier
-					+ ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value,
+					+ (petUtils.getPet(action.petName) :: any).Multiplier.Value,
 				CurrentPetEquipCount = state[action.playerName].CurrentPetEquipCount + 1,
 			},
 		})
@@ -126,7 +129,7 @@ return Rodux.createReducer({}, {
 			[action.playerName] = {
 				EquippedPets = newEquippedPets,
 				PetFearMultiplier = state[action.playerName].PetFearMultiplier
-					- ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value,
+					- (petUtils.getPet(action.petName) :: any).Multiplier.Value,
 				CurrentPetEquipCount = state[action.playerName].CurrentPetEquipCount - 1,
 			},
 		})
@@ -144,7 +147,7 @@ return Rodux.createReducer({}, {
 	unlockPet = function(state, action)
 		local petLockCount = state[action.playerName].LockedPets[action.petName] or 0
 		local newLockedPets = Sift.Dictionary.mergeDeep(state[action.playerName].LockedPets, {
-			[action.petName] = if petLockCount > 1 then petLockCount - 1 else Sift.None,
+			[action.petName] = if petLockCount > action.quantity then petLockCount - action.quantity else Sift.None,
 		})
 		if not newLockedPets[action.petName] then
 			newLockedPets[action.petName] = Sift.None
@@ -158,7 +161,7 @@ return Rodux.createReducer({}, {
 	deletePet = function(state, action)
 		local petOwnedCount = state[action.playerName].OwnedPets[action.petName] or 0
 		local newOwnedPets = Sift.Dictionary.mergeDeep(state[action.playerName].OwnedPets, {
-			[action.petName] = if petOwnedCount > 1 then petOwnedCount - 1 else Sift.None,
+			[action.petName] = if petOwnedCount > action.quantity then petOwnedCount - action.quantity else Sift.None,
 		})
 		if not newOwnedPets[action.petName] then
 			newOwnedPets[action.petName] = Sift.None
@@ -166,7 +169,7 @@ return Rodux.createReducer({}, {
 		return Sift.Dictionary.mergeDeep(state, {
 			[action.playerName] = {
 				OwnedPets = newOwnedPets,
-				CurrentPetCount = state[action.playerName].CurrentPetCount - 1,
+				CurrentPetCount = state[action.playerName].CurrentPetCount - math.min(petOwnedCount, action.quantity),
 			},
 		})
 	end,

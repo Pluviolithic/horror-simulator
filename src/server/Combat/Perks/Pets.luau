@@ -4,21 +4,10 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
-
-local pets = ReplicatedStorage.Pets
-
-local function getPet(petName: string): Instance?
-	for _, area in pets:GetChildren() do
-		local pet = area:FindFirstChild(petName)
-		if pet then
-			return pet
-		end
-	end
-	return nil
-end
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 
 Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string, locked: boolean)
-	if not getPet(petName) then
+	if not petUtils.getPet(petName) then
 		return 1
 	end
 
@@ -41,7 +30,7 @@ Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string,
 end)
 
 Remotes.Server:Get("UnequipPet"):Connect(function(player: Player, petName: string)
-	if not getPet(petName) then
+	if not petUtils.getPet(petName) then
 		return 1
 	end
 
@@ -58,7 +47,7 @@ Remotes.Server:Get("UnequipPet"):Connect(function(player: Player, petName: strin
 end)
 
 Remotes.Server:Get("LockPet"):Connect(function(player: Player, petName: string)
-	if not getPet(petName) then
+	if not petUtils.getPet(petName) then
 		return 1
 	end
 
@@ -74,7 +63,7 @@ Remotes.Server:Get("LockPet"):Connect(function(player: Player, petName: string)
 end)
 
 Remotes.Server:Get("UnlockPet"):Connect(function(player: Player, petName: string)
-	if not getPet(petName) then
+	if not petUtils.getPet(petName) then
 		return 1
 	end
 
@@ -90,7 +79,7 @@ Remotes.Server:Get("UnlockPet"):Connect(function(player: Player, petName: string
 end)
 
 Remotes.Server:Get("DeletePet"):Connect(function(player: Player, petName: string)
-	if not getPet(petName) then
+	if not petUtils.getPet(petName) then
 		return 1
 	end
 
@@ -105,6 +94,27 @@ Remotes.Server:Get("DeletePet"):Connect(function(player: Player, petName: string
 	end
 
 	store:dispatch(actions.deletePet(player.Name, petName))
+
+	return 0
+end)
+
+Remotes.Server:Get("EvolvePet"):Connect(function(player: Player, petName: string)
+	if not petUtils.getPet(petName) then
+		return 1
+	end
+
+	local playerState = store:getState().Players[player.Name]
+
+	if not playerState.OwnedPets[petName] or playerState.OwnedPets[petName] < 5 then
+		return 1
+	end
+
+	local quantityDifference = playerState.OwnedPets[petName] - (playerState.LockedPets[petName] or 0)
+	if quantityDifference < 5 then
+		store:dispatch(actions.unlockPet(player.Name, petName, 5 - quantityDifference))
+	end
+	store:dispatch(actions.deletePet(player.Name, petName, 5))
+	store:dispatch(actions.givePlayerPets(player.Name, {"Evolved " .. petName}))
 
 	return 0
 end)

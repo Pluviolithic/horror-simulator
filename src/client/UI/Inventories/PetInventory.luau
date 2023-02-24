@@ -8,6 +8,7 @@ local player = Players.LocalPlayer
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
@@ -22,25 +23,15 @@ local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
 	_setFocusedDisplay: (details: { [any]: any }) -> (),
 } & CentralUI.CentralUI
 
-local pets = ReplicatedStorage.Pets
 local rarityTemplates = ReplicatedStorage.RarityTemplates
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 
+local evolvedColor = Color3.fromRGB(255, 255, 0)
 local ableToEvolveColor = Color3.fromRGB(0, 229, 255)
 local unableToEvolveColor = Color3.fromRGB(255, 255, 255)
 
 local function multiplierComparator(a: { [any]: any }, b: { [any]: any }): boolean
 	return a.Multiplier > b.Multiplier
-end
-
-local function getPet(petName: string): Instance?
-	for _, area in pets:GetChildren() do
-		local pet = area:FindFirstChild(petName)
-		if pet then
-			return pet
-		end
-	end
-	return nil
 end
 
 local function shouldRefresh(newState, oldState): boolean
@@ -169,7 +160,7 @@ function PetInventory:Refresh()
 	local petTemplates = {}
 
 	for petName, quantity in playerState.OwnedPets do
-		local pet = getPet(petName)
+		local pet = petUtils.getPet(petName)
 		local rarityTemplate = rarityTemplates[pet.RarityName.Value]:Clone()
 
 		rarityTemplate.PetImage.Image = pet.ImageID.Value
@@ -206,6 +197,13 @@ function PetInventory:Refresh()
 				table.insert(equippedPetTemplates, details)
 			else
 				details.Equipped = false
+			end
+
+			if petName:match "Evolved" then
+				details.Evolved = true
+				rarityTemplate.PetName.TextColor3 = evolvedColor
+			else
+				rarityTemplate.PetName.TextColor3 = unableToEvolveColor
 			end
 
 			if not details.Locked and not details.Equipped then
@@ -268,12 +266,18 @@ function PetInventory:_setFocusedDisplay(details)
 	self._ui.RightBackground.PetName.Text = details.PetName
 	self._ui.RightBackground.PetImage.Image = details.PetImage
 	self._ui.RightBackground.Multiplier.Text = "x" .. details.Multiplier
-	self._ui.RightBackground.Evolve.EvolveText.Text = "Evolve (" .. math.min(details.Quantity, 5) .. "/5)"
 
-	if details.Quantity > 4 then
-		self._ui.RightBackground.Evolve.ImageColor3 = ableToEvolveColor
+	if details.Evolved then
+		self._ui.RightBackground.PetName.TextColor3 = evolvedColor
+		self._ui.RightBackground.Evolve.ImageColor3 = evolvedColor
+		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolved"
 	else
-		self._ui.RightBackground.Evolve.ImageColor3 = unableToEvolveColor
+		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolve (" .. math.min(details.Quantity, 5) .. "/5)"
+		if details.Quantity > 4 then
+			self._ui.RightBackground.Evolve.ImageColor3 = ableToEvolveColor
+		else
+			self._ui.RightBackground.Evolve.ImageColor3 = unableToEvolveColor
+		end
 	end
 
 	if details.Equipped then
@@ -301,6 +305,17 @@ function PetInventory:_setFocusedDisplay(details)
 	self._focusedDestructor:Add(self._ui.RightBackground.Delete.Activated:Connect(function()
 		if not details.Locked then
 			Remotes.Client:Get("DeletePet"):SendToServer(details.PetName)
+			self:_clearFocusedDisplay()
+		end
+	end))
+
+	if details.Evolved then
+		return
+	end
+
+	self._focusedDestructor:Add(self._ui.RightBackground.Evolve.Activated:Connect(function()
+		if details.Quantity > 4 then
+			Remotes.Client:Get("EvolvePet"):SendToServer(details.PetName)
 			self:_clearFocusedDisplay()
 		end
 	end))

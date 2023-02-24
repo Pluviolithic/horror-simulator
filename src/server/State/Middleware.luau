@@ -6,6 +6,7 @@ local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
 local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
@@ -37,12 +38,14 @@ local function savePlayerDataMiddleware(nextDispatch)
 				data.OwnedWeapons[action.weaponName] = true
 			elseif action.type == "givePlayerPets" then
 				for _, petName in pairs(action.petNames) do
-					data.FoundPets[petName] = true
+					if not petName:match "Evolved" then
+						data.FoundPets[petName] = true
+					end
 					data.OwnedPets[petName] = if data.OwnedPets[petName] then data.OwnedPets[petName] + 1 else 1
 				end
 				data.CurrentPetCount = data.CurrentPetCount + #action.petNames
 			elseif action.type == "deletePet" then
-				data.OwnedPets[action.petName] -= 1
+				data.OwnedPets[action.petName] -= math.min(data.OwnedPets[action.petName], action.quantity)
 				if data.OwnedPets[action.petName] <= 0 then
 					data.OwnedPets[action.petName] = nil
 				end
@@ -53,7 +56,7 @@ local function savePlayerDataMiddleware(nextDispatch)
 					else 1
 			elseif action.type == "unlockPet" then
 				if data.LockedPets[action.petName] then
-					data.LockedPets[action.petName] -= 1
+					data.LockedPets[action.petName] -= math.min(data.LockedPets[action.petName], action.quantity)
 					if data.LockedPets[action.petName] <= 0 then
 						data.LockedPets[action.petName] = nil
 					end
@@ -64,7 +67,7 @@ local function savePlayerDataMiddleware(nextDispatch)
 					else 1
 				data.CurrentPetEquipCount += 1
 				data.PetFearMultiplier = data.PetFearMultiplier
-					+ ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value
+					+ (petUtils.getPet(action.petName) :: any).Multiplier.Value
 			elseif action.type == "unequipPet" then
 				data.EquippedPets[action.petName] -= 1
 				if data.EquippedPets[action.petName] <= 0 then
@@ -72,7 +75,7 @@ local function savePlayerDataMiddleware(nextDispatch)
 				end
 				data.CurrentPetEquipCount -= 1
 				data.PetFearMultiplier = data.PetFearMultiplier
-					- ReplicatedStorage.Pets:FindFirstChild(action.petName, true).Multiplier.Value
+					- (petUtils.getPet(action.petName) :: any).Multiplier.Value
 			elseif action.type == "increaseMaxPetCount" then
 				data.MaxPetCount += action.amount
 			elseif action.type == "increaseMaxPetEquipCount" then
