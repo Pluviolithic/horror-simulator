@@ -201,9 +201,7 @@ function PetInventory:Refresh()
 
 			if petName:match "Evolved" then
 				details.Evolved = true
-				rarityTemplate.PetName.TextColor3 = evolvedColor
-			else
-				rarityTemplate.PetName.TextColor3 = unableToEvolveColor
+				petTemplate.PetName.TextColor3 = evolvedColor
 			end
 
 			if not details.Locked and not details.Equipped then
@@ -273,6 +271,7 @@ function PetInventory:_setFocusedDisplay(details)
 		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolved"
 	else
 		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolve (" .. math.min(details.Quantity, 5) .. "/5)"
+		self._ui.RightBackground.PetName.TextColor3 = unableToEvolveColor
 		if details.Quantity > 4 then
 			self._ui.RightBackground.Evolve.ImageColor3 = ableToEvolveColor
 		else
@@ -297,6 +296,8 @@ function PetInventory:_setFocusedDisplay(details)
 			Remotes.Client:Get("UnequipPet"):SendToServer(details.PetName)
 		elseif playerState.CurrentPetEquipCount < playerState.MaxPetEquipCount then
 			Remotes.Client:Get("EquipPet"):SendToServer(details.PetName, details.Locked)
+		else
+			return
 		end
 		details.Equipped = not details.Equipped
 		self:_setFocusedDisplay(details)

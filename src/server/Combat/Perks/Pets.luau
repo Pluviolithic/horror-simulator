@@ -114,7 +114,7 @@ Remotes.Server:Get("EvolvePet"):Connect(function(player: Player, petName: string
 		store:dispatch(actions.unlockPet(player.Name, petName, 5 - quantityDifference))
 	end
 	store:dispatch(actions.deletePet(player.Name, petName, 5))
-	store:dispatch(actions.givePlayerPets(player.Name, {"Evolved " .. petName}))
+	store:dispatch(actions.givePlayerPets(player.Name, { "Evolved " .. petName }))
 
 	return 0
 end)
