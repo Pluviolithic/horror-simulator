@@ -45,11 +45,12 @@ local function savePlayerDataMiddleware(nextDispatch)
 				end
 				data.CurrentPetCount = data.CurrentPetCount + #action.petNames
 			elseif action.type == "deletePet" then
-				data.OwnedPets[action.petName] -= math.min(data.OwnedPets[action.petName], action.quantity)
+				local petOwnedCount = data.OwnedPets[action.petName]
+				data.OwnedPets[action.petName] -= math.min(petOwnedCount, action.quantity)
 				if data.OwnedPets[action.petName] <= 0 then
 					data.OwnedPets[action.petName] = nil
 				end
-				data.CurrentPetCount -= math.min(data.OwnedPets[action.petName], action.quantity)
+				data.CurrentPetCount -= math.min(petOwnedCount, action.quantity)
 			elseif action.type == "lockPet" then
 				data.LockedPets[action.petName] = if data.LockedPets[action.petName]
 					then data.LockedPets[action.petName] + 1
