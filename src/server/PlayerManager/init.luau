@@ -77,6 +77,20 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
+store.changed:connect(function(newState, oldState)
+	for playerName, playerState in newState.Players do
+		if oldState.Players[playerName] == playerState or not profiles[playerName] then
+			continue
+		end
+		for key, value in playerState do
+			if oldState.Players[playerName][key] == value then
+				continue
+			end
+			profiles[playerName].Data[key] = value
+		end
+	end
+end)
+
 -- move this to a more relevant location in future
 Remotes.Server:Get("GetGlobalState"):SetCallback(function(player: Player)
 	local currentState = store:getState()
