@@ -6,10 +6,8 @@ local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
-local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
-local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
 
 local displayServerLogs = ReplicatedStorage.Config.Output.DisplayServerLogs.Value
 
@@ -41,7 +39,6 @@ local function updateLeaderboardMiddleware(nextDispatch)
 end
 
 return {
-	savePlayerDataMiddleware,
 	updateLeaderboardMiddleware,
 	updateClientMiddleware,
 	if displayServerLogs then Rodux.loggerMiddleware else nil,
