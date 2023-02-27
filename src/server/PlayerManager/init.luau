@@ -83,7 +83,7 @@ store.changed:connect(function(newState, oldState)
 			continue
 		end
 		for key, value in playerState do
-			if oldState.Players[playerName][key] == value then
+			if profiles[playerName].Data[key] and profiles[playerName].Data[key] == value then
 				profiles[playerName].Data[key] = value
 			end
 		end
