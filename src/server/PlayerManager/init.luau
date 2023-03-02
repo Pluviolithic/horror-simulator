@@ -93,7 +93,7 @@ store.changed:connect(function(newState, oldState)
 				profiles[playerName].Data[key] = value
 			end
 
-			if player:FindFirstChild("leaderstats") then
+			if player:FindFirstChild "leaderstats" then
 				local stat = player.leaderstats:FindFirstChild(key)
 				if stat then
 					stat.Value = formatter.formatNumberWithSuffix(value)
