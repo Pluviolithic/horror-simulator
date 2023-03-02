@@ -5,8 +5,6 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
-local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
-local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
 
 local displayServerLogs = ReplicatedStorage.Config.Output.DisplayServerLogs.Value
@@ -23,23 +21,7 @@ local function updateClientMiddleware(nextDispatch)
 	end
 end
 
-local function updateLeaderboardMiddleware(nextDispatch)
-	return function(action)
-		if action.type == "incrementPlayerStat" then
-			local player = Players:FindFirstChild(action.playerName)
-			local stat: StringValue? = if player and player:FindFirstChild "leaderstats"
-				then player.leaderstats:FindFirstChild(action.statName)
-				else nil
-			if stat then
-				stat.Value = formatter.formatNumberWithSuffix(profiles[action.playerName].Data[action.statName])
-			end
-		end
-		return nextDispatch(action)
-	end
-end
-
 return {
-	updateLeaderboardMiddleware,
 	updateClientMiddleware,
 	if displayServerLogs then Rodux.loggerMiddleware else nil,
 }
