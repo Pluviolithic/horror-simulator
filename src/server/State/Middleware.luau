@@ -57,7 +57,9 @@ end
 local function updateLeaderstatsMiddleware(nextDispatch, store)
 	return function(action)
 		nextDispatch(action)
-		if not action.playerName then return end
+		if not action.playerName then
+			return
+		end
 
 		local player = Players:FindFirstChild(action.playerName)
 		local leaderstats = player:FindFirstChild "leaderstats"
