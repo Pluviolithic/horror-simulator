@@ -77,32 +77,6 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
-store.changed:connect(function(newState, oldState)
-	for playerName, playerState in newState.Players do
-		if
-			oldState.Players[playerName] == playerState
-			or not oldState.Players[playerName]
-			or not profiles[playerName]
-		then
-			continue
-		end
-
-		local player = Players:FindFirstChild(playerName)
-		for key, value in playerState do
-			if profiles[playerName].Data[key] and profiles[playerName].Data[key] ~= value then
-				profiles[playerName].Data[key] = value
-			end
-
-			if player:FindFirstChild "leaderstats" then
-				local stat = player.leaderstats:FindFirstChild(key)
-				if stat then
-					stat.Value = formatter.formatNumberWithSuffix(value)
-				end
-			end
-		end
-	end
-end)
-
 Remotes.Server:Get("GetGlobalState"):SetCallback(function(player: Player)
 	local currentState = store:getState()
 	local replicatedState = table.clone(currentState)

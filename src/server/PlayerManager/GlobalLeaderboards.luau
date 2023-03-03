@@ -64,7 +64,7 @@ end
 task.spawn(function()
 	while true do
 		task.spawn(updateGlobalLeaderboardDisplays)
-		task.wait(30)
+		task.wait(180)
 		task.spawn(updateGlobalLeaderboardStores)
 	end
 end)
