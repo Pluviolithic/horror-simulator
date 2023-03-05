@@ -270,7 +270,7 @@ function PetInventory:_setFocusedDisplay(details)
 		self._ui.RightBackground.Evolve.ImageColor3 = evolvedColor
 		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolved"
 	else
-		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolve (" .. math.min(details.Quantity, 5) .. "/5)"
+		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolve (" .. details.Quantity .. "/5)"
 		self._ui.RightBackground.PetName.TextColor3 = unableToEvolveColor
 		if details.Quantity > 4 then
 			self._ui.RightBackground.Evolve.ImageColor3 = ableToEvolveColor
