@@ -18,4 +18,4 @@ Datastructures = "howmanysmall/datastructures@1.1.0"
 
 [server-dependencies]
 Cmdr = "evaera/cmdr@1.9.0"
-ProfileService = "jakebball/profileservice@1.5.0"
+ProfileService = "grilme99/profileservice@1.0.0"

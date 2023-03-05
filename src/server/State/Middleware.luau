@@ -6,12 +6,19 @@ local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
-local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
-local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
 local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
+local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
 
 local displayServerLogs = ReplicatedStorage.Config.Output.DisplayServerLogs.Value
+
+local function getFilteredState(playerName, state)
+	local filteredState = {}
+	for key in profileTemplate do
+		filteredState[key] = state.Players[playerName][key]
+	end
+	return filteredState
+end
 
 local function updateClientMiddleware(nextDispatch)
 	return function(action)
@@ -21,98 +28,53 @@ local function updateClientMiddleware(nextDispatch)
 		elseif replicationRule ~= Enum.ReplicationRules.None then
 			Remotes.Server:Get("SendRoduxAction"):SendToPlayer(Players[action.playerName], action)
 		end
-		return nextDispatch(action)
+		nextDispatch(action)
 	end
 end
 
--- will want to come up with a more generalized function to
--- simplify this middleware and allow for expansion to other
--- save values
-local function savePlayerDataMiddleware(nextDispatch)
+local function savePlayerDataMiddleware(nextDispatch, store)
 	return function(action)
-		if profiles[action.playerName] then
-			local data = profiles[action.playerName].Data
-			if action.type == "incrementPlayerStat" then
-				data[action.statName] += (action.incrementAmount or 1)
-			elseif action.type == "givePlayerWeapon" then
-				data.OwnedWeapons[action.weaponName] = true
-			elseif action.type == "givePlayerPets" then
-				for _, petName in pairs(action.petNames) do
-					if not petName:match "Evolved" then
-						data.FoundPets[petName] = true
-					end
-					data.OwnedPets[petName] = if data.OwnedPets[petName] then data.OwnedPets[petName] + 1 else 1
-				end
-				data.CurrentPetCount = data.CurrentPetCount + #action.petNames
-			elseif action.type == "deletePet" then
-				local petOwnedCount = data.OwnedPets[action.petName]
-				data.OwnedPets[action.petName] -= math.min(petOwnedCount, action.quantity)
-				if data.OwnedPets[action.petName] <= 0 then
-					data.OwnedPets[action.petName] = nil
-				end
-				data.CurrentPetCount -= math.min(petOwnedCount, action.quantity)
-			elseif action.type == "lockPet" then
-				data.LockedPets[action.petName] = if data.LockedPets[action.petName]
-					then data.LockedPets[action.petName] + 1
-					else 1
-			elseif action.type == "unlockPet" then
-				if data.LockedPets[action.petName] then
-					data.LockedPets[action.petName] -= math.min(data.LockedPets[action.petName], action.quantity)
-					if data.LockedPets[action.petName] <= 0 then
-						data.LockedPets[action.petName] = nil
-					end
-				end
-			elseif action.type == "equipPet" then
-				data.EquippedPets[action.petName] = if data.EquippedPets[action.petName]
-					then data.EquippedPets[action.petName] + 1
-					else 1
-				data.CurrentPetEquipCount += 1
-				data.PetFearMultiplier = data.PetFearMultiplier
-					+ (petUtils.getPet(action.petName) :: any).Multiplier.Value
-			elseif action.type == "unequipPet" then
-				data.EquippedPets[action.petName] -= 1
-				if data.EquippedPets[action.petName] <= 0 then
-					data.EquippedPets[action.petName] = nil
-				end
-				data.CurrentPetEquipCount -= 1
-				data.PetFearMultiplier = data.PetFearMultiplier
-					- (petUtils.getPet(action.petName) :: any).Multiplier.Value
-			elseif action.type == "increaseMaxPetCount" then
-				data.MaxPetCount += action.amount
-			elseif action.type == "increaseMaxPetEquipCount" then
-				data.MaxPetEquipCount += action.amount
-			elseif action.type == "awardGamepassToPlayer" then
-				data.AwardedGamepasses[action.gamepassID] = true
-			elseif action.type == "equipWeapon" then
-				data.EquippedWeapon = action.weaponName
-			elseif action.type == "increasePlayerLuck" then
-				data.Luck += action.amount
-			elseif action.type == "resetPlayerData" then
-				profiles[action.playerName].Data = table.clone(profileTemplate)
+		local oldState = store:getState()
+		nextDispatch(action)
+		if not action.shouldSave then
+			return
+		end
+
+		local newState = store:getState()
+		local profileData = profiles[action.playerName].Data
+
+		local filteredOldState = getFilteredState(action.playerName, oldState)
+		local filteredNewState = getFilteredState(action.playerName, newState)
+
+		for key, value in filteredNewState do
+			if filteredOldState[key] ~= value then
+				profileData[key] = value
 			end
 		end
-		return nextDispatch(action)
 	end
 end
 
-local function updateLeaderboardMiddleware(nextDispatch)
+local function updateLeaderstatsMiddleware(nextDispatch, store)
 	return function(action)
-		if action.type == "incrementPlayerStat" then
-			local player = Players:FindFirstChild(action.playerName)
-			local stat: StringValue? = if player and player:FindFirstChild "leaderstats"
-				then player.leaderstats:FindFirstChild(action.statName)
-				else nil
-			if stat then
-				stat.Value = formatter.formatNumberWithSuffix(profiles[action.playerName].Data[action.statName])
+		nextDispatch(action)
+		if not action.playerName then
+			return
+		end
+
+		local player = Players:FindFirstChild(action.playerName)
+		local leaderstats = player:FindFirstChild "leaderstats"
+
+		if leaderstats then
+			for _, stat in pairs(leaderstats:GetChildren()) do
+				stat.Value = formatter.formatNumberWithSuffix(store:getState().Players[action.playerName][stat.Name])
 			end
 		end
-		return nextDispatch(action)
 	end
 end
 
 return {
-	savePlayerDataMiddleware,
-	updateLeaderboardMiddleware,
 	updateClientMiddleware,
+	savePlayerDataMiddleware,
+	updateLeaderstatsMiddleware,
 	if displayServerLogs then Rodux.loggerMiddleware else nil,
 }

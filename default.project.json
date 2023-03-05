@@ -1,11 +1,14 @@
 {
   "name": "horror-simulator",
+  "base": "default.base.rbxl",
+  "build": "_Export/HorrorSimulator.rbxlx",
   "tree": {
     "$className": "DataModel",
 
     "ReplicatedStorage": {
       "Common": {
         "$path": "src/shared",
+        "$clearOnSync": true,
         "lib": {
           "$className": "Folder",
           "$path": "./Packages"
@@ -15,6 +18,7 @@
 
     "ServerScriptService": {
       "Server": {
+        "$clearOnSync": true,
         "$path": "src/server",
         "lib": {
           "$className": "Folder",
@@ -26,6 +30,7 @@
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Client": {
+          "$clearOnSync": true,
           "$path": "src/client"
         }
       }

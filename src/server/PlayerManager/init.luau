@@ -77,13 +77,11 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
--- move this to a more relevant location in future
 Remotes.Server:Get("GetGlobalState"):SetCallback(function(player: Player)
 	local currentState = store:getState()
-	local replicatedState = {
-		Players = {},
-	}
+	local replicatedState = table.clone(currentState)
 
+	replicatedState.Players = {}
 	for otherPlayer in currentState.Players do
 		replicatedState.Players[otherPlayer] = {}
 	end
@@ -92,5 +90,7 @@ Remotes.Server:Get("GetGlobalState"):SetCallback(function(player: Player)
 
 	return replicatedState
 end)
+
+require(script.GlobalLeaderboards)
 
 return 0
