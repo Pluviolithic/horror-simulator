@@ -140,4 +140,10 @@ return {
 			}
 		end
 	),
+	unequipAllPets = makeActionCreator("unequipAllPets", function(playerName: string)
+		return {
+			playerName = playerName,
+			shouldSave = true,
+		}
+	end),
 }

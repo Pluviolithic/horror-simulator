@@ -180,4 +180,23 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	unequipAllPets = function(state, action)
+		local newLockedPets = table.clone(state[action.playerName].LockedPets)
+		local newEquippedPets = {}
+		for petName, petEquipCount in pairs(state[action.playerName].EquippedPets) do
+			newEquippedPets[petName] = Sift.None
+			newLockedPets[petName] -= petEquipCount
+			if newLockedPets[petName] <= 0 then
+				newLockedPets[petName] = Sift.None
+			end
+		end
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				LockedPets = newLockedPets,
+				EquippedPets = newEquippedPets,
+				PetFearMultiplier = 0,
+				CurrentPetEquipCount = 0,
+			},
+		})
+	end,
 })

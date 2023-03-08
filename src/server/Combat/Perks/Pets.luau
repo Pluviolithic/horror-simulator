@@ -119,4 +119,16 @@ Remotes.Server:Get("EvolvePet"):Connect(function(player: Player, petName: string
 	return 0
 end)
 
+Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
+	local playerState = store:getState().Players[player.Name]
+	local bestPets = petUtils.getBestPets(playerState.OwnedPets, playerState.MaxPetEquipCount)
+
+	store:dispatch(actions.unequipAllPets(player.Name))
+	for _, pet in bestPets do
+		store:dispatch(actions.equipPet(player.Name, pet.Name))
+	end
+
+	return 0
+end)
+
 return 0

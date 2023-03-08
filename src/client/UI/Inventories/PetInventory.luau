@@ -11,6 +11,7 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
+local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory") :: {
@@ -19,6 +20,7 @@ local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
 	_initializeLockButton: (petTemplate: ImageButton | any) -> (),
 	Refresh: () -> (),
 	_focusedDestructor: typeof(Janitor.new())?,
+	_confirmationDestructors: { typeof(Janitor.new()) },
 	_clearFocusedDisplay: () -> (),
 	_setFocusedDisplay: (details: { [any]: any }) -> (),
 } & CentralUI.CentralUI
@@ -63,6 +65,33 @@ function PetInventory:_initialize(): ()
 		else
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+2PetEquipped"].Value)
 		end
+	end)
+
+	self._ui.EquipBest.Activated:Connect(function()
+		table.insert(
+			self._confirmationDestructors,
+			confirmationUI("EquipBest", function()
+				Remotes.Client:Get("EquipBestPets"):SendToServer()
+			end)
+		)
+	end)
+
+	self._ui.EvolveAll.Activated:Connect(function()
+		table.insert(
+			self._confirmationDestructors,
+			confirmationUI("EvolveAll", function()
+				Remotes.Client:Get("EvolveAllPets"):SendToServer()
+			end)
+		)
+	end)
+
+	self._ui.DeleteAll.Activated:Connect(function()
+		table.insert(
+			self._confirmationDestructors,
+			confirmationUI("DeleteAll", function()
+				Remotes.Client:Get("DeleteAllPets"):SendToServer()
+			end)
+		)
 	end)
 
 	playerStatePromise:andThen(function()
@@ -142,7 +171,11 @@ function PetInventory:Refresh()
 		self._ui.Background.Equipped.Buy:Destroy()
 	end
 
-	-- TODO: template creation should (maybe) take into account previously created templates instead of destroying and recreating them
+	for _, confirmationDestructor in self._confirmationDestructors do
+		confirmationDestructor:Cleanup()
+	end
+	self._confirmationDestructors = {}
+
 	-- clear the inventory
 	for _, rarityTemplate in pairs(self._ui.Background.ScrollingFrame:GetChildren()) do
 		if rarityTemplate:IsA "ImageButton" then
