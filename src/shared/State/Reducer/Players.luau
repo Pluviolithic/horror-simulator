@@ -199,4 +199,124 @@ return Rodux.createReducer({}, {
 			},
 		})
 	end,
+	equipPets = function(state, action)
+		local newLockedPets = table.clone(state[action.playerName].LockedPets)
+		local newEquippedPets = table.clone(state[action.playerName].EquippedPets)
+		local newPetFearMultiplier = state[action.playerName].PetFearMultiplier
+
+		for _, petName in action.petNames do
+			newLockedPets[petName] = (newLockedPets[petName] or 0) + 1
+			newEquippedPets[petName] = (newEquippedPets[petName] or 0) + 1
+			newPetFearMultiplier += (petUtils.getPet(petName) :: any).Multiplier.Value
+		end
+
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				LockedPets = newLockedPets,
+				EquippedPets = newEquippedPets,
+				PetFearMultiplier = newPetFearMultiplier,
+				CurrentPetEquipCount = state[action.playerName].CurrentPetEquipCount + #action.petNames,
+			},
+		})
+	end,
+	evolvePet = function(state, action)
+		local quantityDifference = state.OwnedPets[action.petName] - state.LockedPets[action.petName]
+		local newLockedPets = table.clone(state.LockedPets)
+		local newOwnedPets = table.clone(state.OwnedPets)
+		local newEquippedPets = {}
+		local newPetCount = 0
+
+		if quantityDifference < 5 then
+			newLockedPets[action.petName] -= quantityDifference
+			if newLockedPets[action.petName] <= 0 then
+				newLockedPets[action.petName] = Sift.None
+			end
+		end
+
+		newOwnedPets[action.petName] -= 5
+		if newOwnedPets[action.petName] <= 0 then
+			newOwnedPets[action.petName] = Sift.None
+		end
+
+		newOwnedPets["Evolved" .. action.petName] = (newOwnedPets["Evolved" .. action.petName] or 0) + 1
+
+		for _, petCount in state.OwnedPets do
+			newPetCount += petCount
+		end
+
+		if state.EquippedPets[action.petName] then
+			newEquippedPets[action.petName] = newEquippedPets[action.petName] - 1
+			if newEquippedPets[action.petName] <= 0 then
+				newEquippedPets[action.petName] = Sift.None
+			end
+		end
+
+		return Sift.Dictionary.mergeDeep(state, {
+			LockedPets = newLockedPets,
+			OwnedPets = newOwnedPets,
+			EquippedPets = newEquippedPets,
+			newPetCount,
+		})
+	end,
+	evolveAllPets = function(state, action)
+		local newLockedPets = table.clone(state.LockedPets)
+		local newOwnedPets = table.clone(state.OwnedPets)
+		local newEquippedPets = table.clone(state.EquippedPets)
+		local newPetCount = 0
+
+		for petName, petCount in state.OwnedPets do
+			for _ = 1, math.floor(petCount / 5) do
+				local quantityDifference = petCount - newLockedPets[petName]
+				if quantityDifference < 5 then
+					newLockedPets[petName] -= quantityDifference
+					if newLockedPets[petName] <= 0 then
+						newLockedPets[petName] = Sift.None
+					end
+				end
+
+				newOwnedPets[petName] -= 5
+				if newOwnedPets[petName] <= 0 then
+					newOwnedPets[petName] = Sift.None
+				end
+
+				newOwnedPets["Evolved" .. petName] = (newOwnedPets["Evolved" .. petName] or 0) + 1
+			end
+		end
+
+		for _, petCount in newOwnedPets do
+			newPetCount += petCount
+		end
+
+		for petName, quantity in state.EquippedPets do
+			newEquippedPets[petName] -= quantity - newOwnedPets[petName]
+			if newEquippedPets[petName] <= 0 then
+				newEquippedPets[petName] = Sift.None
+			end
+		end
+
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				LockedPets = newLockedPets,
+				OwnedPets = newOwnedPets,
+				EquippedPets = newEquippedPets,
+				CurrentPetCount = newPetCount,
+			},
+		})
+	end,
+	deleteAllPets = function(state, action)
+		local newOwnedPets = table.clone(state[action.playerName].OwnedPets)
+		local newPetCount = 0
+		for petName, petCount in pairs(state[action.playerName].OwnedPets) do
+			newOwnedPets[petName] -= petCount - (state[action.playerName].LockedPets[petName] or 0)
+		end
+		for _, petCount in newOwnedPets do
+			newPetCount += petCount
+		end
+		return Sift.Dictionary.mergeDeep(state, {
+			[action.playerName] = {
+				OwnedPets = newOwnedPets,
+				CurrentPetCount = newPetCount,
+			},
+		})
+	end,
 })

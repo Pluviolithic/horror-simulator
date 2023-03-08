@@ -109,12 +109,7 @@ Remotes.Server:Get("EvolvePet"):Connect(function(player: Player, petName: string
 		return 1
 	end
 
-	local quantityDifference = playerState.OwnedPets[petName] - (playerState.LockedPets[petName] or 0)
-	if quantityDifference < 5 then
-		store:dispatch(actions.unlockPet(player.Name, petName, 5 - quantityDifference))
-	end
-	store:dispatch(actions.deletePet(player.Name, petName, 5))
-	store:dispatch(actions.givePlayerPets(player.Name, { "Evolved " .. petName }))
+	store:dispatch(actions.evolvePet(player.Name, petName))
 
 	return 0
 end)
@@ -123,12 +118,28 @@ Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
 	local playerState = store:getState().Players[player.Name]
 	local bestPets = petUtils.getBestPets(playerState.OwnedPets, playerState.MaxPetEquipCount)
 
-	store:dispatch(actions.unequipAllPets(player.Name))
-	for _, pet in bestPets do
-		store:dispatch(actions.equipPet(player.Name, pet.Name))
+	if #bestPets == 0 then
+		return 1
 	end
 
+	store:dispatch(actions.unequipAllPets(player.Name))
+	store:dispatch(actions.equipPets(player.Name, bestPets))
+
 	return 0
+end)
+
+Remotes.Server:Get("UnequipAllPets"):Connect(function(player: Player)
+	store:dispatch(actions.unequipAllPets(player.Name))
+	return 0
+end)
+
+Remotes.Server:Get("DeleteAllPets"):Connect(function(player: Player)
+	store:dispatch(actions.deleteAllPets(player.Name))
+	return 0
+end)
+
+Remotes.Server:Get("EvolveAllPets"):Connect(function(player: Player)
+	store:dispatch(actions.evolveAllPets(player.Name))
 end)
 
 return 0
