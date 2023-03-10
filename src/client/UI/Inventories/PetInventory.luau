@@ -67,7 +67,18 @@ function PetInventory:_initialize(): ()
 		end
 	end)
 
-	self._ui.EquipBest.Activated:Connect(function()
+	self._confirmationDestructors = {}
+
+	self._ui.Background.UnequipAll.Activated:Connect(function()
+		table.insert(
+			self._confirmationDestructors,
+			confirmationUI("UnequipAll", function()
+				Remotes.Client:Get("UnequipAllPets"):SendToServer()
+			end)
+		)
+	end)
+
+	self._ui.Background.EquipBest.Activated:Connect(function()
 		table.insert(
 			self._confirmationDestructors,
 			confirmationUI("EquipBest", function()
@@ -76,7 +87,7 @@ function PetInventory:_initialize(): ()
 		)
 	end)
 
-	self._ui.EvolveAll.Activated:Connect(function()
+	self._ui.Background.EvolveAll.Activated:Connect(function()
 		table.insert(
 			self._confirmationDestructors,
 			confirmationUI("EvolveAll", function()
@@ -85,7 +96,7 @@ function PetInventory:_initialize(): ()
 		)
 	end)
 
-	self._ui.DeleteAll.Activated:Connect(function()
+	self._ui.Background.DeleteAll.Activated:Connect(function()
 		table.insert(
 			self._confirmationDestructors,
 			confirmationUI("DeleteAll", function()

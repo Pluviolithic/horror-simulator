@@ -76,4 +76,10 @@ return {
 			shouldSave = true,
 		}
 	end),
+	deleteAllPets = makeActionCreator("deleteAllPets", function(playerName: string)
+		return {
+			playerName = playerName,
+			shouldSave = true,
+		}
+	end),
 }

@@ -116,7 +116,7 @@ end)
 
 Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
 	local playerState = store:getState().Players[player.Name]
-	local bestPets = petUtils.getBestPets(playerState.OwnedPets, playerState.MaxPetEquipCount)
+	local bestPets = petUtils.getBestPetNames(playerState.OwnedPets, playerState.MaxPetEquipCount)
 
 	if #bestPets == 0 then
 		return 1

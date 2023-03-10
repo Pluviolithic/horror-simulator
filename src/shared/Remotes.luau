@@ -78,6 +78,11 @@ local Remotes = Net.CreateDefinitions {
 			MaxRequestsPerMinute = 60,
 		},
 	},
+	UnequipAllPets = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+	},
 
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
 	SendNPCHealthBar = Net.Definitions.ServerToClientEvent(),

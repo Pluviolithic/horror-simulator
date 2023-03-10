@@ -12,7 +12,7 @@ petUtils = {
 		end
 		return nil
 	end,
-	getBestPets = function(ownedPets, n): { Instance }
+	getBestPetNames = function(ownedPets, n): { string }
 		local sortedPets = {}
 		local bestPets = {}
 
@@ -28,7 +28,7 @@ petUtils = {
 		end)
 
 		for i = 1, n do
-			table.insert(bestPets, sortedPets[i])
+			table.insert(bestPets, sortedPets[i].Name)
 		end
 
 		return bestPets
