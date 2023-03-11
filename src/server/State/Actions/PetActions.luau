@@ -77,7 +77,7 @@ return {
 			shouldSave = true,
 		}
 	end),
-	evolveAllPets = makeActionCreator("evolvePets", function(playerName: string)
+	evolveAllPets = makeActionCreator("evolveAllPets", function(playerName: string)
 		return {
 			playerName = playerName,
 			shouldSave = true,

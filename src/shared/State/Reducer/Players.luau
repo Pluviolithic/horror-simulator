@@ -183,7 +183,7 @@ return Rodux.createReducer({}, {
 	unequipAllPets = function(state, action)
 		local newLockedPets = table.clone(state[action.playerName].LockedPets)
 		local newEquippedPets = {}
-		for petName, petEquipCount in pairs(state[action.playerName].EquippedPets) do
+		for petName, petEquipCount in state[action.playerName].EquippedPets do
 			newEquippedPets[petName] = Sift.None
 			newLockedPets[petName] -= petEquipCount
 			if newLockedPets[petName] <= 0 then
@@ -220,9 +220,10 @@ return Rodux.createReducer({}, {
 		})
 	end,
 	evolvePet = function(state, action)
-		local quantityDifference = state.OwnedPets[action.petName] - state.LockedPets[action.petName]
-		local newLockedPets = table.clone(state.LockedPets)
-		local newOwnedPets = table.clone(state.OwnedPets)
+		local quantityDifference = state[action.playerName].OwnedPets[action.petName]
+			- state[action.playerName].LockedPets[action.petName]
+		local newLockedPets = table.clone(state[action.playerName].LockedPets)
+		local newOwnedPets = table.clone(state[action.playerName].OwnedPets)
 		local newEquippedPets = {}
 		local newPetCount = 0
 
@@ -238,13 +239,13 @@ return Rodux.createReducer({}, {
 			newOwnedPets[action.petName] = Sift.None
 		end
 
-		newOwnedPets["Evolved" .. action.petName] = (newOwnedPets["Evolved" .. action.petName] or 0) + 1
+		newOwnedPets["Evolved " .. action.petName] = (newOwnedPets["Evolved " .. action.petName] or 0) + 1
 
-		for _, petCount in state.OwnedPets do
+		for _, petCount in state[action.playerName].OwnedPets do
 			newPetCount += petCount
 		end
 
-		if state.EquippedPets[action.petName] then
+		if state[action.playerName].EquippedPets[action.petName] then
 			newEquippedPets[action.petName] = newEquippedPets[action.petName] - 1
 			if newEquippedPets[action.petName] <= 0 then
 				newEquippedPets[action.petName] = Sift.None
@@ -259,14 +260,18 @@ return Rodux.createReducer({}, {
 		})
 	end,
 	evolveAllPets = function(state, action)
-		local newLockedPets = table.clone(state.LockedPets)
-		local newOwnedPets = table.clone(state.OwnedPets)
-		local newEquippedPets = table.clone(state.EquippedPets)
+		local newLockedPets = table.clone(state[action.playerName].LockedPets)
+		local newOwnedPets = table.clone(state[action.playerName].OwnedPets)
+		local newEquippedPets = table.clone(state[action.playerName].EquippedPets)
 		local newPetCount = 0
 
-		for petName, petCount in state.OwnedPets do
+		for petName, petCount in state[action.playerName].OwnedPets do
+			if petName:match "Evolved" then
+				continue
+			end
+
 			for _ = 1, math.floor(petCount / 5) do
-				local quantityDifference = petCount - newLockedPets[petName]
+				local quantityDifference = petCount - (newLockedPets[petName] or 0)
 				if quantityDifference < 5 then
 					newLockedPets[petName] -= quantityDifference
 					if newLockedPets[petName] <= 0 then
@@ -279,15 +284,18 @@ return Rodux.createReducer({}, {
 					newOwnedPets[petName] = Sift.None
 				end
 
-				newOwnedPets["Evolved" .. petName] = (newOwnedPets["Evolved" .. petName] or 0) + 1
+				newOwnedPets["Evolved " .. petName] = (newOwnedPets["Evolved " .. petName] or 0) + 1
 			end
 		end
 
 		for _, petCount in newOwnedPets do
+			if petCount == Sift.None then
+				continue
+			end
 			newPetCount += petCount
 		end
 
-		for petName, quantity in state.EquippedPets do
+		for petName, quantity in state[action.playerName].EquippedPets do
 			newEquippedPets[petName] -= quantity - newOwnedPets[petName]
 			if newEquippedPets[petName] <= 0 then
 				newEquippedPets[petName] = Sift.None
