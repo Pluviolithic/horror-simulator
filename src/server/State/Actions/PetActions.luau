@@ -3,6 +3,13 @@ local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local makeActionCreator = Rodux.makeActionCreator
 
 return {
+	givePlayerPets = makeActionCreator("givePlayerPets", function(playerName: string, petNames: { [string]: boolean })
+		return {
+			playerName = playerName,
+			petNames = petNames,
+			shouldSave = true,
+		}
+	end),
 	equipPet = makeActionCreator("equipPet", function(playerName: string, petName: string)
 		return {
 			playerName = playerName,
