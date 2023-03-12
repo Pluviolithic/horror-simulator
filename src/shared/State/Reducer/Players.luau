@@ -296,7 +296,7 @@ return Rodux.createReducer({}, {
 		end
 
 		for petName, quantity in state[action.playerName].EquippedPets do
-			newEquippedPets[petName] -= quantity - newOwnedPets[petName]
+			newEquippedPets[petName] -= quantity - (newOwnedPets[petName] or 0)
 			if newEquippedPets[petName] <= 0 then
 				newEquippedPets[petName] = Sift.None
 			end
