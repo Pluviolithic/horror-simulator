@@ -256,7 +256,7 @@ return Rodux.createReducer({}, {
 			LockedPets = newLockedPets,
 			OwnedPets = newOwnedPets,
 			EquippedPets = newEquippedPets,
-			newPetCount,
+			CurrentPetCount = newPetCount,
 		})
 	end,
 	evolveAllPets = function(state, action)
