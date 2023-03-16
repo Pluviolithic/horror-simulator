@@ -117,7 +117,9 @@ local function instantiatePetsMiddleware(nextDispatch, store)
 					print "running"
 					local newPet = petUtils.getPet(petName):Clone()
 					local position, look = petUtils.calculatePosition(rootPart, quantity, i)
-					newPet:SetPrimaryPartCFrame(CFrame.new(position, position + look))
+					newPet.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(Vector3.new(), look * Vector3.new(1, 0, 1))
+					newPet.PrimaryPart.BodyPosition.Position = position
+					newPet.PrimaryPart.Position = position
 					newPet.Parent = petsModel
 					newPet:FindFirstChildWhichIsA("BasePart"):SetNetworkOwner(Players[action.playerName])
 				end
