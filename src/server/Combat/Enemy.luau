@@ -298,7 +298,14 @@ local function handleEnemy(enemy)
 				if not Players:FindFirstChild(otherPlayer.Name) then
 					continue
 				end
-				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
+
+				local petFearMultiplier = store:getState().Players[otherPlayer.Name].PetFearMultiplier
+				if petFearMultiplier > 0 then
+					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage * petFearMultiplier))
+				else
+					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
+				end
+
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Kills"))
 
 				if damage >= maxHealth * gemRewardPercentage then

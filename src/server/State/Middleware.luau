@@ -2,10 +2,13 @@ local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
 local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
@@ -57,7 +60,7 @@ end
 local function updateLeaderstatsMiddleware(nextDispatch, store)
 	return function(action)
 		nextDispatch(action)
-		if not action.playerName then
+		if not action.playerName or not store:getState().Players[action.playerName] then
 			return
 		end
 
@@ -72,9 +75,61 @@ local function updateLeaderstatsMiddleware(nextDispatch, store)
 	end
 end
 
+local function instantiatePetsMiddleware(nextDispatch, store)
+	return function(action)
+		local oldState = store:getState()
+		nextDispatch(action)
+		local newPlayerState = store:getState().Players[action.playerName]
+		if not action.playerName or not newPlayerState then
+			if workspace.PetModels:FindFirstChild(action.playerName) then
+				workspace.PetModels[action.playerName]:Destroy()
+			end
+			return
+		end
+
+		local petsModel = workspace.PetModels:FindFirstChild(action.playerName)
+		if not petsModel then
+			petsModel = Instance.new "Model"
+			petsModel.Name = action.playerName
+			petsModel.Parent = workspace.PetModels
+
+			local janitor = Janitor.new()
+			janitor:Add(petsModel, "Destroy")
+			janitor:LinkToInstance(Players[action.playerName])
+		end
+
+		if
+			not oldState.Players[action.playerName]
+			or Sift.Dictionary.equalsDeep(oldState.Players[action.playerName].EquippedPets, newPlayerState.EquippedPets)
+		then
+			return
+		end
+
+		for _, pet in petsModel:GetChildren() do
+			pet:Destroy()
+		end
+		print "called"
+		task.spawn(function()
+			local character = Players[action.playerName].Character or Players[action.playerName].CharacterAdded:Wait()
+			local rootPart = character:WaitForChild "HumanoidRootPart"
+			for petName, quantity in newPlayerState.EquippedPets do
+				for i = 1, quantity do
+					print "running"
+					local newPet = petUtils.getPet(petName):Clone()
+					local position, look = petUtils.calculatePosition(rootPart, quantity, i)
+					newPet:SetPrimaryPartCFrame(CFrame.new(position, position + look))
+					newPet.Parent = petsModel
+					newPet:FindFirstChildWhichIsA("BasePart"):SetNetworkOwner(Players[action.playerName])
+				end
+			end
+		end)
+	end
+end
+
 return {
 	updateClientMiddleware,
 	savePlayerDataMiddleware,
 	updateLeaderstatsMiddleware,
+	instantiatePetsMiddleware,
 	if displayServerLogs then Rodux.loggerMiddleware else nil,
 }

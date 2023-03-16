@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local modelYOffset = ReplicatedStorage.Config.Pets.YOffset.Value
 
 local petUtils
 petUtils = {
@@ -32,6 +33,18 @@ petUtils = {
 		end
 
 		return bestPets
+	end,
+	calculatePosition = function(rootPart, numPets, i)
+		local petAngle = math.rad(180 / (numPets + 1))
+		local petRadius = 4
+
+		local bobOffset = Vector3.new(0, math.sin(tick() * 5 + i) * 0.3, 0)
+		local petOffset =
+			Vector3.new(math.cos(petAngle * i) * petRadius, modelYOffset, math.sin(petAngle * i) * petRadius)
+		local petCFrame = rootPart.CFrame * CFrame.new(petOffset + bobOffset)
+		local lookVector = (rootPart.Position - petCFrame.Position).Unit
+
+		return petCFrame.Position, lookVector
 	end,
 }
 
