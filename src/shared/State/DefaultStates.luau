@@ -21,6 +21,8 @@ return {
 		MaxPetEquipCount = 3,
 
 		AwardedGamepasses = {},
+		PurchasedTeleporters = {},
+
 		FoundPets = {},
 		OwnedPets = {},
 		LockedPets = {},

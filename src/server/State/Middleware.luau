@@ -108,13 +108,12 @@ local function instantiatePetsMiddleware(nextDispatch, store)
 		for _, pet in petsModel:GetChildren() do
 			pet:Destroy()
 		end
-		print "called"
+
 		task.spawn(function()
 			local character = Players[action.playerName].Character or Players[action.playerName].CharacterAdded:Wait()
 			local rootPart = character:WaitForChild "HumanoidRootPart"
 			for petName, quantity in newPlayerState.EquippedPets do
 				for i = 1, quantity do
-					print "running"
 					local newPet = petUtils.getPet(petName):Clone()
 					local position, look = petUtils.calculatePosition(rootPart, quantity, i)
 					newPet.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(Vector3.new(), look * Vector3.new(1, 0, 1))

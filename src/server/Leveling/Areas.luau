@@ -3,8 +3,11 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local CollectionService = game:GetService "CollectionService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local Remotes = require(ReplicatedStorage.Common.Remotes)
+local actions = require(ServerScriptService.Server.State.Actions)
 local store = require(ServerScriptService.Server.State.Store)
 
+local teleporterPrices = ReplicatedStorage.Config.Teleports
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 
 local teleporters = {}
@@ -46,5 +49,22 @@ CollectionService:GetInstanceAddedSignal("TP"):Connect(handleTeleporter)
 for _, teleporter in pairs(CollectionService:GetTagged "TP") do
 	handleTeleporter(teleporter)
 end
+
+Remotes.Server:Get("PurchaseTeleporter"):Connect(function(player, areaName)
+	local playerState = store:getState().Players[player.Name]
+	if not teleporterPrices:FindFirstChild(areaName) then
+		return 1
+	end
+
+	local price = teleporterPrices[areaName].Value
+	if playerState.Gems < price then
+		return 1
+	end
+
+	store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -price))
+	store:dispatch(actions.givePlayerTeleporter(player.Name, areaName))
+
+	return 0
+end)
 
 return 0

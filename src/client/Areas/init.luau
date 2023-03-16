@@ -1,5 +1,4 @@
-for _, module in script:GetChildren() do
-	require(module)
-end
+require(script.Barriers)
+require(script.TeleportUI)
 
 return 0

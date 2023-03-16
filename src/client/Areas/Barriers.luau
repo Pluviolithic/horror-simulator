@@ -7,27 +7,19 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 
 local player = Players.LocalPlayer
-local connections: { [string]: RBXScriptConnection } = {}
-
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 
-local function unlockArea(areaName)
-	if connections[areaName] then
-		return
-	end
-
-	CollectionService:GetInstanceAddedSignal(areaName .. "Barrier"):Connect(function(barrier)
-		barrier:Destroy()
-	end)
-
+local function unlockArea(areaName: string, lock: boolean?)
 	for _, barrier in CollectionService:GetTagged(areaName .. "Barrier") do
-		barrier:Destroy()
+		barrier.CanCollide = if lock then true else false
 	end
 end
 
 local function unlockAreas(state)
 	for _, requirement in areaRequirements:GetChildren() do
-		if requirement.Value <= state.Strength then
+		if requirement.Value > state.Strength then
+			unlockArea(requirement.Name, true)
+		else
 			unlockArea(requirement.Name)
 		end
 	end
