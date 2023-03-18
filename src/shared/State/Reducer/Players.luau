@@ -330,7 +330,7 @@ return Rodux.createReducer({}, {
 	givePlayerTeleporter = function(state, action)
 		return Sift.Dictionary.mergeDeep(state, {
 			[action.playerName] = {
-				PurchasedTeleporters = { action.areaName },
+				PurchasedTeleporters = { [action.areaName] = true },
 			},
 		})
 	end,

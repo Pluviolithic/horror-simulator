@@ -8,6 +8,7 @@ local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.C
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
+local Sift = require(ReplicatedStorage.Common.lib.Sift)
 
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local player = Players.LocalPlayer
@@ -16,6 +17,15 @@ local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport") :: {
 	_initialize: () -> (),
 	Refresh: () -> (),
 } & CentralUI.CentralUI
+
+local function getAreaTeleporter(areaName: string): Instance?
+	for _, teleporter in CollectionService:GetTagged "AreaTeleport" do
+		if teleporter.Name == areaName .. "TP" then
+			return teleporter
+		end
+	end
+	return nil
+end
 
 function TeleportUI:_unlockArea(areaName: string, lock: boolean)
 	if not self._ui.Background.ScrollingFrame[areaName]:FindFirstChild "Locked" then
@@ -28,12 +38,19 @@ function TeleportUI:_initialize()
 	playerStatePromise:andThen(function()
 		self:Refresh()
 		store.changed:connect(function(newState, oldState)
-			if newState.Players[player.Name].Strength == oldState.Players[player.Name].Strength then
-				return
+			local newPlayerState = newState.Players[player.Name]
+			local oldPlayerState = oldState.Players[player.Name]
+			if
+				newPlayerState.Strength ~= oldPlayerState.Strength
+				or Sift.Dictionary.equalsDeep(newPlayerState.PurchasedTeleporters, oldPlayerState.PurchasedTeleporters)
+			then
+				self:Refresh()
 			end
-
-			self:Refresh()
 		end)
+	end)
+
+	player.PlayerGui:WaitForChild("MainUI").Teleport.Activated:Connect(function()
+		self:setEnabled(not self._isOpen)
 	end)
 
 	for _, area in self._ui.Background.ScrollingFrame:GetChildren() do
@@ -41,14 +58,26 @@ function TeleportUI:_initialize()
 			continue
 		end
 
+		area.Teleport.Active = true
+
 		area.Teleport.Activated:Connect(function()
 			if area.Locked.Visible or area.CostUI.Visible then
+				local playerState = store:getState().Players[player.Name]
+				if playerState.Gems < area.Cost.Value then
+					return
+				end
+				confirmationUI({
+					AreaName = area.Name,
+					Cost = area.Cost.Value,
+				}, function()
+					Remotes.Client:Get("PurchaseTeleporter"):SendToServer(area.Name)
+				end)
 				return
 			end
 			if not player.Character or not player.Character:FindFirstChild "HumanoidRootPart" then
 				return
 			end
-			local goal = CollectionService:GetTagged(area.Name .. "TP")[1]
+			local goal = getAreaTeleporter(area.Name)
 			player.Character:PivotTo(
 				CFrame.fromMatrix(
 					goal.Position + goal.CFrame.LookVector * 5 + goal.CFrame.UpVector * 5,
@@ -56,19 +85,6 @@ function TeleportUI:_initialize()
 					goal.CFrame.UpVector
 				)
 			)
-		end)
-
-		area.CostUI.Activated:Connect(function()
-			local playerState = store:getState().Players[player.Name]
-			if playerState.Gems < area.Cost.Value then
-				return
-			end
-			confirmationUI({
-				AreaName = area.Name,
-				Cost = area.Cost.Value,
-			}, function()
-				Remotes.Client:Get("PurchaseTeleporter"):SendToServer(area.Name)
-			end)
 		end)
 	end
 end
@@ -88,6 +104,10 @@ function TeleportUI:Refresh()
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = true
 		end
 	end
+end
+
+function TeleportUI:OnOpen()
+	self:Refresh()
 end
 
 task.spawn(TeleportUI._initialize, TeleportUI)

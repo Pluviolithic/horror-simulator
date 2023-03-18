@@ -14,7 +14,7 @@ return function(context, callback)
 		string.format("Unlock the %s teleport for %s Gems?", context.AreaName, context.Cost)
 
 	destructor:Add(
-		confirmationUI.GreenButton.Activated:Connect(function()
+		confirmationUI.Purchase.Activated:Connect(function()
 			confirmationUI.Visible = false
 			destructor:Cleanup()
 			callback()
