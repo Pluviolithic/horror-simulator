@@ -57,7 +57,7 @@ Remotes.Server:Get("PurchaseTeleporter"):Connect(function(player, areaName)
 	end
 
 	local price = teleporterPrices[areaName].Value
-	if playerState.Gems < price then
+	if playerState.Gems < price or playerState.PurchasedTeleporters[areaName] then
 		return 1
 	end
 

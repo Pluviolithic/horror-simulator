@@ -14,6 +14,9 @@ local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
+local interfaces =
+	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces) :: { [typeof(setmetatable({}, CentralUI))]: boolean }
+
 local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory") :: {
 	_initialize: () -> (),
 	_focusedTemplate: Instance?,
@@ -45,6 +48,8 @@ local function shouldRefresh(newState, oldState): boolean
 end
 
 function PetInventory:_initialize(): ()
+	interfaces[self] = true
+
 	player.PlayerGui:WaitForChild("MainUI").Pets.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)

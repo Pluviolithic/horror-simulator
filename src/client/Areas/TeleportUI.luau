@@ -18,6 +18,9 @@ local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport") :: {
 	Refresh: () -> (),
 } & CentralUI.CentralUI
 
+local interfaces =
+	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces) :: { [typeof(setmetatable({}, CentralUI))]: boolean }
+
 local function getAreaTeleporter(areaName: string): Instance?
 	for _, teleporter in CollectionService:GetTagged "AreaTeleport" do
 		if teleporter.Name == areaName .. "TP" then
@@ -42,12 +45,17 @@ function TeleportUI:_initialize()
 			local oldPlayerState = oldState.Players[player.Name]
 			if
 				newPlayerState.Strength ~= oldPlayerState.Strength
-				or Sift.Dictionary.equalsDeep(newPlayerState.PurchasedTeleporters, oldPlayerState.PurchasedTeleporters)
+				or not Sift.Dictionary.equalsDeep(
+					newPlayerState.PurchasedTeleporters,
+					oldPlayerState.PurchasedTeleporters
+				)
 			then
 				self:Refresh()
 			end
 		end)
 	end)
+
+	interfaces[self] = true
 
 	player.PlayerGui:WaitForChild("MainUI").Teleport.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
