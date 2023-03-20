@@ -1,9 +1,11 @@
 local Players = game:GetService "Players"
 local RunService = game:GetService "RunService"
+local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
+local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 
 local player = Players.LocalPlayer
 
@@ -24,6 +26,12 @@ end):andThen(function(petsModel)
 			petModel.PrimaryPart.BodyPosition.Position = position
 			petModel.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(Vector3.new(), look * Vector3.new(1, 0, 1))
 		end
+	end)
+	player.CharacterAdded:Connect(function()
+		if not store:getState().Players[player.Name] then
+			return
+		end
+		petUtils.instantiatePets(player, store:getState().Players[player.Name].EquippedPets)
 	end)
 end)
 

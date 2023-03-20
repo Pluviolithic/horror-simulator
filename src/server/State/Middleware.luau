@@ -6,7 +6,6 @@ local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
-local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
@@ -81,49 +80,18 @@ local function instantiatePetsMiddleware(nextDispatch, store)
 		nextDispatch(action)
 		local newPlayerState = store:getState().Players[action.playerName]
 		if not action.playerName or not newPlayerState then
-			if workspace.PetModels:FindFirstChild(action.playerName) then
+			if action.playerName and workspace.PetModels:FindFirstChild(action.playerName) then
 				workspace.PetModels[action.playerName]:Destroy()
 			end
 			return
 		end
-
-		local petsModel = workspace.PetModels:FindFirstChild(action.playerName)
-		if not petsModel then
-			petsModel = Instance.new "Model"
-			petsModel.Name = action.playerName
-			petsModel.Parent = workspace.PetModels
-
-			local janitor = Janitor.new()
-			janitor:Add(petsModel, "Destroy")
-			janitor:LinkToInstance(Players[action.playerName])
-		end
-
 		if
 			not oldState.Players[action.playerName]
 			or Sift.Dictionary.equalsDeep(oldState.Players[action.playerName].EquippedPets, newPlayerState.EquippedPets)
 		then
 			return
 		end
-
-		for _, pet in petsModel:GetChildren() do
-			pet:Destroy()
-		end
-
-		task.spawn(function()
-			local character = Players[action.playerName].Character or Players[action.playerName].CharacterAdded:Wait()
-			local rootPart = character:WaitForChild "HumanoidRootPart"
-			for petName, quantity in newPlayerState.EquippedPets do
-				for i = 1, quantity do
-					local newPet = petUtils.getPet(petName):Clone()
-					local position, look = petUtils.calculatePosition(rootPart, quantity, i)
-					newPet.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(Vector3.new(), look * Vector3.new(1, 0, 1))
-					newPet.PrimaryPart.BodyPosition.Position = position
-					newPet.PrimaryPart.Position = position
-					newPet.Parent = petsModel
-					newPet:FindFirstChildWhichIsA("BasePart"):SetNetworkOwner(Players[action.playerName])
-				end
-			end
-		end)
+		petUtils.instantiatePets(action.playerName, newPlayerState.EquippedPets)
 	end
 end
 

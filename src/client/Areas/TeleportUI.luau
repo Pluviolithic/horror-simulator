@@ -7,6 +7,7 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.ConfirmationUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
 
@@ -69,8 +70,8 @@ function TeleportUI:_initialize()
 		area.Teleport.Active = true
 
 		area.Teleport.Activated:Connect(function()
+			local playerState = store:getState().Players[player.Name]
 			if area.Locked.Visible or area.CostUI.Visible then
-				local playerState = store:getState().Players[player.Name]
 				if playerState.Gems < area.Cost.Value then
 					return
 				end
@@ -93,6 +94,7 @@ function TeleportUI:_initialize()
 					goal.CFrame.UpVector
 				)
 			)
+			petUtils.instantiatePets(player.Name, playerState.EquippedPets)
 		end)
 	end
 end
@@ -100,15 +102,13 @@ end
 function TeleportUI:Refresh()
 	local playerState = store:getState().Players[player.Name]
 	for _, requirement in areaRequirements:GetChildren() do
-		if requirement.Value > playerState.Strength then
-			self:_unlockArea(requirement.Name, true)
-		else
-			self:_unlockArea(requirement.Name, false)
-		end
+		local shouldLock = requirement.Value > playerState.Strength
+
+		self:_unlockArea(requirement.Name, shouldLock)
 
 		if playerState.PurchasedTeleporters[requirement.Name] then
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = false
-		else
+		elseif not shouldLock then
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = true
 		end
 	end

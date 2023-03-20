@@ -1,5 +1,22 @@
+local Players = game:GetService "Players"
+local RunService = game:GetService "RunService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
+
 local modelYOffset = ReplicatedStorage.Config.Pets.YOffset.Value
+
+local function calculatePosition(rootPart, numPets, i)
+	local petAngle = math.rad(180 / (numPets + 1))
+	local petRadius = 4
+
+	local bobOffset = Vector3.new(0, math.sin(tick() * 5 + i) * 0.3, 0)
+	local petOffset = Vector3.new(math.cos(petAngle * i) * petRadius, modelYOffset, math.sin(petAngle * i) * petRadius)
+	local petCFrame = rootPart.CFrame * CFrame.new(petOffset + bobOffset)
+	local lookVector = (rootPart.Position - petCFrame.Position).Unit
+
+	return petCFrame.Position, lookVector
+end
 
 local petUtils
 petUtils = {
@@ -34,17 +51,47 @@ petUtils = {
 
 		return bestPets
 	end,
-	calculatePosition = function(rootPart, numPets, i)
-		local petAngle = math.rad(180 / (numPets + 1))
-		local petRadius = 4
+	--TODO: Now that approach is in place for reusing pets, this should be refactored to only instantiate pets that are missing on the server
+	instantiatePets = function(playerName, equippedPets)
+		local isServer = RunService:IsServer()
+		local petsModel = workspace.PetModels:FindFirstChild(playerName)
+		if not petsModel and isServer then
+			petsModel = Instance.new "Model"
+			petsModel.Name = playerName
+			petsModel.Parent = workspace.PetModels
 
-		local bobOffset = Vector3.new(0, math.sin(tick() * 5 + i) * 0.3, 0)
-		local petOffset =
-			Vector3.new(math.cos(petAngle * i) * petRadius, modelYOffset, math.sin(petAngle * i) * petRadius)
-		local petCFrame = rootPart.CFrame * CFrame.new(petOffset + bobOffset)
-		local lookVector = (rootPart.Position - petCFrame.Position).Unit
+			local janitor = Janitor.new()
+			janitor:Add(petsModel, "Destroy")
+			janitor:LinkToInstance(Players[playerName])
+		end
 
-		return petCFrame.Position, lookVector
+		if isServer then
+			for _, pet in petsModel:GetChildren() do
+				pet:Destroy()
+			end
+		end
+
+		task.spawn(function()
+			local character = Players[playerName].Character or Players[playerName].CharacterAdded:Wait()
+			local rootPart = character:WaitForChild "HumanoidRootPart"
+			local equippedPetModels = petsModel:GetChildren()
+			for petName, quantity in equippedPets do
+				for i = 1, quantity do
+					local position, look = calculatePosition(rootPart, quantity, i)
+					local newPet
+					if isServer then
+						newPet = petUtils.getPet(petName):Clone()
+					else
+						newPet = table.remove(equippedPetModels, table.find(equippedPetModels, petName))
+					end
+					newPet.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(Vector3.new(), look * Vector3.new(1, 0, 1))
+					newPet.PrimaryPart.BodyPosition.Position = position
+					newPet.PrimaryPart.Position = position
+					newPet.Parent = petsModel
+					newPet:FindFirstChildWhichIsA("BasePart"):SetNetworkOwner(Players[playerName])
+				end
+			end
+		end)
 	end,
 }
 
