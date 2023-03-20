@@ -51,11 +51,13 @@ petUtils = {
 
 		return bestPets
 	end,
-	--TODO: Now that approach is in place for reusing pets, this should be refactored to only instantiate pets that are missing on the server
 	instantiatePets = function(playerName, equippedPets)
 		local isServer = RunService:IsServer()
 		local petsModel = workspace.PetModels:FindFirstChild(playerName)
-		if not petsModel and isServer then
+		if not petsModel then
+			if not isServer then
+				return
+			end
 			petsModel = Instance.new "Model"
 			petsModel.Name = playerName
 			petsModel.Parent = workspace.PetModels
@@ -65,12 +67,6 @@ petUtils = {
 			janitor:LinkToInstance(Players[playerName])
 		end
 
-		if isServer then
-			for _, pet in petsModel:GetChildren() do
-				pet:Destroy()
-			end
-		end
-
 		task.spawn(function()
 			local character = Players[playerName].Character or Players[playerName].CharacterAdded:Wait()
 			local rootPart = character:WaitForChild "HumanoidRootPart"
@@ -78,11 +74,14 @@ petUtils = {
 			for petName, quantity in equippedPets do
 				for i = 1, quantity do
 					local position, look = calculatePosition(rootPart, quantity, i)
-					local newPet
-					if isServer then
+					local newPetIndex = table.find(equippedPetModels, petName)
+					local newPet = nil
+					if newPetIndex then
+						newPet = table.remove(equippedPetModels, newPetIndex)
+					elseif isServer then
 						newPet = petUtils.getPet(petName):Clone()
 					else
-						newPet = table.remove(equippedPetModels, table.find(equippedPetModels, petName))
+						continue
 					end
 					newPet.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(Vector3.new(), look * Vector3.new(1, 0, 1))
 					newPet.PrimaryPart.BodyPosition.Position = position
