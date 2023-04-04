@@ -1,6 +1,7 @@
 {
     "name": "horror-simulator",
     "tree": {
+<<<<<<< HEAD
       "$className": "DataModel",
 
       "ReplicatedStorage": {
@@ -33,3 +34,33 @@
 
     }
   }
+=======
+        "$className": "DataModel",
+        "ReplicatedStorage": {
+            "Common": {
+                "$path": "src/shared",
+                "lib": {
+                    "$className": "Folder",
+                    "$path": "./Packages"
+                }
+            }
+        },
+        "ServerScriptService": {
+            "Server": {
+                "$path": "src/server",
+                "lib": {
+                    "$className": "Folder",
+                    "$path": "./ServerPackages"
+                }
+            }
+        },
+        "StarterPlayer": {
+            "StarterPlayerScripts": {
+                "Client": {
+                    "$path": "src/client"
+                }
+            }
+        }
+    }
+}
+>>>>>>> d873419 (Switch to aftman for tooling)
