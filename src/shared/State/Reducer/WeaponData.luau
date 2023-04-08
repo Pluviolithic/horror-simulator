@@ -1,6 +1,6 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
-local Dict = require(ReplicatedStorage.Common.lib.Sift).Dict
+local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 

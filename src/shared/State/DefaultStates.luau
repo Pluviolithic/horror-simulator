@@ -62,9 +62,8 @@ return {
 		MaxPetEquipCount = 3,
 	},
 
-	GameState = {
-		PetData = {
-			--[[
+	PetData = {
+		--[[
 				[playerName] = {
 					FoundPets = {},
 					OwnedPets = {},
@@ -72,9 +71,9 @@ return {
 					EquippedPets = {},
 				}
 			]]
-		},
-		WeaponData = {
-			--[[
+	},
+	WeaponData = {
+		--[[
 				[playerName] = {
 					OwnedWeapons = {
 						["Fists"] = true,
@@ -82,22 +81,21 @@ return {
 					EquippedWeapon = "Fists",
 				}
 			]]
-		},
-		CombatData = {
-			--[[
+	},
+	CombatData = {
+		--[[
 				[playerName] = {
 					CurrentEnemy = nil,
 					CurrentPunchingBag = nil,
 				}
 			]]
-		},
-		PurchaseData = {
-			--[[
+	},
+	PurchaseData = {
+		--[[
 				[playerName] = {
 					AwardedGamepasses = {},
 					PurchasedTeleporters = {},
 				}
 			]]
-		},
 	},
 }
