@@ -7,19 +7,9 @@ PlayerStatusUI.__index = PlayerStatusUI
 local store = require(ServerScriptService.Server.State.Store)
 local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 local playerUITemplate = ReplicatedStorage.PlayerUI:Clone()
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-type PlayerStatusUI = typeof(setmetatable(
-	{} :: {
-		_player: Player,
-		_playerUI: GuiObject,
-		_activePlayerUI: GuiObject,
-		_listener: RBXScriptConnection,
-		_healthBar: HealthBar.HealthBar,
-	},
-	PlayerStatusUI
-))
-
-function PlayerStatusUI.new(player: Player): PlayerStatusUI
+function PlayerStatusUI.new(player: Player)
 	local self = setmetatable({}, PlayerStatusUI)
 
 	self._player = player
@@ -35,14 +25,13 @@ function PlayerStatusUI.new(player: Player): PlayerStatusUI
 end
 
 function PlayerStatusUI:_updateUIFields(state)
-	local playerState = state.Players[self._player.Name]
-	if not playerState or not next(playerState) then
+	if not selectors.isPlayerLoaded(state, self._player.Name) then
 		return
 	end
 	local playerUIFrame = self._activePlayerUI.Frame
 
 	playerUIFrame.PlayerName.Text = self._player.Name
-	playerUIFrame.Rank.Text = "Rank " .. playerState.Rank
+	playerUIFrame.Rank.Text = "Rank " .. selectors.getStat(state, self._player.Name, "Rank")
 
 	local humanoid: Humanoid = self._player.Character and self._player.Character:FindFirstChildWhichIsA "Humanoid"
 
@@ -51,7 +40,7 @@ function PlayerStatusUI:_updateUIFields(state)
 	end
 
 	local healthDisplay = self._activePlayerUI.Health
-	if playerState.CurrentEnemy then
+	if selectors.getCurrentTarget(state, self._player.Name) then
 		healthDisplay.Visible = true
 	else
 		healthDisplay.Visible = false

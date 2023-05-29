@@ -19,22 +19,22 @@ local function initializeLeaderboard(player: Player, data: typeof(profileTemplat
 
 	local strength = Instance.new "StringValue"
 	strength.Name = "Strength"
-	strength.Value = formatter.formatNumberWithSuffix(data.Strength)
+	strength.Value = formatter.formatNumberWithSuffix(data.Stats.Strength)
 	strength.Parent = leaderstats
 
 	local fear = Instance.new "StringValue"
 	fear.Name = "Fear"
-	fear.Value = formatter.formatNumberWithSuffix(data.Fear)
+	fear.Value = formatter.formatNumberWithSuffix(data.Stats.Fear)
 	fear.Parent = leaderstats
 
 	local Kills = Instance.new "StringValue"
 	Kills.Name = "Kills"
-	Kills.Value = formatter.formatNumberWithSuffix(data.Kills)
+	Kills.Value = formatter.formatNumberWithSuffix(data.Stats.Kills)
 	Kills.Parent = leaderstats
 
 	local Rebirths = Instance.new "StringValue"
 	Rebirths.Name = "Rebirths"
-	Rebirths.Value = formatter.formatNumberWithSuffix(data.Rebirths)
+	Rebirths.Value = formatter.formatNumberWithSuffix(data.Stats.Rebirths)
 	Rebirths.Parent = leaderstats
 
 	leaderstats.Parent = player

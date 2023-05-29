@@ -6,6 +6,7 @@ local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
@@ -68,7 +69,7 @@ local function updateLeaderstatsMiddleware(nextDispatch, store)
 
 		if leaderstats then
 			for _, stat in pairs(leaderstats:GetChildren()) do
-				stat.Value = formatter.formatNumberWithSuffix(store:getState().Players[action.playerName][stat.Name])
+				stat.Value = formatter.formatNumberWithSuffix(selectors.getStat(store:getState(), player.Name, stat.Name))
 			end
 		end
 	end
@@ -78,26 +79,25 @@ local function instantiatePetsMiddleware(nextDispatch, store)
 	return function(action)
 		local oldState = store:getState()
 		nextDispatch(action)
-		local newPlayerState = store:getState().Players[action.playerName]
-		if not action.playerName or not newPlayerState then
+		if not action.playerName or not selectors.isPlayerLoaded(store:getState(), action.playerName) then
 			if action.playerName and workspace.PetModels:FindFirstChild(action.playerName) then
 				workspace.PetModels[action.playerName]:Destroy()
 			end
 			return
 		end
 		if
-			not oldState.Players[action.playerName]
-			or Sift.Dictionary.equalsDeep(oldState.Players[action.playerName].EquippedPets, newPlayerState.EquippedPets)
+			not selectors.isPlayerLoaded(oldState, action.playerName)
+			or Sift.Dictionary.equalsDeep(selectors.getEquippedPets(oldState, action.playerName), selectors.getEquippedPets(store:getState(), action.playerName))
 		then
 			return
 		end
-		petUtils.instantiatePets(action.playerName, newPlayerState.EquippedPets)
+		petUtils.instantiatePets(action.playerName, selectors.getEquippedPets(store:getState(), action.playerName))
 	end
 end
 
 return {
 	updateClientMiddleware,
-	savePlayerDataMiddleware,
+	--savePlayerDataMiddleware,
 	updateLeaderstatsMiddleware,
 	instantiatePetsMiddleware,
 	if displayServerLogs then Rodux.loggerMiddleware else nil,

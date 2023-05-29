@@ -15,13 +15,10 @@ local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local player = Players.LocalPlayer
 
-local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport") :: {
-	_initialize: () -> (),
-	Refresh: () -> (),
-} & CentralUI.CentralUI
+local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport")
 
 local interfaces =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces) :: { [typeof(setmetatable({}, CentralUI))]: boolean }
+	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 local function getAreaTeleporter(areaName: string): Instance?
 	for _, teleporter in CollectionService:GetTagged "AreaTeleport" do

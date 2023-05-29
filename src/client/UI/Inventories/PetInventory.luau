@@ -16,19 +16,9 @@ local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.Conf
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local interfaces =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces) :: { [typeof(setmetatable({}, CentralUI))]: boolean }
+	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
-local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory") :: {
-	_initialize: () -> (),
-	_focusedTemplate: Instance?,
-	_initializeLockButton: (petTemplate: ImageButton | any) -> (),
-	Refresh: () -> (),
-	_focusedDestructor: typeof(Janitor.new())?,
-	_confirmationDestructors: { typeof(Janitor.new()) },
-	_clearFocusedDisplay: () -> (),
-	_setFocusedDisplay: (details: { [any]: any }) -> (),
-} & CentralUI.CentralUI
-
+local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
 local rarityTemplates = ReplicatedStorage.RarityTemplates
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 

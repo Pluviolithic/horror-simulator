@@ -11,14 +11,7 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 
-local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop") :: {
-	Trigger: string,
-	_itemButtons: { GuiObject },
-	_initialize: () -> (),
-	Refresh: () -> (),
-	ClearFocusedDisplay: () -> (),
-} & CentralUI.CentralUI
-
+local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local gamepassPrices = ReplicatedStorage.Config.GamepassData.Prices
 

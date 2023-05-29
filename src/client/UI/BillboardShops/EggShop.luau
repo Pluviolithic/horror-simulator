@@ -34,10 +34,10 @@ local autoLastDisabled = 0
 
 local rarityColorConfig = ReplicatedStorage.Config.RarityColors
 
-local petAreas: { [string]: string } = {}
-local rarityListeners: { (number) -> () } = {}
-local listeners: { [BillboardGui]: (Enum.KeyCode) -> () } = {}
-local validInputs: { [Enum.KeyCode]: boolean } = {
+local petAreas = {}
+local rarityListeners = {}
+local listeners = {}
+local validInputs = {
 	[Enum.KeyCode.E] = true,
 	[Enum.KeyCode.R] = true,
 	[Enum.KeyCode.T] = true,
@@ -91,13 +91,13 @@ function displayPurchaseResults(results: { string }?, areaName: string, count: n
 
 	local detailedResults = {}
 
-	for _, petName in results :: { string } do
+	for _, petName in results do
 		table.insert(detailedResults, ReplicatedStorage.Pets[areaName][petName])
 	end
 
-	if #results :: { string } == 1 then
+	if #results == 1 then
 		configureHatchUI(detailedResults, true)
-	elseif #results :: { string } == 3 then
+	elseif #results == 3 then
 		configureHatchUI(detailedResults, false)
 	end
 
