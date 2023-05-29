@@ -76,12 +76,17 @@ local function awardPetsToPlayer(player: Player, pets: { string }): ()
 end
 
 Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: number, areaName: string)
-
-	if areaRequirements[areaName].Value > selectors.getStat(store:getState(), player.Name, "Strength") or selectors.getStat(store:getState(), player.Name, "Gems") < eggGemPrice then
+	if
+		areaRequirements[areaName].Value > selectors.getStat(store:getState(), player.Name, "Strength")
+		or selectors.getStat(store:getState(), player.Name, "Gems") < eggGemPrice
+	then
 		return nil
 	end
 
-	if selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count > selectors.getStat(store:getState(), player.Name, "MaxPetCount") then
+	if
+		selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count
+		> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
+	then
 		return nil
 	end
 

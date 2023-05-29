@@ -20,7 +20,12 @@ local function handlePunchingBag(bag: any)
 	prompt.Triggered:Connect(function(player: Player)
 		local cancelled: boolean = false
 
-		if inUse or selectors.getCurrentTarget(store:getState(), player.Name)  or selectors.getStat(store:getState(), player.Name, "Fear") < selectors.getStat(store:getState(), player.Name, ".Strength") * 5 then
+		if
+			inUse
+			or selectors.getCurrentTarget(store:getState(), player.Name)
+			or selectors.getStat(store:getState(), player.Name, "Fear")
+				< selectors.getStat(store:getState(), player.Name, ".Strength") * 5
+		then
 			if selectors.getCurrentTarget(store:getState(), player.Name) == bag then
 				disableSwitch:Fire(player)
 			end
@@ -67,12 +72,20 @@ local function handlePunchingBag(bag: any)
 		end)
 
 		while
-            selectors.isPlayerLoaded(store:getState(), player.Name)
-			and selectors.getStat(store:getState(), player.Name, "Fear")>= selectors.getStat(store:getState(), player.Name, "Strength") * 5
+			selectors.isPlayerLoaded(store:getState(), player.Name)
+			and selectors.getStat(store:getState(), player.Name, "Fear") >= selectors.getStat(
+				store:getState(),
+				player.Name,
+				"Strength"
+			) * 5
 			and not cancelled
 		do
 			store:dispatch(
-				actions.incrementPlayerStat(player.Name, "Fear", -selectors.getStat(store:getState(), player.Name, "Strength") * 5)
+				actions.incrementPlayerStat(
+					player.Name,
+					"Fear",
+					-selectors.getStat(store:getState(), player.Name, "Strength") * 5
+				)
 			)
 			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", 1))
 			task.wait(0.6)

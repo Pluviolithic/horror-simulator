@@ -33,7 +33,7 @@ local function handleDummy(dummy)
 			debounceTable[player.UserId] = nil
 		end)
 
-		if selectors.getCurrentTarget(store:getState(), player.Name)  == dummy then
+		if selectors.getCurrentTarget(store:getState(), player.Name) == dummy then
 			return
 		else
 			store:dispatch(actions.switchPlayerEnemy(player.Name, dummy))

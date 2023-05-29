@@ -15,8 +15,7 @@ local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
-local interfaces =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
 local rarityTemplates = ReplicatedStorage.RarityTemplates

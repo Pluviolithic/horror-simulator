@@ -69,7 +69,8 @@ local function updateLeaderstatsMiddleware(nextDispatch, store)
 
 		if leaderstats then
 			for _, stat in pairs(leaderstats:GetChildren()) do
-				stat.Value = formatter.formatNumberWithSuffix(selectors.getStat(store:getState(), player.Name, stat.Name))
+				stat.Value =
+					formatter.formatNumberWithSuffix(selectors.getStat(store:getState(), player.Name, stat.Name))
 			end
 		end
 	end
@@ -87,7 +88,10 @@ local function instantiatePetsMiddleware(nextDispatch, store)
 		end
 		if
 			not selectors.isPlayerLoaded(oldState, action.playerName)
-			or Sift.Dictionary.equalsDeep(selectors.getEquippedPets(oldState, action.playerName), selectors.getEquippedPets(store:getState(), action.playerName))
+			or Sift.Dictionary.equalsDeep(
+				selectors.getEquippedPets(oldState, action.playerName),
+				selectors.getEquippedPets(store:getState(), action.playerName)
+			)
 		then
 			return
 		end

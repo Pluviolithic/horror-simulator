@@ -17,8 +17,7 @@ local player = Players.LocalPlayer
 
 local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport")
 
-local interfaces =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 local function getAreaTeleporter(areaName: string): Instance?
 	for _, teleporter in CollectionService:GetTagged "AreaTeleport" do

@@ -3,8 +3,7 @@ local StarterPlayer = game:GetService "StarterPlayer"
 local CentralUI = {}
 CentralUI.__index = CentralUI
 
-local collidableInterfaces =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local collidableInterfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 function CentralUI.new(UI: GuiObject)
 	local self = setmetatable({}, CentralUI)

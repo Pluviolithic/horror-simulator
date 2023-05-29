@@ -181,7 +181,7 @@ local function handleEnemy(enemy)
 			currentTrack:Stop()
 
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-			if selectors.getCurrentTarget(store:getState(), player.Name)  == enemy then
+			if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
 				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			end
 			if not skipPlayerRemoval then
