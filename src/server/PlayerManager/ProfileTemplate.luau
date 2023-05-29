@@ -1,33 +1,40 @@
 return {
-	Strength = 1,
-	Fear = 0,
-	Kills = 0,
-	Rebirths = 0,
+	Stats = {
+		Strength = 1,
+		Fear = 0,
+		Kills = 0,
+		Rebirths = 0,
 
-	Luck = 0,
-	Gems = 0,
-	Rank = 1,
+		Luck = 0,
+		Gems = 0,
+		Rank = 1,
 
-	PetFearMultiplier = 0,
+		LogInCount = 0,
+		HoursPlayed = 0,
 
-	CurrentPetCount = 0,
-	MaxPetCount = 30,
-
-	CurrentPetEquipCount = 0,
-	MaxPetEquipCount = 3,
-
-	AwardedGamepasses = {},
-	PurchasedTeleporters = {},
-
-	FoundPets = {},
-	OwnedPets = {},
-	LockedPets = {},
-	EquippedPets = {},
-	OwnedWeapons = {
-		["Fists"] = true,
+		MaxPetCount = 30,
+		CurrentPetCount = 0,
+		MaxPetEquipCount = 3,
+		PetFearMultiplier = 0,
+		CurrentPetEquipCount = 0,
 	},
-	EquippedWeapon = "Fists",
 
-	LogInCount = 0,
-	HoursPlayed = 0,
+	PurchaseData = {
+		AwardedGamepasses = {},
+		PurchasedTeleporters = {},
+	},
+
+	PetData = {
+		FoundPets = {},
+		OwnedPets = {},
+		LockedPets = {},
+		EquippedPets = {},
+	},
+
+	WeaponData = {
+		OwnedWeapons = {
+			["Fists"] = true,
+		},
+		EquippedWeapon = "Fists",
+	},
 }

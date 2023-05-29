@@ -4,6 +4,7 @@ local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 
@@ -28,10 +29,10 @@ end):andThen(function(petsModel)
 		end
 	end)
 	player.CharacterAdded:Connect(function()
-		if not store:getState().Players[player.Name] then
+		if not selectors.isPlayerLoaded(store:getState(), player.Name) then
 			return
 		end
-		petUtils.instantiatePets(player, store:getState().Players[player.Name].EquippedPets)
+		petUtils.instantiatePets(player, selectors.getEquippedPets(store:getState(), player.Name))
 	end)
 end)
 

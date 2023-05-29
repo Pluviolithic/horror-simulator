@@ -8,6 +8,7 @@ local player = Players.LocalPlayer
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
@@ -40,11 +41,16 @@ local function multiplierComparator(a: { [any]: any }, b: { [any]: any }): boole
 end
 
 local function shouldRefresh(newState, oldState): boolean
-	return newState.Players[player.Name].MaxPetCount ~= oldState.Players[player.Name].MaxPetCount
-		or newState.Players[player.Name].MaxPetEquipCount ~= oldState.Players[player.Name].MaxPetEquipCount
-		or newState.Players[player.Name].OwnedPets ~= oldState.Players[player.Name].OwnedPets
-		or newState.Players[player.Name].EquippedPets ~= oldState.Players[player.Name].EquippedPets
-		or newState.Players[player.Name].LockedPets ~= oldState.Players[player.Name].LockedPets
+	return selectors.getStat(newState, player.Name, "MaxPetCount")
+			~= selectors.getStat(oldState, player.Name, "MaxPetCount")
+		or selectors.getStat(newState, player.Name, "MaxPetEquipCount") ~= selectors.getStat(
+			oldState,
+			player.Name,
+			"MaxPetEquipCount"
+		)
+		or selectors.getOwnedPets(newState, player.Name) ~= selectors.getOwnedPets(oldState, player.Name)
+		or selectors.getEquippedPets(newState, player.Name) ~= selectors.getEquippedPets(oldState, player.Name)
+		or selectors.getLockedPets(newState, player.Name) ~= selectors.getLockedPets(oldState, player.Name)
 end
 
 function PetInventory:_initialize(): ()
@@ -55,8 +61,8 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.Storage.Buy.Activated:Connect(function()
-		local playerState = store:getState().Players[player.Name]
-		if playerState.MaxPetCount == 30 or playerState.MaxPetCount == 130 then
+		local maxPetCount = selectors.getStat(store:getState(), player.Name, "MaxPetCount")
+		if maxPetCount == 30 or maxPetCount == 130 then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+50"].Value)
 		else
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+100"].Value)
@@ -64,8 +70,7 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.Equipped.Buy.Activated:Connect(function()
-		local playerState = store:getState().Players[player.Name]
-		if playerState.MaxPetEquipCount == 3 then
+		if selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount") == 3 then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+1PetEquipped"].Value)
 		else
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+2PetEquipped"].Value)
@@ -174,16 +179,21 @@ function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, lock
 end
 
 function PetInventory:Refresh()
-	local playerState = store:getState().Players[player.Name]
-	if not playerState or not next(playerState) then
+	if selectors.isPlayerLoaded(store:getState(), player.Name) then
 		return
 	end
 
-	if playerState.MaxPetCount == 180 and self._ui.Background.Storage:FindFirstChild "Buy" then
+	if
+		selectors.getStat(store:getState(), player.Name, "MaxPetCount") == 180
+		and self._ui.Background.Storage:FindFirstChild "Buy"
+	then
 		self._ui.Background.Storage.Buy:Destroy()
 	end
 
-	if playerState.MaxPetEquipCount == 6 and self._ui.Background.Equipped:FindFirstChild "Buy" then
+	if
+		selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount") == 6
+		and self._ui.Background.Equipped:FindFirstChild "Buy"
+	then
 		self._ui.Background.Equipped.Buy:Destroy()
 	end
 
@@ -201,14 +211,14 @@ function PetInventory:Refresh()
 
 	self._focusedTemplate = nil
 
-	local lockCounters = table.clone(playerState.LockedPets)
-	local equippedCounters = table.clone(playerState.EquippedPets)
+	local lockCounters = table.clone(selectors.getLockedPets(store:getState(), player.Name))
+	local equippedCounters = table.clone(selectors.getEquippedPets(store:getState(), player.Name))
 
 	local equippedPetTemplates = {}
 	local lockedPetTemplates = {}
 	local petTemplates = {}
 
-	for petName, quantity in playerState.OwnedPets do
+	for petName, quantity in selectors.getOwnedPets(store:getState(), player.Name) do
 		local pet = petUtils.getPet(petName)
 		local rarityTemplate = rarityTemplates[pet.RarityName.Value]:Clone()
 
@@ -340,10 +350,12 @@ function PetInventory:_setFocusedDisplay(details)
 	self._ui.RightBackground.Multiplier.Visible = true
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Equip.Activated:Connect(function()
-		local playerState = store:getState().Players[player.Name]
 		if details.Equipped then
 			Remotes.Client:Get("UnequipPet"):SendToServer(details.PetName)
-		elseif playerState.CurrentPetEquipCount < playerState.MaxPetEquipCount then
+		elseif
+			selectors.getStat(store:getState(), player.Name, "CurrentPetEquipCount")
+			< selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount")
+		then
 			Remotes.Client:Get("EquipPet"):SendToServer(details.PetName, details.Locked)
 		else
 			return

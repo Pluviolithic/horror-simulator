@@ -10,7 +10,7 @@ local produce, None = Immut.produce, Immut.None
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = Dict.mergeDeep(defaultStates.PurchaseData, action.profileData.PurchaseData)
+			draft[action.playerName] = Dict.mergeDeep(defaultStates.WeaponData, action.profileData.WeaponData)
 		end)
 	end,
 	removePlayer = function(state, action)
@@ -20,17 +20,17 @@ return Rodux.createReducer({}, {
 	end,
 	resetPlayerData = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = defaultStates.PurchaseData
+			draft[action.playerName] = defaultStates.WeaponData
 		end)
 	end,
-	awardGamepassToPlayer = function(state, action)
+	givePlayerWeapon = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName].AwardedGamepasses[action.gamepassID] = true
+			draft[action.playerName].OwnedWeapons[action.weaponName] = true
 		end)
 	end,
-	givePlayerTeleport = function(state, action)
+	equipWeapon = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName].PurchasedTeleporters[action.areaName] = true
+			draft[action.playerName].EquippedWeapon = action.weaponName
 		end)
 	end,
 })

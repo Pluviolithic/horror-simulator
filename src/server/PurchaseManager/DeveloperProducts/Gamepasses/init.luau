@@ -7,7 +7,7 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 
 local function checkIfObtainedRewards(player: Player)
-	local playerState = store:getState().Players[player.Name]
+	local playerState = store:getState().PurchaseData[player.Name]
 	if not playerState or not playerState.AwardedGamepasses then
 		local connection
 		local thread = coroutine.running()

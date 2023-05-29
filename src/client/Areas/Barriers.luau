@@ -5,6 +5,7 @@ local CollectionService = game:GetService "CollectionService"
 
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 
 local player = Players.LocalPlayer
@@ -19,9 +20,9 @@ local function unlockArea(areaName: string, lock: boolean?)
 	end
 end
 
-local function unlockAreas(state)
+local function unlockAreas()
 	for _, requirement in areaRequirements:GetChildren() do
-		if requirement.Value > state.Strength then
+		if requirement.Value > selectors.getStat(store:getState(), player.Name, "Strength") then
 			unlockArea(requirement.Name, true)
 		else
 			unlockArea(requirement.Name)
@@ -42,7 +43,7 @@ local function handleTeleporter(teleporter)
 			return
 		end
 
-		if store:getState().Players[player.Name].Strength < strengthRequirement then
+		if selectors.getStat(store:getState(), player.Name, "Strength") < strengthRequirement then
 			return
 		end
 
@@ -59,7 +60,7 @@ local function handleTeleporter(teleporter)
 			)
 		)
 
-		petUtils.instantiatePets(player.Name, store:getState().Players[player.Name].EquippedPets)
+		petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 
 		task.wait(1)
 		debounce = false
@@ -67,16 +68,12 @@ local function handleTeleporter(teleporter)
 end
 
 playerStatePromise:andThen(function()
-	local playerState = store:getState().Players[player.Name]
-
-	unlockAreas(playerState)
-
+	unlockAreas()
 	store.changed:connect(function(newState, oldState)
 		if newState.Players[player.Name].Strength == oldState.Players[player.Name].Strength then
 			return
 		end
-
-		unlockAreas(newState.Players[player.Name])
+		unlockAreas()
 	end)
 end)
 

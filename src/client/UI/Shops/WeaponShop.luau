@@ -7,6 +7,7 @@ local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Table = require(ReplicatedStorage.Common.Utils.Table)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 
@@ -29,11 +30,13 @@ function WeaponShop:_initialize(): ()
 		if not self._isOpen then
 			return
 		end
-		local newPlayerState = newState.Players[player.Name]
-		local oldPlayerState = oldState.Players[player.Name]
+
 		if
-			newPlayerState.EquippedWeapon ~= oldPlayerState.EquippedWeapon
-			or not Table.ShallowIsEqual(newPlayerState.OwnedWeapons, oldPlayerState.OwnedWeapons)
+			selectors.getEquippedWeapon(newState, player.Name) ~= selectors.getEquippedWeapon(oldState, player.Name)
+			or not Table.ShallowIsEqual(
+				selectors.getOwnedWeapons(newState, player.Name),
+				selectors.getOwnedWeapons(oldState, player.Name)
+			)
 		then
 			WeaponShop:Refresh()
 		end
@@ -45,7 +48,6 @@ function WeaponShop:_initialize(): ()
 		end
 
 		button.Activated:Connect(function()
-			local playerState = store:getState().Players[player.Name]
 			local focusedDisplay = WeaponShop._ui.RightBackground
 
 			if button:FindFirstChild "Locked" and button.Locked.Visible then
@@ -64,9 +66,9 @@ function WeaponShop:_initialize(): ()
 			focusedDisplay.Damage.Visible = true
 			focusedDisplay.DamageIcon.Visible = true
 
-			if playerState.OwnedWeapons[button.Name] then
+			if selectors.getOwnedWeapons(store:getState(), player.Name)[button.Name] then
 				focusedDisplay.GreenButton.Visible = true
-				if playerState.EquippedWeapon == button.Name then
+				if selectors.getEquippedWeapon(store:getState(), player.Name) == button.Name then
 					focusedDisplay.GreenButton.Text.Text = "Equipped"
 					return
 				end
@@ -101,7 +103,9 @@ function WeaponShop:_initialize(): ()
 					focusedDisplay.GreenButton.Text.Text = "Purchase"
 					focusedDisplay.GreenButton.Visible = true
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
-						if playerState.Cash < tonumber(button.GemPrice.Text) then
+						if
+							selectors.getStat(store:getState(), player.Name, "Cash") < tonumber(button.GemPrice.Text)
+						then
 							return
 						end
 						Remotes.Client:Get("PurchaseWeapon"):CallServerAsync(button.Name)
@@ -134,10 +138,9 @@ function WeaponShop:ClearFocusedDisplay()
 end
 
 function WeaponShop:Refresh(): ()
-	local playerState = store:getState().Players[player.Name]
 	local restAreLocked: boolean = false
 
-	if not playerState or not next(playerState) then
+	if not selectors.isPlayerLoaded(store:getState(), player.Name) then
 		return
 	end
 
@@ -148,20 +151,20 @@ function WeaponShop:Refresh(): ()
 			continue
 		end
 
-		if playerState.EquippedWeapon == button.Name then
+		if selectors.getEquippedWeapon(store:getState(), player.Name) == button.Name then
 			button.Equipped.Visible = true
 		else
 			button.Equipped.Visible = false
 		end
 
 		if button:FindFirstChild "GamepassText" then
-			if playerState.OwnedWeapons[button.Name] then
+			if selectors.getOwnedWeapons(store:getState(), player.Name)[button.Name] then
 				button.GamepassText.Visible = false
 			end
 			continue
 		end
 
-		if playerState.OwnedWeapons[button.Name] then
+		if selectors.getOwnedWeapons(store:getState(), player.Name)[button.Name] then
 			-- player owns the weapon
 			button.Locked.Visible = false
 			button.WeaponImage.ImageColor3 = Color3.fromRGB(255, 255, 255)

@@ -9,28 +9,23 @@ local produce, None = Immut.produce, Immut.None
 
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
-        return produce(state, function(draft)
-            draft[action.playerName] = Dict.mergeDeep(defaultStates.CombatData, action.profileData.CombatData)
-        end)
+		return produce(state, function(draft)
+			draft[action.playerName] = Dict.mergeDeep(defaultStates.CombatData, action.profileData.CombatData)
+		end)
 	end,
 	removePlayer = function(state, action)
 		return produce(state, function(draft)
-            draft[action.playerName] = None
-        end)
+			draft[action.playerName] = None
+		end)
 	end,
 	resetPlayerData = function(state, action)
-        return produce(state, function(draft)
-            draft[action.playerName] = defaultStates.CombatData
-        end)
+		return produce(state, function(draft)
+			draft[action.playerName] = defaultStates.CombatData
+		end)
 	end,
-    switchPlayerEnemy = function(state, action)
-        return produce(state, function(draft)
-            draft[action.playerName].CurrentEnemy = action.enemy or None
-        end)
-    end,
-    givePlayerTeleport = function(state, action)
-        return produce(state, function(draft)
-            draft[action.playerName].PurchasedTeleporters[action.areaName] = true
-        end)
-    end,
+	switchPlayerEnemy = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].CurrentEnemy = action.enemy or None
+		end)
+	end,
 })

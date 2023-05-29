@@ -7,6 +7,7 @@ local Client = StarterPlayer.StarterPlayerScripts.Client
 local player = Players.LocalPlayer
 
 local playerStatePromise = require(Client.State.PlayerStatePromise)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
 local store = require(Client.State.Store)
 
@@ -18,9 +19,9 @@ Promise.new(function(resolve)
 	resolve(requiredFearUI)
 end):andThen(function(requiredFearUI)
 	playerStatePromise:andThen(function()
-		requiredFearUI.Text = store:getState().Players[player.Name].Strength * 5
+		requiredFearUI.Text = selectors.getStat(store:getState(), player.Name, "Strength") * 5
 		store.changed:connect(function(newState)
-			requiredFearUI.Text = newState.Players[player.Name].Strength * 5
+			requiredFearUI.Text = selectors.getStat(newState, player.Name, "Strength") * 5
 		end)
 	end)
 end)
