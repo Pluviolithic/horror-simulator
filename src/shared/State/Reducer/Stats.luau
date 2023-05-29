@@ -1,78 +1,74 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
-local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
+local Immut = require(ReplicatedStorage.Common.lib.Immut)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
+local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
+local produce, None = Immut.produce, Immut.None
+
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
-		local playerStatData = Dict.Filter(action.playerData, function(key)
-			return Dict.has(defaultStates.Stats, key)
-		end)
-		return Dict.set(state, action.playerName, Dict.merge(defaultStates.Stats, playerStatData))
+        return produce(state, function(draft)
+            draft[action.playerName] = Dict.mergeDeep(defaultStates.Stats, action.profileData.Stats)
+        end)
 	end,
 	removePlayer = function(state, action)
-		return Dict.removeKey(state, action.playerName)
+		return produce(state, function(draft)
+            draft[action.playerName] = None
+        end)
 	end,
 	resetPlayerData = function(state, action)
-		return Dict.set(state, action.playerName, defaultStates.Stats)
+        return produce(state, function(draft)
+            draft[action.playerName] = defaultStates.Stats
+        end)
 	end,
 	incrementPlayerStat = function(state, action)
-		return Dict.mergeDeep(state, {
-			[action.playerName] = {
-				[action.statName] = state[action.playerName][action.statName] + (action.incrementAmount or 1),
-			},
-		})
+        return produce(state, function(draft)
+            draft[action.playerName][action.statName] += (action.incrementAmount or 1)
+        end)
 	end,
 	givePlayerPets = function(state, action)
-		local newPetCount = 0
+		local addedPetCount = 0
 		for _, quantity in action.petsToGive do
-			newPetCount += quantity
+			addedPetCount += quantity
 		end
-		return Dict.mergeDeep(state, {
-			[action.playerName] = {
-				PetCount = state[action.playerName].PetCount + newPetCount,
-			},
-		})
+        return produce(state, function(draft)
+            draft[action.playerName].PetCount += addedPetCount
+        end)
 	end,
 	deletePlayerPets = function(state, action)
-		local removePetCount = 0
+		local removedPetCount = 0
 		for _, quantity in action.petsToDelete do
-			removePetCount -= quantity
+			removedPetCount -= quantity
 		end
-		return Dict.mergeDeep(state, {
-			[action.playerName] = {
-				PetCount = state[action.playerName].PetCount + removePetCount,
-			},
-		})
+        return produce(state, function(draft)
+            draft[action.playerName].PetCount += removedPetCount
+        end)
 	end,
 	equipPlayerPets = function(state, action)
-		local newPetEquipCount = 0
-		local newPetFearMultiplier = 0
+		local addedPetEquipCount = 0
+		local addedPetFearMultiplier = 0
 		for petName, quantity in action.petsToEquip do
-			newPetEquipCount += quantity
-			newPetFearMultiplier += petUtils.getPet(petName).Multiplier.Value * quantity
+			addedPetEquipCount += quantity
+			addedPetFearMultiplier += petUtils.getPet(petName).Multiplier.Value * quantity
 		end
-		return Dict.mergeDeep(state, {
-			[action.playerName] = {
-				PetEquipCount = state[action.playerName].PetEquipCount + newPetEquipCount,
-				PetFearMultiplier = state[action.playerName].PetFearMultiplier + newPetFearMultiplier,
-			},
-		})
+        return produce(state, function(draft)
+            draft[action.playerName].PetEquipCount += addedPetEquipCount
+            draft[action.playerName].PetFearMultiplier += addedPetFearMultiplier
+        end)
 	end,
 	unequipPlayerPets = function(state, action)
-		local removePetEquipCount = 0
-		local removePetFearMultiplier = 0
+		local removedPetEquipCount = 0
+		local removedPetFearMultiplier = 0
 		for petName, quantity in action.petsToUnequip do
-			removePetEquipCount -= quantity
-			removePetFearMultiplier -= petUtils.getPet(petName).Multiplier.Value * quantity
+			removedPetEquipCount -= quantity
+			removedPetFearMultiplier -= petUtils.getPet(petName).Multiplier.Value * quantity
 		end
-		return Dict.mergeDeep(state, {
-			[action.playerName] = {
-				PetEquipCount = state[action.playerName].PetEquipCount + removePetEquipCount,
-				PetFearMultiplier = state[action.playerName].PetFearMultiplier + removePetFearMultiplier,
-			},
-		})
+        return produce(state, function(draft)
+            draft[action.playerName].PetEquipCount += removedPetEquipCount
+            draft[action.playerName].PetFearMultiplier += removedPetFearMultiplier
+        end)
 	end,
 })
