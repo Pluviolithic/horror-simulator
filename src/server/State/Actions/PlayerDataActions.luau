@@ -3,9 +3,10 @@ local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local makeActionCreator = Rodux.makeActionCreator
 
 return {
-	addPlayer = makeActionCreator("addPlayer", function(playerName: string)
+	addPlayer = makeActionCreator("addPlayer", function(playerName: string, profileData: any)
 		return {
 			playerName = playerName,
+			profileData = profileData,
 		}
 	end),
 	removePlayer = makeActionCreator("removePlayer", function(playerName: string)
@@ -13,15 +14,6 @@ return {
 			playerName = playerName,
 		}
 	end),
-	updatePlayerWithProfile = makeActionCreator(
-		"updatePlayerWithProfile",
-		function(playerName: string, profileData: any)
-			return {
-				playerName = playerName,
-				profileData = profileData,
-			}
-		end
-	),
 	incrementPlayerStat = makeActionCreator(
 		"incrementPlayerStat",
 		function(playerName: string, statName: string, incrementAmount: number)

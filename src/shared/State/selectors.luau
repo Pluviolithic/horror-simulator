@@ -16,7 +16,7 @@ return {
 		return state.PurchaseData[playerName].PurchasedTeleporters[areaName]
 	end,
 	getCurrentTarget = function(state, playerName)
-		return state.CombatData[playerName].CurrentEnemy or state[playerName].CombatData.CurrentPunchingBag
+		return state.CombatData[playerName].CurrentEnemy or state.CombatData[playerName].CurrentPunchingBag
 	end,
 	getEquippedPets = function(state, playerName)
 		return state.PetData[playerName].EquippedPets

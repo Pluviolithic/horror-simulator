@@ -60,7 +60,7 @@ end
 local function updateLeaderstatsMiddleware(nextDispatch, store)
 	return function(action)
 		nextDispatch(action)
-		if not action.playerName or not store:getState().Players[action.playerName] then
+		if not action.playerName or not selectors.isPlayerLoaded(store:getState(), action.playerName) then
 			return
 		end
 

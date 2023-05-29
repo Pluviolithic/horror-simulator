@@ -6,19 +6,20 @@ local player = Players.LocalPlayer
 local Client = StarterPlayer.StarterPlayerScripts.Client
 
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(Client.State.Store)
 
 return Promise.new(function(resolve)
-	local connection: typeof(store.changed:connect(function() end)) = nil
+	local connection = nil
 	local currentThread: thread = coroutine.running()
 
-	if store:getState().Players[player.Name] and next(store:getState().Players[player.Name]) then
-		resolve(store:getState().Players[player.Name])
+	if selectors.isPlayerLoaded(store:getState(), player.Name) then
+		resolve()
 		return
 	end
 
 	connection = store.changed:connect(function(newState)
-		if newState.Players[player.Name] and next(newState.Players[player.Name]) then
+		if selectors.isPlayerLoaded(newState, player.Name) then
 			connection:disconnect()
 			coroutine.resume(currentThread)
 		end
