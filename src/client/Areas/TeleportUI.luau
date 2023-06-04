@@ -39,13 +39,12 @@ function TeleportUI:_initialize()
 	playerStatePromise:andThen(function()
 		self:Refresh()
 		store.changed:connect(function(newState, oldState)
-			local newPlayerState = newState.Players[player.Name]
-			local oldPlayerState = oldState.Players[player.Name]
 			if
-				newPlayerState.Strength ~= oldPlayerState.Strength
+				selectors.getStat(newState, player.Name, "Strength")
+					~= selectors.getStat(oldState, player.Name, "Strength")
 				or not Sift.Dictionary.equalsDeep(
-					newPlayerState.PurchasedTeleporters,
-					oldPlayerState.PurchasedTeleporters
+					selectors.getPurchasedTeleporters(newState, player.Name),
+					selectors.getPurchasedTeleporters(oldState, player.Name)
 				)
 			then
 				self:Refresh()

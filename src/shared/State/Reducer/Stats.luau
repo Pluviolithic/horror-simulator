@@ -26,6 +26,7 @@ return Rodux.createReducer({}, {
 	end,
 	incrementPlayerStat = function(state, action)
 		return produce(state, function(draft)
+			print(draft)
 			draft[action.playerName][action.statName] += (action.incrementAmount or 1)
 		end)
 	end,

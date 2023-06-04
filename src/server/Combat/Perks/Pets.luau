@@ -4,26 +4,47 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
+
+local function evolvePet(player, petName)
+	local petOwnedCount = selectors.getPetOwnedCount(store:getState(), player.Name, petName)
+
+	if not petOwnedCount or petOwnedCount < 5 then
+		return 1
+	end
+
+	local unlockedPetCount = petOwnedCount - selectors.getPetLockedCount(store:getState(), player.Name, petName)
+
+	if unlockedPetCount < 5 then
+		store:dispatch(actions.unlockPlayerPets(player.Name, { [petName] = 5 - unlockedPetCount }))
+	end
+
+	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = 5 }))
+	store:dispatch(actions.givePlayerPets(player.Name, { ["Evolved " .. petName] = 1 }))
+
+	return 0
+end
 
 Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string, locked: boolean)
 	if not petUtils.getPet(petName) then
 		return 1
 	end
 
-	local playerState = store:getState().Players[player.Name]
-
-	if playerState.CurrentPetEquipCount == playerState.MaxPetEquipCount then
+	if
+		selectors.getStat(store:getState(), player.Name, "CurrentPetEquipCount")
+		== selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount")
+	then
 		return 1
 	end
 
-	if not playerState.OwnedPets[petName] then
+	if not selectors.getPetOwnedCount(store:getState(), player.Name, petName) then
 		return 1
 	end
 
-	store:dispatch(actions.equipPet(player.Name, petName))
+	store:dispatch(actions.equipPlayerPets(player.Name, { [petName] = 1 }))
 	if not locked then
-		store:dispatch(actions.lockPet(player.Name, petName))
+		store:dispatch(actions.lockPlayerPets(player.Name, { [petName] = 1 }))
 	end
 
 	return 0
@@ -34,14 +55,15 @@ Remotes.Server:Get("UnequipPet"):Connect(function(player: Player, petName: strin
 		return 1
 	end
 
-	local playerState = store:getState().Players[player.Name]
-
-	if not playerState.EquippedPets[petName] or not playerState.OwnedPets[petName] then
+	if
+		not selectors.getPetEquippedCount(store:getState(), player.Name, petName)
+		or not selectors.getPetOwnedCount(store:getState(), player.Name, petName)
+	then
 		return 1
 	end
 
-	store:dispatch(actions.unequipPet(player.Name, petName))
-	store:dispatch(actions.unlockPet(player.Name, petName))
+	store:dispatch(actions.unequipPlayerPets(player.Name, { [petName] = 1 }))
+	store:dispatch(actions.unlockPlayerPets(player.Name, { [petName] = 1 }))
 
 	return 0
 end)
@@ -51,13 +73,11 @@ Remotes.Server:Get("LockPet"):Connect(function(player: Player, petName: string)
 		return 1
 	end
 
-	local playerState = store:getState().Players[player.Name]
-
-	if not playerState.OwnedPets[petName] then
+	if not selectors.getPetOwnedCount(store:getState(), player.Name, petName) then
 		return 1
 	end
 
-	store:dispatch(actions.lockPet(player.Name, petName))
+	store:dispatch(actions.lockPlayerPets(player.Name, { [petName] = 1 }))
 
 	return 0
 end)
@@ -67,13 +87,14 @@ Remotes.Server:Get("UnlockPet"):Connect(function(player: Player, petName: string
 		return 1
 	end
 
-	local playerState = store:getState().Players[player.Name]
-
-	if not playerState.OwnedPets[petName] or not playerState.LockedPets[petName] then
+	if
+		not selectors.getPetOwnedCount(store:getState(), player.Name, petName)
+		or not selectors.getPetLockedCount(store:getState(), player.Name, petName)
+	then
 		return 1
 	end
 
-	store:dispatch(actions.unlockPet(player.Name, petName))
+	store:dispatch(actions.unlockPlayerPets(player.Name, { [petName] = 1 }))
 
 	return 0
 end)
@@ -83,17 +104,19 @@ Remotes.Server:Get("DeletePet"):Connect(function(player: Player, petName: string
 		return 1
 	end
 
-	local playerState = store:getState().Players[player.Name]
-
-	if not playerState.OwnedPets[petName] then
+	if not selectors.getPetOwnedCount(store:getState(), player.Name, petName) then
 		return 1
 	end
 
-	if playerState.LockedPets[petName] and playerState.LockedPets[petName] >= playerState.OwnedPets[petName] then
+	if
+		selectors.getPetLockedCount(store:getState(), player.Name, petName)
+		and selectors.getPetLockedCount(store:getState(), player.Name, petName)
+			>= selectors.getPetOwnedCount(store:getState(), player.Name, petName)
+	then
 		return 1
 	end
 
-	store:dispatch(actions.deletePet(player.Name, petName))
+	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = 1 }))
 
 	return 0
 end)
@@ -103,43 +126,50 @@ Remotes.Server:Get("EvolvePet"):Connect(function(player: Player, petName: string
 		return 1
 	end
 
-	local playerState = store:getState().Players[player.Name]
-
-	if not playerState.OwnedPets[petName] or playerState.OwnedPets[petName] < 5 then
-		return 1
-	end
-
-	store:dispatch(actions.evolvePet(player.Name, petName))
+	evolvePet(player, petName)
 
 	return 0
 end)
 
 Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
-	local playerState = store:getState().Players[player.Name]
-	local bestPets = petUtils.getBestPetNames(playerState.OwnedPets, playerState.MaxPetEquipCount)
+	local bestPets = petUtils.getBestPetNames(
+		selectors.getOwnedPets(store:getState(), player.Name),
+		selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount")
+	)
 
 	if #bestPets == 0 then
 		return 1
 	end
 
-	store:dispatch(actions.unequipAllPets(player.Name))
-	store:dispatch(actions.equipPets(player.Name, bestPets))
+	store:dispatch(actions.unequipPlayerPets(player.Name, selectors.getEquippedPets(store:getState(), player.Name)))
+	store:dispatch(actions.equipPlayerPets(player.Name, bestPets))
 
 	return 0
 end)
 
 Remotes.Server:Get("UnequipAllPets"):Connect(function(player: Player)
-	store:dispatch(actions.unequipAllPets(player.Name))
+	store:dispatch(actions.unequipPlayerPets(player.Name, selectors.getEquippedPets(store:getState(), player.Name)))
 	return 0
 end)
 
 Remotes.Server:Get("DeleteAllPets"):Connect(function(player: Player)
-	store:dispatch(actions.deleteAllPets(player.Name))
+	local ownedPets = selectors.getOwnedPets(store:getState(), player.Name)
+	local lockedPets = selectors.getLockedPets(store:getState(), player.Name)
+	for petName, count in ownedPets do
+		ownedPets[petName] = count - lockedPets[petName]
+	end
+	store:dispatch(actions.deletePlayerPets(player.Name, ownedPets))
 	return 0
 end)
 
 Remotes.Server:Get("EvolveAllPets"):Connect(function(player: Player)
-	store:dispatch(actions.evolveAllPets(player.Name))
+	for petName in selectors.getOwnedPets(store:getState(), player.Name) do
+		local returnCode = 0
+		repeat
+			returnCode = evolvePet(player, petName)
+		until returnCode == 1
+	end
+	return 0
 end)
 
 return 0

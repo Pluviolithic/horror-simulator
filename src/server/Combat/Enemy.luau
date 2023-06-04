@@ -199,7 +199,7 @@ local function handleEnemy(enemy)
 		table.insert(
 			connections,
 			store.changed:connect(function(newState)
-				if newState.Players[player.Name].CurrentEnemy ~= enemy then
+				if selectors.getCurrentTarget(newState, player.Name) ~= enemy then
 					cleanUpPlayer()
 				end
 			end)

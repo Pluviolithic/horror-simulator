@@ -15,6 +15,15 @@ return {
 	hasTeleporter = function(state, playerName, areaName)
 		return state.PurchaseData[playerName].PurchasedTeleporters[areaName]
 	end,
+	getPetOwnedCount = function(state, playerName, petName)
+		return state.PetData[playerName].OwnedPets[petName]
+	end,
+	getPetEquippedCount = function(state, playerName, petName)
+		return state.PetData[playerName].EquippedPets[petName]
+	end,
+	getPetLockedCount = function(state, playerName, petName)
+		return state.PetData[playerName].LockedPets[petName]
+	end,
 	getCurrentTarget = function(state, playerName)
 		return state.CombatData[playerName].CurrentEnemy or state.CombatData[playerName].CurrentPunchingBag
 	end,
@@ -35,5 +44,21 @@ return {
 	end,
 	getOwnedWeapons = function(state, playerName)
 		return state.WeaponData[playerName].OwnedWeapons
+	end,
+
+	getStats = function(state, playerName)
+		return state.Stats[playerName]
+	end,
+	getPurchaseData = function(state, playerName)
+		return state.PurchaseData[playerName]
+	end,
+	getPurchasedTeleporters = function(state, playerName)
+		return state.PurchaseData[playerName].PurchasedTeleporters
+	end,
+	getPetData = function(state, playerName)
+		return state.PetData[playerName]
+	end,
+	getWeaponData = function(state, playerName)
+		return state.WeaponData[playerName]
 	end,
 }

@@ -16,9 +16,18 @@ local replicationRules = require(ServerScriptService.Server.State.ReplicationRul
 local displayServerLogs = ReplicatedStorage.Config.Output.DisplayServerLogs.Value
 
 local function getFilteredState(playerName, state)
-	local filteredState = {}
-	for key in profileTemplate do
-		filteredState[key] = state.Players[playerName][key]
+	local filteredState = {
+		Stats = selectors.getStats(state, playerName),
+		PetData = selectors.getPetData(state, playerName),
+		WeaponData = selectors.getWeaponData(state, playerName),
+		PurchaseData = selectors.getPurchaseData(state, playerName),
+	}
+	for field, entry in filteredState do
+		for key in entry do
+			if not profileTemplate[field][key] then
+				entry[key] = nil
+			end
+		end
 	end
 	return filteredState
 end
@@ -49,8 +58,14 @@ local function savePlayerDataMiddleware(nextDispatch, store)
 		local filteredOldState = getFilteredState(action.playerName, oldState)
 		local filteredNewState = getFilteredState(action.playerName, newState)
 
+		print(action)
+		print(filteredOldState)
+		print(filteredNewState)
+
 		for key, value in filteredNewState do
 			if filteredOldState[key] ~= value then
+				print "passing"
+				print(key, value)
 				profileData[key] = value
 			end
 		end
@@ -101,7 +116,7 @@ end
 
 return {
 	updateClientMiddleware,
-	--savePlayerDataMiddleware,
+	savePlayerDataMiddleware,
 	updateLeaderstatsMiddleware,
 	instantiatePetsMiddleware,
 	if displayServerLogs then Rodux.loggerMiddleware else nil,

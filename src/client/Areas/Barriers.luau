@@ -70,7 +70,9 @@ end
 playerStatePromise:andThen(function()
 	unlockAreas()
 	store.changed:connect(function(newState, oldState)
-		if newState.Players[player.Name].Strength == oldState.Players[player.Name].Strength then
+		if
+			selectors.getStat(newState, player.Name, "Strength") == selectors.getStat(oldState, player.Name, "Strength")
+		then
 			return
 		end
 		unlockAreas()
