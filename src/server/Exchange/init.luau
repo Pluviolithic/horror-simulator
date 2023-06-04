@@ -7,27 +7,32 @@ local server = ServerScriptService.Server
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local animations = ReplicatedStorage.CombatAnimations
 local disableSwitch = Instance.new "BindableEvent"
 
-local function handlePunchingBag(bag: Model)
+local function handlePunchingBag(bag: any)
 	local prompt: ProximityPrompt = bag.HumanoidLockPart.Prompt
 	local teleportPart: BasePart = bag.TPPart
 	local inUse: boolean = false
 
 	prompt.Triggered:Connect(function(player: Player)
-		local playerState = store:getState().Players[player.Name]
 		local cancelled: boolean = false
 
-		if inUse or playerState.CurrentPunchingBag or playerState.Fear < playerState.Strength * 5 then
-			if store:getState().Players[player.Name].CurrentPunchingBag == bag then
+		if
+			inUse
+			or selectors.getCurrentTarget(store:getState(), player.Name)
+			or selectors.getStat(store:getState(), player.Name, "Fear")
+				< selectors.getStat(store:getState(), player.Name, ".Strength") * 5
+		then
+			if selectors.getCurrentTarget(store:getState(), player.Name) == bag then
 				disableSwitch:Fire(player)
 			end
 			return
 		end
 
-		local humanoid: Humanoid = if player.Character then player.Character:FindFirstChildOfClass "Humanoid" else nil
+		local humanoid: any = if player.Character then player.Character:FindFirstChildOfClass "Humanoid" else nil
 		if not humanoid then
 			return
 		end
@@ -67,12 +72,20 @@ local function handlePunchingBag(bag: Model)
 		end)
 
 		while
-			store:getState().Players[player.Name]
-			and store:getState().Players[player.Name].Fear >= store:getState().Players[player.Name].Strength * 5
+			selectors.isPlayerLoaded(store:getState(), player.Name)
+			and selectors.getStat(store:getState(), player.Name, "Fear") >= selectors.getStat(
+				store:getState(),
+				player.Name,
+				"Strength"
+			) * 5
 			and not cancelled
 		do
 			store:dispatch(
-				actions.incrementPlayerStat(player.Name, "Fear", -store:getState().Players[player.Name].Strength * 5)
+				actions.incrementPlayerStat(
+					player.Name,
+					"Fear",
+					-selectors.getStat(store:getState(), player.Name, "Strength") * 5
+				)
 			)
 			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", 1))
 			task.wait(0.6)

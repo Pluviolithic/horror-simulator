@@ -7,16 +7,7 @@ local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local robloxHealthGreen: Color3 = Color3.fromRGB(0, 255, 17)
 local robloxHealthRed: Color3 = Color3.fromRGB(255, 0, 0)
 
-export type HealthBar = typeof(setmetatable(
-	{} :: {
-		_healthBar: ImageLabel,
-		_healthBarText: TextLabel,
-		_healthBarConnection: RBXScriptConnection,
-	},
-	HealthBar
-))
-
-function HealthBar.new(bar: Frame): HealthBar
+function HealthBar.new(bar: Frame)
 	return setmetatable({
 		_healthBar = bar:FindFirstChild "Health",
 		_healthBarText = bar:FindFirstChild "HP",
@@ -44,7 +35,7 @@ function HealthBar:update(health: number, maxHealth: number)
 	self:recolor(health, maxHealth)
 end
 
-function HealthBar:connect(humanoid: Humanoid | Model)
+function HealthBar:connect(humanoid: any)
 	if self._healthBarConnection then
 		self._healthBarConnection:Disconnect()
 	end

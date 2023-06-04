@@ -9,6 +9,7 @@ registry = "https://github.com/upliftgames/wally-index"
 t = "osyrisrblx/t@3.0.0"
 Sift = "csqrl/sift@0.0.3"
 Rodux = "roblox/rodux@3.0.0"
+Immut = "solarhorizon/immut@0.4.4"
 
 Net = "vorlias/net@3.0.1"
 Promise = "evaera/promise@3.1.0"

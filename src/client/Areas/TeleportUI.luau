@@ -7,6 +7,7 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.ConfirmationUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
@@ -14,13 +15,9 @@ local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local player = Players.LocalPlayer
 
-local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport") :: {
-	_initialize: () -> (),
-	Refresh: () -> (),
-} & CentralUI.CentralUI
+local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport")
 
-local interfaces =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces) :: { [typeof(setmetatable({}, CentralUI))]: boolean }
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 local function getAreaTeleporter(areaName: string): Instance?
 	for _, teleporter in CollectionService:GetTagged "AreaTeleport" do
@@ -42,13 +39,12 @@ function TeleportUI:_initialize()
 	playerStatePromise:andThen(function()
 		self:Refresh()
 		store.changed:connect(function(newState, oldState)
-			local newPlayerState = newState.Players[player.Name]
-			local oldPlayerState = oldState.Players[player.Name]
 			if
-				newPlayerState.Strength ~= oldPlayerState.Strength
+				selectors.getStat(newState, player.Name, "Strength")
+					~= selectors.getStat(oldState, player.Name, "Strength")
 				or not Sift.Dictionary.equalsDeep(
-					newPlayerState.PurchasedTeleporters,
-					oldPlayerState.PurchasedTeleporters
+					selectors.getPurchasedTeleporters(newState, player.Name),
+					selectors.getPurchasedTeleporters(oldState, player.Name)
 				)
 			then
 				self:Refresh()
@@ -70,9 +66,8 @@ function TeleportUI:_initialize()
 		area.Teleport.Active = true
 
 		area.Teleport.Activated:Connect(function()
-			local playerState = store:getState().Players[player.Name]
 			if area.Locked.Visible or area.CostUI.Visible then
-				if playerState.Gems < area.Cost.Value then
+				if selectors.getStat(store:getState(), player.Name, "Gems") < area.Cost.Value then
 					return
 				end
 				confirmationUI({
@@ -94,19 +89,18 @@ function TeleportUI:_initialize()
 					goal.CFrame.UpVector
 				)
 			)
-			petUtils.instantiatePets(player.Name, playerState.EquippedPets)
+			petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 		end)
 	end
 end
 
 function TeleportUI:Refresh()
-	local playerState = store:getState().Players[player.Name]
 	for _, requirement in areaRequirements:GetChildren() do
-		local shouldLock = requirement.Value > playerState.Strength
+		local shouldLock = requirement.Value > selectors.getStat(store:getState(), player.Name, "Strength")
 
 		self:_unlockArea(requirement.Name, shouldLock)
 
-		if playerState.PurchasedTeleporters[requirement.Name] then
+		if selectors.hasTeleporter(store:getState(), player.Name, requirement.Name) then
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = false
 		elseif not shouldLock then
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = true

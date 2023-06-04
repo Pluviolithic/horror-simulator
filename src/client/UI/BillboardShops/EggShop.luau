@@ -10,6 +10,7 @@ local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
@@ -33,10 +34,10 @@ local autoLastDisabled = 0
 
 local rarityColorConfig = ReplicatedStorage.Config.RarityColors
 
-local petAreas: { [string]: string } = {}
-local rarityListeners: { (number) -> () } = {}
-local listeners: { [BillboardGui]: (Enum.KeyCode) -> () } = {}
-local validInputs: { [Enum.KeyCode]: boolean } = {
+local petAreas = {}
+local rarityListeners = {}
+local listeners = {}
+local validInputs = {
 	[Enum.KeyCode.E] = true,
 	[Enum.KeyCode.R] = true,
 	[Enum.KeyCode.T] = true,
@@ -90,19 +91,22 @@ function displayPurchaseResults(results: { string }?, areaName: string, count: n
 
 	local detailedResults = {}
 
-	for _, petName in results :: { string } do
+	for _, petName in results do
 		table.insert(detailedResults, ReplicatedStorage.Pets[areaName][petName])
 	end
 
-	if #results :: { string } == 1 then
+	if #results == 1 then
 		configureHatchUI(detailedResults, true)
-	elseif #results :: { string } == 3 then
+	elseif #results == 3 then
 		configureHatchUI(detailedResults, false)
 	end
 
 	if auto and autoLastEnabled > autoLastDisabled then
-		local playerState = store:getState().Players[player.Name]
-		if playerState.CurrentPetCount + count > playerState.MaxPetCount or playerState.Gems < count * eggGemPrice then
+		if
+			selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count
+				> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
+			or selectors.getStat(store:getState(), player.Name, "Gems") < count * eggGemPrice
+		then
 			hatching = false
 			return
 		end
@@ -138,25 +142,26 @@ local function handleShop(shop): ()
 			end
 		end
 
-		local playerState = store:getState().Players[player.Name]
-
 		if hatching then
 			return
 		end
 
-		if playerState.Gems < eggGemPrice * count then
+		if selectors.getStat(store:getState(), player.Name, "Gems") < eggGemPrice * count then
 			hatching = false
 			return
 		end
 
 		hatching = true
 
-		if playerState.CurrentPetCount + count > playerState.MaxPetCount then
+		if
+			selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count
+			> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
+		then
 			hatching = false
 			return
 		end
 
-		if (count == 1 or playerState.Gems < eggGemPrice * 3) and not auto then
+		if (count == 1 or selectors.getStat(store:getState(), player.Name, "Gems") < eggGemPrice * 3) and not auto then
 			Remotes.Client:Get("HatchEggs"):CallServerAsync(1, areaName):andThen(function(results)
 				displayPurchaseResults(results, areaName, count, auto)
 			end)
@@ -326,21 +331,20 @@ local function updateRarityListeners(luck: number): ()
 end
 
 playerStatePromise:andThen(function()
-	updateRarityListeners(store:getState().Players[player.Name].Luck)
-	updateFoundsDisplay(store:getState().Players[player.Name].FoundPets)
-	store.changed:connect(function(newState, oldState)
-		local newPlayerState = newState.Players[player.Name]
-		local oldPlayerState = oldState.Players[player.Name]
+	updateRarityListeners(selectors.getStat(store:getState(), player.Name, "Luck"))
+	updateFoundsDisplay(selectors.getFoundPets(store:getState(), player.Name))
 
-		if newPlayerState.Luck ~= oldPlayerState.Luck then
-			updateRarityListeners(newPlayerState.Luck)
+	store.changed:connect(function(newState, oldState)
+		if selectors.getStat(newState, player.Name, "Luck") ~= selectors.getStat(oldState, player.Name, "Luck") then
+			updateRarityListeners(selectors.getStat(newState, player.Name, "Luck"))
 		end
 
-		if newPlayerState.FoundPets == oldPlayerState.FoundPets then
+		if selectors.getFoundPets(newState, player.Name) == selectors.getFoundPets(oldState, player.Name) then
 			return
 		end
+
 		task.delay(3.5, function()
-			updateFoundsDisplay(newState.Players[player.Name].FoundPets)
+			updateFoundsDisplay(selectors.getFoundPets(newState, player.Name))
 		end)
 	end)
 end)

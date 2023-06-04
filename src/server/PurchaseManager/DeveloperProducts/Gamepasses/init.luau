@@ -1,28 +1,28 @@
 local Players = game:GetService "Players"
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local rewarders = require(script.Rewarders)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local function checkIfObtainedRewards(player: Player)
-	local playerState = store:getState().Players[player.Name]
-	if not playerState or not playerState.AwardedGamepasses then
+	if not selectors.isPlayerLoaded(store:getState(), player.Name) then
 		local connection
 		local thread = coroutine.running()
 		connection = store.changed:connect(function(newState)
-			if newState.Players[player.Name].AwardedGamepasses then
+			if selectors.isPlayerLoaded(newState, player.Name) then
 				connection:disconnect()
 				coroutine.resume(thread)
 			end
 		end)
 		coroutine.yield()
-		playerState = store:getState().Players[player.Name]
 	end
 
 	for gamepassID, rewarder in rewarders do
-		if not playerState.AwardedGamepasses[gamepassID] then
+		if not selectors.hasGamepass(store:getState(), player.Name, gamepassID) then
 			local success, err =
 				pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, tonumber(gamepassID))
 			if not success then

@@ -3,21 +3,9 @@ local StarterPlayer = game:GetService "StarterPlayer"
 local CentralUI = {}
 CentralUI.__index = CentralUI
 
-export type CentralUI = typeof(setmetatable(
-	{} :: {
-		_ui: GuiObject,
-		_isOpen: boolean,
-		_eventConnections: { RBXScriptConnection },
-		_visibilityProperty: string,
-		OnOpen: ((...any) -> any)?,
-	},
-	CentralUI
-))
+local collidableInterfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
-local collidableInterfaces: { [CentralUI]: boolean } =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
-
-function CentralUI.new(UI: GuiObject): CentralUI
+function CentralUI.new(UI: GuiObject)
 	local self = setmetatable({}, CentralUI)
 	local exit = UI:FindFirstChild("Close", true)
 

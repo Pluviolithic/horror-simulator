@@ -7,6 +7,7 @@ local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local eggGemPrice: number = 50
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
@@ -19,7 +20,7 @@ local luckBoostedRarities = {
 }
 
 local function getWeightedRandom(player: Player, weights: { [string]: { [string]: string | number } }): string
-	local luck = store:getState().Players[player.Name].Luck
+	local luck = selectors.getStat(store:getState(), player.Name, "Luck")
 	local newWeights = {}
 
 	if luck ~= 0 then
@@ -74,18 +75,22 @@ local function awardPetsToPlayer(player: Player, pets: { string }): ()
 	store:dispatch(actions.givePlayerPets(player.Name, pets))
 end
 
-Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: number, areaName: string): { string }?
-	local playerState = store:getState().Players[player.Name]
-
-	if areaRequirements[areaName].Value > playerState.Strength or playerState.Gems < eggGemPrice then
+Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: number, areaName: string)
+	if
+		areaRequirements[areaName].Value > selectors.getStat(store:getState(), player.Name, "Strength")
+		or selectors.getStat(store:getState(), player.Name, "Gems") < eggGemPrice
+	then
 		return nil
 	end
 
-	if playerState.CurrentPetCount + count > playerState.MaxPetCount then
+	if
+		selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count
+		> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
+	then
 		return nil
 	end
 
-	if count == 1 or playerState.Gems < 3 * eggGemPrice then
+	if count == 1 or selectors.getStat(store:getState(), player.Name, "Gems") < 3 * eggGemPrice then
 		local results = { getWeightedRandom(player, rarities[areaName]) }
 		awardPetsToPlayer(player, results)
 		return results

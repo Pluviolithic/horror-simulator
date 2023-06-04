@@ -1,3 +1,5 @@
+local Players = game:GetService "Players"
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
@@ -5,11 +7,11 @@ local products = require(script.Products)
 local gamepasses = require(script.Gamepasses)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 MarketplaceService.PromptGamePassPurchaseFinished:Connect(
 	function(player: Player, gamepassID: number, purchased: boolean)
-		local playerState = store:getState().Players[player.Name]
-		if not purchased or playerState.AwardedGamepasses[gamepassID] then
+		if not purchased or selectors.hasGamepass(store:getState(), player.Name, gamepassID) then
 			return
 		end
 
@@ -28,7 +30,7 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(
 )
 
 MarketplaceService.ProcessReceipt = function(receiptInfo)
-	local player = game.Players:GetPlayerByUserId(receiptInfo.PlayerId)
+	local player = Players:GetPlayerByUserId(receiptInfo.PlayerId)
 	if not player then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end

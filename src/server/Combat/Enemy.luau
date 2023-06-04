@@ -10,6 +10,7 @@ local gemRewardPercentage: number = 0.3
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local bossRespawnRate: number = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
 local enemyRespawnRate: number = ReplicatedStorage.Config.Combat.EnemyRespawnRate.Value
@@ -84,9 +85,8 @@ local function handleEnemy(enemy)
 		table.remove(engagedPlayers, playerIndex)
 
 		if #engagedPlayers == 0 then
-			local playersState = store:getState().Players
 			for inflictingPlayer in damageDealtByPlayer do
-				if not playersState[inflictingPlayer.Name].CurrentEnemy then
+				if not selectors.getCurrentTarget(store:getState(), inflictingPlayer.Name).CurrentEnemy then
 					local humanoid = if inflictingPlayer.Character
 						then inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
 						else nil
@@ -137,7 +137,7 @@ local function handleEnemy(enemy)
 			debounceTable[player.UserId] = nil
 		end)
 
-		if store:getState().Players[player.Name].CurrentEnemy == enemy then
+		if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
 			return
 		else
 			store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
@@ -146,12 +146,12 @@ local function handleEnemy(enemy)
 			end
 		end
 
-		local connections: { RBXScriptConnection | typeof(store.changed:connect(function() end)) } = {}
+		local connections = {}
 		local cleanedUp: boolean = false
 		local runAnimations: boolean = true
 
 		local animationInstances: { Animation } =
-			animations[store:getState().Players[player.Name].EquippedWeapon]:GetChildren()
+			animations[selectors.getEquippedWeapon(store:getState(), player.Name)]:GetChildren()
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 
@@ -169,7 +169,7 @@ local function handleEnemy(enemy)
 				end
 			end
 
-			local weaponName: string = store:getState().Players[player.Name].EquippedWeapon
+			local weaponName: string = selectors.getEquippedWeapon(store:getState(), player.Name)
 			local wepaon: Accessory? = if player.Character
 				then player.Character:FindFirstChild(weaponName) :: Accessory
 				else nil
@@ -181,7 +181,7 @@ local function handleEnemy(enemy)
 			currentTrack:Stop()
 
 			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
-			if store:getState().Players[player.Name].CurrentEnemy == enemy then
+			if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
 				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			end
 			if not skipPlayerRemoval then
@@ -199,7 +199,7 @@ local function handleEnemy(enemy)
 		table.insert(
 			connections,
 			store.changed:connect(function(newState)
-				if newState.Players[player.Name].CurrentEnemy ~= enemy then
+				if selectors.getCurrentTarget(newState, player.Name) ~= enemy then
 					cleanUpPlayer()
 				end
 			end)
@@ -219,7 +219,7 @@ local function handleEnemy(enemy)
 		)
 
 		-- attach currently equipped weapon to player's hand
-		local weaponName: string = store:getState().Players[player.Name].EquippedWeapon
+		local weaponName: string = selectors.getEquippedWeapon(store:getState(), player.Name)
 		if weaponName ~= "Fists" then
 			local weaponAccessory: Accessory = weapons[weaponName]:Clone()
 			humanoid:AddAccessory(weaponAccessory)
@@ -260,11 +260,11 @@ local function handleEnemy(enemy)
 			and humanoid.Health > 0
 			and totalDamageDealt < maxHealth
 			and humanoid:IsDescendantOf(game)
-			and store:getState().Players[player.Name]
-			and store:getState().Players[player.Name].CurrentEnemy == enemy
+			and selectors.isPlayerLoaded(store:getState(), player.Name)
+			and selectors.getCurrentTarget(store:getState(), player.Name) == enemy
 		do
 			local damageToDeal: number = math.clamp(
-				store:getState().Players[player.Name].Strength * damageMultiplier,
+				selectors.getStat(store:getState(), player.Name, "Strength") * damageMultiplier,
 				0,
 				maxHealth - totalDamageDealt
 			)
@@ -299,7 +299,7 @@ local function handleEnemy(enemy)
 					continue
 				end
 
-				local petFearMultiplier = store:getState().Players[otherPlayer.Name].PetFearMultiplier
+				local petFearMultiplier = selectors.getStat(store:getState(), player.Name, "PetFearMultiplier")
 				if petFearMultiplier > 0 then
 					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage * petFearMultiplier))
 				else
@@ -312,7 +312,7 @@ local function handleEnemy(enemy)
 					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Gems", gemAmountToDrop))
 				end
 
-				if not store:getState().Players[otherPlayer.Name].CurrentEnemy then
+				if not selectors.getCurrentTarget(store:getState(), otherPlayer.Name) then
 					local otherHumanoid = otherPlayer.Character
 						and otherPlayer.Character:FindFirstChildOfClass "Humanoid"
 					if not otherHumanoid then

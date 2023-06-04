@@ -8,6 +8,7 @@ local animations = ReplicatedStorage.CombatAnimations
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local fightRange: number = 2
 
@@ -32,7 +33,7 @@ local function handleDummy(dummy)
 			debounceTable[player.UserId] = nil
 		end)
 
-		if store:getState().Players[player.Name].CurrentEnemy == dummy then
+		if selectors.getCurrentTarget(store:getState(), player.Name) == dummy then
 			return
 		else
 			store:dispatch(actions.switchPlayerEnemy(player.Name, dummy))
@@ -42,7 +43,7 @@ local function handleDummy(dummy)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
 		local failed: boolean = false
-		local connection: typeof(store.changed:connect(function() end)) = nil
+		local connection = nil
 		connection = store.changed:connect(function(newState)
 			if newState.Players[player.Name].CurrentEnemy ~= dummy then
 				failed = true
@@ -64,7 +65,7 @@ local function handleDummy(dummy)
 		end
 
 		local animationInstances: { Animation } =
-			animations[store:getState().Players[player.Name].EquippedWeapon]:GetChildren() :: { Animation }
+			animations[selectors.getEquippedWeapon(store:getState(), player.Name)]:GetChildren() :: { Animation }
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 		local runAnimations: boolean = true
@@ -96,8 +97,8 @@ local function handleDummy(dummy)
 		while
 			runAnimations
 			and humanoid:IsDescendantOf(game)
-			and store:getState().Players[player.Name]
-			and store:getState().Players[player.Name].CurrentEnemy == dummy
+			and selectors.isPlayerLoaded(store:getState(), player.Name)
+			and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
 		do
 			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
 			task.wait(1)

@@ -19,22 +19,22 @@ local function initializeLeaderboard(player: Player, data: typeof(profileTemplat
 
 	local strength = Instance.new "StringValue"
 	strength.Name = "Strength"
-	strength.Value = formatter.formatNumberWithSuffix(data.Strength)
+	strength.Value = formatter.formatNumberWithSuffix(data.Stats.Strength)
 	strength.Parent = leaderstats
 
 	local fear = Instance.new "StringValue"
 	fear.Name = "Fear"
-	fear.Value = formatter.formatNumberWithSuffix(data.Fear)
+	fear.Value = formatter.formatNumberWithSuffix(data.Stats.Fear)
 	fear.Parent = leaderstats
 
 	local Kills = Instance.new "StringValue"
 	Kills.Name = "Kills"
-	Kills.Value = formatter.formatNumberWithSuffix(data.Kills)
+	Kills.Value = formatter.formatNumberWithSuffix(data.Stats.Kills)
 	Kills.Parent = leaderstats
 
 	local Rebirths = Instance.new "StringValue"
 	Rebirths.Name = "Rebirths"
-	Rebirths.Value = formatter.formatNumberWithSuffix(data.Rebirths)
+	Rebirths.Value = formatter.formatNumberWithSuffix(data.Stats.Rebirths)
 	Rebirths.Parent = leaderstats
 
 	leaderstats.Parent = player
@@ -42,7 +42,6 @@ end
 
 local function onPlayerAdded(player: Player)
 	local profile = profileStore:LoadProfileAsync("Player_" .. player.UserId)
-	store:dispatch(actions.addPlayer(player.Name))
 	if not profile then
 		player:Kick "Data failed to load correctly."
 		return
@@ -59,7 +58,7 @@ local function onPlayerAdded(player: Player)
 
 	if player:IsDescendantOf(Players) then
 		profiles[player.Name] = profile
-		store:dispatch(actions.updatePlayerWithProfile(player.Name, profile.Data))
+		store:dispatch(actions.addPlayer(player.Name, profile.Data))
 		store:dispatch(actions.incrementPlayerStat(player.Name, "LogInCount"))
 	end
 end
@@ -77,18 +76,8 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
-Remotes.Server:Get("GetGlobalState"):SetCallback(function(player: Player)
-	local currentState = store:getState()
-	local replicatedState = table.clone(currentState)
-
-	replicatedState.Players = {}
-	for otherPlayer in currentState.Players do
-		replicatedState.Players[otherPlayer] = {}
-	end
-
-	replicatedState.Players[player.Name] = currentState.Players[player.Name]
-
-	return replicatedState
+Remotes.Server:Get("GetGlobalState"):SetCallback(function()
+	return store:getState()
 end)
 
 require(script.GlobalLeaderboards)

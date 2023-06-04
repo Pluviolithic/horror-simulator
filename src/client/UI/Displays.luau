@@ -6,6 +6,7 @@ local player = Players.LocalPlayer
 local Client = StarterPlayer.StarterPlayerScripts.Client
 
 local playerStatePromise = require(Client.State.PlayerStatePromise)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
 local store = require(Client.State.Store)
@@ -15,15 +16,15 @@ type pair<T, U> = {
 	second: U,
 }
 
-local function updateDisplays(state, displays)
-	local playerState = state.Players[player.Name]
+local function updateDisplays(displays)
 	for _, displayData in displays do
 		local display = displayData.first
 		local format = displayData.second
 		if format then
-			display.Text = format(playerState, display.Name)
+			display.Text = format(display.Name)
 		else
-			display.Text = formatter.formatNumberWithSuffix(playerState[display.Parent.Name])
+			display.Text =
+				formatter.formatNumberWithSuffix(selectors.getStat(store:getState(), player.Name, display.Parent.Name))
 		end
 	end
 end
@@ -38,40 +39,48 @@ Promise.new(function(resolve)
 	}
 	resolve(interfaces)
 end):andThen(function(interfaces)
-	local displays: { pair<GuiObject, (((...any) -> any)?)> } = {
+	local displays = {
 		{ first = interfaces.MainUI.Strength.Amount },
 		{ first = interfaces.MainUI.Fear.Amount },
 		{ first = interfaces.MainUI.Gems.Amount },
 		{
 			first = interfaces.WeaponShop.LeftBackground.Gems,
-			second = function(playerState, displayName)
-				return formatter.formatNumberWithSuffix(playerState[displayName]) .. " Gems"
+			second = function(displayName)
+				return formatter.formatNumberWithSuffix(selectors.getStat(store:getState(), player.Name, displayName))
+					.. " Gems"
 			end,
 		},
 		{
 			first = interfaces.PetInventory.Background.Storage.Amount,
-			second = function(playerState)
-				return playerState.CurrentPetCount .. "/" .. playerState.MaxPetCount
+			second = function()
+				return selectors.getStat(store:getState(), player.Name, "CurrentPetCount")
+					.. "/"
+					.. selectors.getStat(store:getState(), player.Name, "MaxPetCount")
 			end,
 		},
 		{
 			first = interfaces.PetInventory.Background.Equipped.Amount,
-			second = function(playerState)
-				return playerState.CurrentPetEquipCount .. "/" .. playerState.MaxPetEquipCount
+			second = function()
+				return selectors.getStat(store:getState(), player.Name, "CurrentPetEquipCount")
+					.. "/"
+					.. selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount")
 			end,
 		},
 		{
 			first = interfaces.PetInventory.Background.Multiplier.Amount,
-			second = function(playerState)
-				return "X" .. formatter.truncateMultiplier(playerState.PetFearMultiplier)
+			second = function()
+				return "X"
+					.. formatter.truncateMultiplier(
+						selectors.getStat(store:getState(), player.Name, "PetFearMultiplier")
+					)
 			end,
 		},
 	}
 
 	playerStatePromise:andThen(function()
-		updateDisplays(store:getState(), displays)
-		store.changed:connect(function(newState)
-			updateDisplays(newState, displays)
+		updateDisplays(displays)
+		store.changed:connect(function()
+			updateDisplays(displays)
 		end)
 	end)
 end)
