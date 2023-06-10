@@ -5,7 +5,7 @@ local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
-local produce, None = Immut.produce, Immut.None
+local produce = Immut.produce
 
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
@@ -15,7 +15,7 @@ return Rodux.createReducer({}, {
 	end,
 	removePlayer = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = None
+			draft[action.playerName] = nil
 		end)
 	end,
 	resetPlayerData = function(state, action)
@@ -25,61 +25,57 @@ return Rodux.createReducer({}, {
 	end,
 	givePlayerPets = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = {
-				OwnedPets = Dict.map(action.petsToGive, function(value, key)
-					return value + (state[action.playerName].OwnedPets[key] or 0), key
-				end),
-				FoundPets = Dict.map(action.petsToGive, function(_, key)
-					return true, key
-				end),
-			}
+			for petName, quantity in action.petsToGive do
+				draft[action.playerName].OwnedPets[petName] = (state[action.playerName].OwnedPets[petName] or 0)
+					+ quantity
+				draft[action.playerName].FoundPets[petName] = true
+			end
 		end)
 	end,
 	deletePlayerPets = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName].OwnedPets = Dict.map(action.petsToDelete, function(value, key)
-				local newOwnedAmount = (state[action.playerName].OwnedPets[key] or 0) - value
-				if newOwnedAmount < 1 then
-					newOwnedAmount = None
+			for petName, quantity in action.petsToDelete do
+				draft[action.playerName].OwnedPets[petName] -= quantity
+				if draft[action.playerName].OwnedPets[petName] < 1 then
+					draft[action.playerName].OwnedPets[petName] = nil
 				end
-				return newOwnedAmount, key
-			end)
+			end
 		end)
 	end,
 	equipPlayerPets = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName].EquippedPets = Dict.map(action.petsToEquip, function(value, key)
-				return value + (state[action.playerName].EquippedPets[key] or 0), key
-			end)
+			for petName, quantity in action.petsToEquip do
+				draft[action.playerName].EquippedPets[petName] = (draft[action.playerName].EquippedPets[petName] or 0)
+					+ quantity
+			end
 		end)
 	end,
 	unequipPlayerPets = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName].EquippedPets = Dict.map(action.petsToUnequip, function(value, key)
-				local newEquipAmount = (state[action.playerName].EquippedPets[key] or 0) - value
-				if newEquipAmount < 1 then
-					newEquipAmount = None
+			for petName, quantity in action.petsToUnequip do
+				draft[action.playerName].EquippedPets[petName] -= quantity
+				if draft[action.playerName].EquippedPets[petName] < 1 then
+					draft[action.playerName].EquippedPets[petName] = nil
 				end
-				return newEquipAmount, key
-			end)
+			end
 		end)
 	end,
 	lockPlayerPets = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName].LockedPets = Dict.map(action.petsToLock, function(value, key)
-				return value + (state[action.playerName].LockedPets[key] or 0), key
-			end)
+			for petName, quantity in action.petsToLock do
+				draft[action.playerName].LockedPets[petName] = (draft[action.playerName].LockedPets[petName] or 0)
+					+ quantity
+			end
 		end)
 	end,
 	unlockPlayerPets = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = Dict.map(action.petsToUnlock, function(value, key)
-				local newLockAmount = (state[action.playerName].LockedPets[key] or 0) - value
-				if newLockAmount < 1 then
-					newLockAmount = None
+			for petName, quantity in action.petsToUnlock do
+				draft[action.playerName].LockedPets[petName] -= quantity
+				if draft[action.playerName].LockedPets[petName] < 1 then
+					draft[action.playerName].LockedPets[petName] = nil
 				end
-				return newLockAmount, key
-			end)
+			end
 		end)
 	end,
 })

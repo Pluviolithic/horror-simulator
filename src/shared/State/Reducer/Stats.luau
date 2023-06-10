@@ -6,7 +6,7 @@ local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
-local produce, None = Immut.produce, Immut.None
+local produce = Immut.produce
 
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
@@ -16,7 +16,7 @@ return Rodux.createReducer({}, {
 	end,
 	removePlayer = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = None
+			draft[action.playerName] = nil
 		end)
 	end,
 	resetPlayerData = function(state, action)
@@ -26,7 +26,6 @@ return Rodux.createReducer({}, {
 	end,
 	incrementPlayerStat = function(state, action)
 		return produce(state, function(draft)
-			print(draft)
 			draft[action.playerName][action.statName] += (action.incrementAmount or 1)
 		end)
 	end,
@@ -36,7 +35,7 @@ return Rodux.createReducer({}, {
 			addedPetCount += quantity
 		end
 		return produce(state, function(draft)
-			draft[action.playerName].PetCount += addedPetCount
+			draft[action.playerName].CurrentPetCount += addedPetCount
 		end)
 	end,
 	deletePlayerPets = function(state, action)
@@ -45,7 +44,7 @@ return Rodux.createReducer({}, {
 			removedPetCount -= quantity
 		end
 		return produce(state, function(draft)
-			draft[action.playerName].PetCount += removedPetCount
+			draft[action.playerName].CurrentPetCount += removedPetCount
 		end)
 	end,
 	equipPlayerPets = function(state, action)
@@ -56,7 +55,7 @@ return Rodux.createReducer({}, {
 			addedPetFearMultiplier += petUtils.getPet(petName).Multiplier.Value * quantity
 		end
 		return produce(state, function(draft)
-			draft[action.playerName].PetEquipCount += addedPetEquipCount
+			draft[action.playerName].CurrentPetEquipCount += addedPetEquipCount
 			draft[action.playerName].PetFearMultiplier += addedPetFearMultiplier
 		end)
 	end,
@@ -68,7 +67,7 @@ return Rodux.createReducer({}, {
 			removedPetFearMultiplier -= petUtils.getPet(petName).Multiplier.Value * quantity
 		end
 		return produce(state, function(draft)
-			draft[action.playerName].PetEquipCount += removedPetEquipCount
+			draft[action.playerName].CurrentPetEquipCount += removedPetEquipCount
 			draft[action.playerName].PetFearMultiplier += removedPetFearMultiplier
 		end)
 	end,

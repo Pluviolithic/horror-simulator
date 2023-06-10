@@ -90,8 +90,12 @@ petUtils = {
 					newPet:FindFirstChildWhichIsA("BasePart"):SetNetworkOwner(Players[playerName])
 				end
 			end
+			for _, petModel in equippedPetModels do
+				petModel:Destroy()
+			end
 		end)
 	end,
+	calculatePosition = calculatePosition,
 }
 
 return petUtils

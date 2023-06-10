@@ -3,90 +3,55 @@ local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local makeActionCreator = Rodux.makeActionCreator
 
 return {
-	givePlayerPets = makeActionCreator("givePlayerPets", function(playerName: string, petNames: { [string]: boolean })
+	givePlayerPets = makeActionCreator("givePlayerPets", function(playerName: string, petNames: { [string]: number })
 		return {
 			playerName = playerName,
-			petNames = petNames,
+			petsToGive = petNames,
 			shouldSave = true,
 		}
 	end),
-	equipPet = makeActionCreator("equipPet", function(playerName: string, petName: string)
-		return {
-			playerName = playerName,
-			petName = petName,
-			shouldSave = true,
-		}
-	end),
-	unequipPet = makeActionCreator("unequipPet", function(playerName: string, petName: string)
-		return {
-			playerName = playerName,
-			petName = petName,
-			shouldSave = true,
-		}
-	end),
-	lockPet = makeActionCreator("lockPet", function(playerName: string, petName: string)
-		return {
-			playerName = playerName,
-			petName = petName,
-			shouldSave = true,
-		}
-	end),
-	unlockPet = makeActionCreator("unlockPet", function(playerName: string, petName: string, quantity: number?)
-		return {
-			quantity = quantity or 1,
-			playerName = playerName,
-			petName = petName,
-			shouldSave = true,
-		}
-	end),
-	deletePet = makeActionCreator("deletePet", function(playerName: string, petName: string, quantity: number?)
-		return {
-			quantity = quantity or 1,
-			playerName = playerName,
-			petName = petName,
-			shouldSave = true,
-		}
-	end),
-	increaseMaxPetEquipCount = makeActionCreator(
-		"increaseMaxPetEquipCount",
-		function(playerName: string, amount: number)
+	deletePlayerPets = makeActionCreator(
+		"deletePlayerPets",
+		function(playerName: string, petNames: { [string]: number })
 			return {
 				playerName = playerName,
-				amount = amount,
+				petsToDelete = petNames,
 				shouldSave = true,
 			}
 		end
 	),
-	unequipAllPets = makeActionCreator("unequipAllPets", function(playerName: string)
+	equipPlayerPets = makeActionCreator("equipPlayerPets", function(playerName: string, petNames: { [string]: number })
 		return {
 			playerName = playerName,
+			petsToEquip = petNames,
 			shouldSave = true,
 		}
 	end),
-	equipPets = makeActionCreator("equipPets", function(playerName: string, petNames: { string })
+	unequipPlayerPets = makeActionCreator(
+		"unequipPlayerPets",
+		function(playerName: string, petNames: { [string]: number })
+			return {
+				playerName = playerName,
+				petsToUnequip = petNames,
+				shouldSave = true,
+			}
+		end
+	),
+	lockPlayerPets = makeActionCreator("lockPlayerPets", function(playerName: string, petNames: { [string]: number })
 		return {
 			playerName = playerName,
-			petNames = petNames,
+			petsToLock = petNames,
 			shouldSave = true,
 		}
 	end),
-	evolvePet = makeActionCreator("evolvePet", function(playerName: string, petName: string)
-		return {
-			playerName = playerName,
-			petName = petName,
-			shouldSave = true,
-		}
-	end),
-	evolveAllPets = makeActionCreator("evolveAllPets", function(playerName: string)
-		return {
-			playerName = playerName,
-			shouldSave = true,
-		}
-	end),
-	deleteAllPets = makeActionCreator("deleteAllPets", function(playerName: string)
-		return {
-			playerName = playerName,
-			shouldSave = true,
-		}
-	end),
+	unlockPlayerPets = makeActionCreator(
+		"unlockPlayerPets",
+		function(playerName: string, petNames: { [string]: number })
+			return {
+				playerName = playerName,
+				petsToUnlock = petNames,
+				shouldSave = true,
+			}
+		end
+	),
 }

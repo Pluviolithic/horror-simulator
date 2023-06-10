@@ -58,14 +58,14 @@ local function savePlayerDataMiddleware(nextDispatch, store)
 		local filteredOldState = getFilteredState(action.playerName, oldState)
 		local filteredNewState = getFilteredState(action.playerName, newState)
 
-		print(action)
-		print(filteredOldState)
-		print(filteredNewState)
+		--print(action)
+		--print(filteredOldState)
+		--print(filteredNewState)
 
 		for key, value in filteredNewState do
 			if filteredOldState[key] ~= value then
-				print "passing"
-				print(key, value)
+				--print "passing"
+				--print(key, value)
 				profileData[key] = value
 			end
 		end

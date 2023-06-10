@@ -168,7 +168,7 @@ function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, lock
 end
 
 function PetInventory:Refresh()
-	if selectors.isPlayerLoaded(store:getState(), player.Name) then
+	if not selectors.isPlayerLoaded(store:getState(), player.Name) then
 		return
 	end
 

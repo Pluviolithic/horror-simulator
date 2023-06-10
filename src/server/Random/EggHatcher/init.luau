@@ -71,8 +71,12 @@ local function getWeightedRandom(player: Player, weights: { [string]: { [string]
 end
 
 local function awardPetsToPlayer(player: Player, pets: { string }): ()
+	local petsDict = {}
+	for _, pet in pets do
+		petsDict[pet] = (petsDict[pet] or 0) + 1
+	end
 	store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -eggGemPrice * #pets))
-	store:dispatch(actions.givePlayerPets(player.Name, pets))
+	store:dispatch(actions.givePlayerPets(player.Name, petsDict))
 end
 
 Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: number, areaName: string)
