@@ -9,7 +9,8 @@ local gemRewardPercentage: number = 0.3
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
-local Remotes = require(ReplicatedStorage.Common.Remotes)
+local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
+--local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local bossRespawnRate: number = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
@@ -54,8 +55,10 @@ local function handleEnemy(enemy)
 		return
 	end
 
-	NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
+    HealthBar.new(NPCUI.Frame.Background.Frame):connect(enemy)
+    NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
 	healthValue.Value = maxHealth
+    NPCUI.Enabled = true
 
 	local function startEnemyAnimations(): ()
 		local t = if isBoss then 1 else 0.5
@@ -180,7 +183,7 @@ local function handleEnemy(enemy)
 			runAnimations = false
 			currentTrack:Stop()
 
-			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+			--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
 				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			end
@@ -191,7 +194,7 @@ local function handleEnemy(enemy)
 
 		table.insert(connections, humanoid.Died:Connect(cleanUpPlayer))
 
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, enemy)
+		--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, enemy)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
 		table.insert(connections, humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(cleanUpPlayer))
