@@ -24,7 +24,7 @@ local function handlePunchingBag(bag: any)
 			inUse
 			or selectors.getCurrentTarget(store:getState(), player.Name)
 			or selectors.getStat(store:getState(), player.Name, "Fear")
-				< selectors.getStat(store:getState(), player.Name, ".Strength") * 5
+				< selectors.getStat(store:getState(), player.Name, "Strength") * 5
 		then
 			if selectors.getCurrentTarget(store:getState(), player.Name) == bag then
 				disableSwitch:Fire(player)

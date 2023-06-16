@@ -86,7 +86,7 @@ local function handleEnemy(enemy)
 
 		if #engagedPlayers == 0 then
 			for inflictingPlayer in damageDealtByPlayer do
-				if not selectors.getCurrentTarget(store:getState(), inflictingPlayer.Name).CurrentEnemy then
+				if not selectors.getCurrentTarget(store:getState(), inflictingPlayer.Name) then
 					local humanoid = if inflictingPlayer.Character
 						then inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
 						else nil
@@ -326,7 +326,8 @@ local function handleEnemy(enemy)
 
 			task.delay(respawnRate, function()
 				enemyClone.Parent = workspace
-				handleEnemy(enemyClone)
+				--I think instanceadded handles this?
+				--handleEnemy(enemyClone)
 			end)
 
 			return
