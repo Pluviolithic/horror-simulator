@@ -4,6 +4,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local weapons = ReplicatedStorage.Weapons
 
@@ -12,9 +13,7 @@ Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player: Player, weapon
 		return 1
 	end
 
-	local playerState = store:getState().Players[player.Name]
-
-	if playerState.OwnedWeapons[weaponName] then
+	if selectors.getOwnedWeapons(store:getState(), player.Name)[weaponName] then
 		return 1
 	end
 
@@ -25,7 +24,7 @@ Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player: Player, weapon
 		return 1
 	end
 
-	if playerState.Gems >= price.Value then
+	if selectors.getStat(store:getState(), player.Name, "Gems") >= price.Value then
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -price.Value))
 		store:dispatch(actions.givePlayerWeapon(player.Name, weaponName))
 		store:dispatch(actions.equipWeapon(player.Name, weaponName))
@@ -40,9 +39,7 @@ Remotes.Server:Get("EquipWeapon"):SetCallback(function(player: Player, weaponNam
 		return 1
 	end
 
-	local playerState = store:getState().Players[player.Name]
-
-	if not playerState.OwnedWeapons[weaponName] or playerState.EquippedWeapon == weaponName then
+	if not selectors.getOwnedWeapons(store:getState(), player.Name)[weaponName] or selectors.getEquippedWeapon(store:getState(), player.Name) == weaponName then
 		return 1
 	end
 

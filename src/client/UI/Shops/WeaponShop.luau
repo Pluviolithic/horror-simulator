@@ -97,7 +97,7 @@ function WeaponShop:_initialize(): ()
 					focusedDisplay.GreenButton.Visible = true
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
 						if
-							selectors.getStat(store:getState(), player.Name, "Cash") < tonumber(button.GemPrice.Text)
+							selectors.getStat(store:getState(), player.Name, "Gems") < tonumber(button.GemPrice.Text)
 						then
 							return
 						end
