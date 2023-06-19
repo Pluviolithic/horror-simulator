@@ -13,13 +13,11 @@ return Promise.new(function(resolve)
 	local connection = nil
 
 	if selectors.isPlayerLoaded(store:getState(), player.Name) then
-		print "resolving immediately"
 		resolve()
 		return
 	end
 
 	connection = store.changed:connect(function(newState)
-		print "AAAAAAAAAAAAAAAAAAAAAA"
 		if selectors.isPlayerLoaded(newState, player.Name) then
 			connection:disconnect()
 			resolve()

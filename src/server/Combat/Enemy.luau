@@ -280,11 +280,13 @@ local function handleEnemy(enemy)
 
 			-- now receive damage from enemy
 			if not isBoss or counter % 2 == 0 then
-				local damageToReceive = math.min(
+				local fearMeterGoal = math.min(
 					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter") + damageValue.Value,
 					selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 				)
-				store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", damageToReceive))
+				local fearMeterAddendum = fearMeterGoal
+					- selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+				store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", fearMeterAddendum))
 				--humanoid.Health -= damageValue.Value
 			end
 
