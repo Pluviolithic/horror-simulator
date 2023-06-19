@@ -40,11 +40,14 @@ function TeleportUI:_initialize()
 		self:Refresh()
 		store.changed:connect(function(newState, oldState)
 			if
-				selectors.getStat(newState, player.Name, "Strength")
-					~= selectors.getStat(oldState, player.Name, "Strength")
-				or not Sift.Dictionary.equalsDeep(
-					selectors.getPurchasedTeleporters(newState, player.Name),
-					selectors.getPurchasedTeleporters(oldState, player.Name)
+				selectors.isPlayerLoaded(oldState, player.Name)
+				and (
+					selectors.getStat(newState, player.Name, "Strength")
+						~= selectors.getStat(oldState, player.Name, "Strength")
+					or not Sift.Dictionary.equalsDeep(
+						selectors.getPurchasedTeleporters(newState, player.Name),
+						selectors.getPurchasedTeleporters(oldState, player.Name)
+					)
 				)
 			then
 				self:Refresh()

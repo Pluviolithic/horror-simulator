@@ -7,22 +7,25 @@ local Client = StarterPlayer.StarterPlayerScripts.Client
 local player = Players.LocalPlayer
 
 local playerStatePromise = require(Client.State.PlayerStatePromise)
+local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
-local Promise = require(ReplicatedStorage.Common.lib.Promise)
 local store = require(Client.State.Store)
 
-Promise.new(function(resolve)
-	local requiredFearUI: TextLabel = CollectionService:GetTagged("RequiredFear")[1]
-	if not requiredFearUI then
-		requiredFearUI = CollectionService:GetInstanceAddedSignal("RequiredFear"):Wait()
+local requiredFearUIs = CollectionService:GetTagged "RequiredFear"
+CollectionService:GetInstanceAddedSignal("RequiredFear"):Connect(function(newRequiredFearUI)
+	table.insert(requiredFearUIs, newRequiredFearUI)
+end)
+
+local function updateRequiredFearUIs(state, UIs)
+	for _, UI in UIs do
+		UI.Text = formatter.formatNumberWithSuffix(selectors.getStat(state, player.Name, "Strength") * 5)
 	end
-	resolve(requiredFearUI)
-end):andThen(function(requiredFearUI)
-	playerStatePromise:andThen(function()
-		requiredFearUI.Text = selectors.getStat(store:getState(), player.Name, "Strength") * 5
-		store.changed:connect(function(newState)
-			requiredFearUI.Text = selectors.getStat(newState, player.Name, "Strength") * 5
-		end)
+end
+
+playerStatePromise:andThen(function()
+	updateRequiredFearUIs(store:getState(), requiredFearUIs)
+	store.changed:connect(function(newState)
+		updateRequiredFearUIs(newState, requiredFearUIs)
 	end)
 end)
 

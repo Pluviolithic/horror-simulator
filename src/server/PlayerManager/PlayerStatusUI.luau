@@ -5,7 +5,7 @@ local PlayerStatusUI = {}
 PlayerStatusUI.__index = PlayerStatusUI
 
 local store = require(ServerScriptService.Server.State.Store)
-local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
+--local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 local playerUITemplate = ReplicatedStorage.PlayerUI:Clone()
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
@@ -39,12 +39,12 @@ function PlayerStatusUI:_updateUIFields(state)
 		return
 	end
 
-	local healthDisplay = self._activePlayerUI.Health
-	if selectors.getCurrentTarget(state, self._player.Name) then
-		healthDisplay.Visible = true
-	else
-		healthDisplay.Visible = false
-	end
+	--local healthDisplay = self._activePlayerUI.Health
+	--if selectors.getCurrentTarget(state, self._player.Name) then
+	--	healthDisplay.Visible = true
+	--else
+	--	healthDisplay.Visible = false
+	--end
 end
 
 function PlayerStatusUI:_applyUI(character: Model)
@@ -53,11 +53,11 @@ function PlayerStatusUI:_applyUI(character: Model)
 		self._listener:disconnect()
 	end
 	self._activePlayerUI = self._playerUI:Clone()
-	self._healthBar = HealthBar.new(self._activePlayerUI.Health.Frame)
+	--self._healthBar = HealthBar.new(self._activePlayerUI.Health.Frame)
 
-	task.spawn(function()
-		self._healthBar:connect(character:WaitForChild "Humanoid")
-	end)
+	--task.spawn(function()
+	--self._healthBar:connect(character:WaitForChild "Humanoid")
+	--end)
 
 	self:_updateUIFields(store:getState())
 	self._listener = store.changed:connect(function(newState)

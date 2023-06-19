@@ -7,7 +7,6 @@ local animations = ReplicatedStorage.CombatAnimations
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
-local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local fightRange: number = 2
@@ -39,21 +38,21 @@ local function handleDummy(dummy)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, dummy))
 		end
 
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true)
+		--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
 		local failed: boolean = false
 		local connection = nil
 		connection = store.changed:connect(function(newState)
-			if newState.Players[player.Name].CurrentEnemy ~= dummy then
+			if selectors.getCurrentTarget(newState, player.Name) ~= dummy then
 				failed = true
-				Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+				--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			end
 		end)
 
 		task.spawn(function()
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
-			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+			--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			failed = true
 		end)
@@ -88,7 +87,7 @@ local function handleDummy(dummy)
 			end
 			runAnimations = false
 			currentTrack:Stop()
-			Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+			--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 		end)
 
@@ -104,7 +103,7 @@ local function handleDummy(dummy)
 			task.wait(1)
 		end
 
-		Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
+		--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 	end)
 end
 

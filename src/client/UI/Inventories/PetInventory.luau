@@ -30,6 +30,9 @@ local function multiplierComparator(a: { [any]: any }, b: { [any]: any }): boole
 end
 
 local function shouldRefresh(newState, oldState): boolean
+	if selectors.isPlayerLoaded(newState, player.Name) and not selectors.isPlayerLoaded(oldState, player.Name) then
+		return true
+	end
 	return selectors.getStat(newState, player.Name, "MaxPetCount")
 			~= selectors.getStat(oldState, player.Name, "MaxPetCount")
 		or selectors.getStat(newState, player.Name, "MaxPetEquipCount") ~= selectors.getStat(

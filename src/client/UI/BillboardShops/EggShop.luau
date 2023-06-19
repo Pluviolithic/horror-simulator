@@ -335,6 +335,10 @@ playerStatePromise:andThen(function()
 	updateFoundsDisplay(selectors.getFoundPets(store:getState(), player.Name))
 
 	store.changed:connect(function(newState, oldState)
+		if not selectors.isPlayerLoaded(oldState, player.Name) then
+			return
+		end
+
 		if selectors.getStat(newState, player.Name, "Luck") ~= selectors.getStat(oldState, player.Name, "Luck") then
 			updateRarityListeners(selectors.getStat(newState, player.Name, "Luck"))
 		end

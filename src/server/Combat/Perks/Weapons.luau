@@ -39,7 +39,10 @@ Remotes.Server:Get("EquipWeapon"):SetCallback(function(player: Player, weaponNam
 		return 1
 	end
 
-	if not selectors.getOwnedWeapons(store:getState(), player.Name)[weaponName] or selectors.getEquippedWeapon(store:getState(), player.Name) == weaponName then
+	if
+		not selectors.getOwnedWeapons(store:getState(), player.Name)[weaponName]
+		or selectors.getEquippedWeapon(store:getState(), player.Name) == weaponName
+	then
 		return 1
 	end
 

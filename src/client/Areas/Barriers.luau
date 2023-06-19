@@ -71,7 +71,9 @@ playerStatePromise:andThen(function()
 	unlockAreas()
 	store.changed:connect(function(newState, oldState)
 		if
-			selectors.getStat(newState, player.Name, "Strength") == selectors.getStat(oldState, player.Name, "Strength")
+			selectors.isPlayerLoaded(oldState, player.Name)
+			and selectors.getStat(newState, player.Name, "Strength")
+				== selectors.getStat(oldState, player.Name, "Strength")
 		then
 			return
 		end

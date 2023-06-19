@@ -11,20 +11,18 @@ local store = require(Client.State.Store)
 
 return Promise.new(function(resolve)
 	local connection = nil
-	local currentThread: thread = coroutine.running()
 
 	if selectors.isPlayerLoaded(store:getState(), player.Name) then
+		print "resolving immediately"
 		resolve()
 		return
 	end
 
 	connection = store.changed:connect(function(newState)
+		print "AAAAAAAAAAAAAAAAAAAAAA"
 		if selectors.isPlayerLoaded(newState, player.Name) then
 			connection:disconnect()
-			coroutine.resume(currentThread)
+			resolve()
 		end
 	end)
-
-	coroutine.yield()
-	resolve()
 end)

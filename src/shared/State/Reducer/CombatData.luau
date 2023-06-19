@@ -28,4 +28,9 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].CurrentEnemy = action.enemy or nil
 		end)
 	end,
+	setCurrentPunchingBag = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].CurrentPunchingBag = action.currentPunchingBag
+		end)
+	end,
 })

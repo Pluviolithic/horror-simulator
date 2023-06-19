@@ -26,7 +26,7 @@ local function handlePunchingBag(bag: any)
 			or selectors.getStat(store:getState(), player.Name, "Fear")
 				< selectors.getStat(store:getState(), player.Name, "Strength") * 5
 		then
-			if selectors.getCurrentTarget(store:getState(), player.Name) == bag then
+			if selectors.getCurrentTarget(store:getState(), player.Name) == bag and not cancelled then
 				disableSwitch:Fire(player)
 			end
 			return
@@ -37,6 +37,7 @@ local function handlePunchingBag(bag: any)
 			return
 		end
 
+		inUse = true
 		store:dispatch(actions.setCurrentPunchingBag(player.Name, bag))
 		Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, false)
 		humanoid.RootPart.CFrame = bag.HumanoidLockPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
@@ -91,14 +92,9 @@ local function handlePunchingBag(bag: any)
 			task.wait(0.6)
 		end
 
-		connection:Disconnect()
-		cancelled = true
-		currentTrack:Stop()
-		store:dispatch(actions.setCurrentPunchingBag(player.Name, nil))
-		prompt.ActionText = "Start Training"
-		inUse = false
-		humanoid.RootPart.CFrame = teleportPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
-		Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, true)
+		if connection.Connected then
+			disableSwitch:Fire(player)
+		end
 	end)
 end
 

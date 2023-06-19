@@ -55,10 +55,10 @@ local function handleEnemy(enemy)
 		return
 	end
 
-    HealthBar.new(NPCUI.Frame.Background.Frame):connect(enemy)
-    NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
+	HealthBar.new(NPCUI.Frame.Background.Frame):connect(enemy)
+	NPCUI:FindFirstChild("NPCName", true).Text = enemy.Name
 	healthValue.Value = maxHealth
-    NPCUI.Enabled = true
+	NPCUI.Enabled = true
 
 	local function startEnemyAnimations(): ()
 		local t = if isBoss then 1 else 0.5
@@ -88,16 +88,16 @@ local function handleEnemy(enemy)
 		table.remove(engagedPlayers, playerIndex)
 
 		if #engagedPlayers == 0 then
-			for inflictingPlayer in damageDealtByPlayer do
-				if not selectors.getCurrentTarget(store:getState(), inflictingPlayer.Name) then
-					local humanoid = if inflictingPlayer.Character
-						then inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
-						else nil
-					if humanoid then
-						humanoid.Health = humanoid.MaxHealth
-					end
-				end
-			end
+			--for inflictingPlayer in damageDealtByPlayer do
+			--if not selectors.getCurrentTarget(store:getState(), inflictingPlayer.Name) then
+			--local humanoid = if inflictingPlayer.Character
+			--	then inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
+			--	else nil
+			--if humanoid then
+			--	humanoid.Health = humanoid.MaxHealth
+			--end
+			--end
+			--end
 
 			totalDamageDealt = 0
 			healthValue.Value = maxHealth
@@ -140,13 +140,16 @@ local function handleEnemy(enemy)
 			debounceTable[player.UserId] = nil
 		end)
 
-		if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
+		if
+			selectors.getCurrentTarget(store:getState(), player.Name) == enemy
+			or CollectionService:HasTag(selectors.getCurrentTarget(store:getState(), player.Name), "PunchingBag")
+		then
 			return
 		else
 			store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
-			if not damageDealtByPlayer[player] then
-				humanoid.Health = humanoid.MaxHealth
-			end
+			--if not damageDealtByPlayer[player] then
+			--humanoid.Health = humanoid.MaxHealth
+			--end
 		end
 
 		local connections = {}
@@ -260,7 +263,7 @@ local function handleEnemy(enemy)
 
 		while
 			runAnimations
-			and humanoid.Health > 0
+			--and humanoid.Health > 0
 			and totalDamageDealt < maxHealth
 			and humanoid:IsDescendantOf(game)
 			and selectors.isPlayerLoaded(store:getState(), player.Name)
@@ -277,7 +280,12 @@ local function handleEnemy(enemy)
 
 			-- now receive damage from enemy
 			if not isBoss or counter % 2 == 0 then
-				humanoid.Health -= damageValue.Value
+				local damageToReceive = math.min(
+					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter") + damageValue.Value,
+					selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+				)
+				store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", damageToReceive))
+				--humanoid.Health -= damageValue.Value
 			end
 
 			-- need to quick exit for this one
@@ -315,14 +323,14 @@ local function handleEnemy(enemy)
 					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Gems", gemAmountToDrop))
 				end
 
-				if not selectors.getCurrentTarget(store:getState(), otherPlayer.Name) then
-					local otherHumanoid = otherPlayer.Character
-						and otherPlayer.Character:FindFirstChildOfClass "Humanoid"
-					if not otherHumanoid then
-						continue
-					end
-					otherHumanoid.Health = otherHumanoid.MaxHealth
-				end
+				--if not selectors.getCurrentTarget(store:getState(), otherPlayer.Name) then
+				--local otherHumanoid = otherPlayer.Character
+				--	and otherPlayer.Character:FindFirstChildOfClass "Humanoid"
+				--if not otherHumanoid then
+				--	continue
+				--end
+				--otherHumanoid.Health = otherHumanoid.MaxHealth
+				--end
 			end
 
 			enemy:Destroy()
