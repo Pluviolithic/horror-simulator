@@ -36,6 +36,7 @@ Promise.new(function(resolve)
 		WeaponShop = player.PlayerGui:WaitForChild "WeaponShop",
 		Jumpscares = player.PlayerGui:WaitForChild "Jumpscares",
 		PetInventory = player.PlayerGui:WaitForChild "PetInventory",
+		StrengthRanks = player.PlayerGui:WaitForChild "StrengthRanks",
 	}
 	resolve(interfaces)
 end):andThen(function(interfaces)
@@ -73,6 +74,20 @@ end):andThen(function(interfaces)
 					.. formatter.truncateMultiplier(
 						selectors.getStat(store:getState(), player.Name, "PetFearMultiplier")
 					)
+			end,
+		},
+		{
+			first = interfaces.Rank.Level.Text,
+			second = function()
+				return selectors.getStat(store:getState(), player.Name, "Rank")
+			end,
+		},
+		{
+			first = interfaces.StrengthRanks.Background.Background.MaxMeterText,
+			second = function()
+				return 'Max Meter: <font color="rgb(222, 124, 4)">'
+					.. selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+					.. "</font>"
 			end,
 		},
 	}

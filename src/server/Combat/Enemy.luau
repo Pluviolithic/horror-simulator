@@ -286,7 +286,10 @@ local function handleEnemy(enemy)
 				)
 				local fearMeterAddendum = fearMeterGoal
 					- selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
-				store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", fearMeterAddendum))
+
+				if fearMeterAddendum ~= 0 then
+					store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", fearMeterAddendum))
+				end
 				--humanoid.Health -= damageValue.Value
 			end
 

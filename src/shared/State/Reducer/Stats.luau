@@ -5,6 +5,7 @@ local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
+local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 
 local produce = Immut.produce
 
@@ -27,6 +28,10 @@ return Rodux.createReducer({}, {
 	incrementPlayerStat = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName][action.statName] += (action.incrementAmount or 1)
+			if action.statName == "Strength" then
+				draft[action.playerName].Rank = rankUtils.getRankFromStrength(draft[action.playerName][action.statName])
+				draft[action.playerName].MaxFearMeter = rankUtils.getMaxFearMeterFromRank(draft[action.playerName].Rank)
+			end
 		end)
 	end,
 	givePlayerPets = function(state, action)

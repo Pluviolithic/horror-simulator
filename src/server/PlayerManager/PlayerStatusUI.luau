@@ -32,12 +32,14 @@ function PlayerStatusUI:_updateUIFields(state)
 
 	playerUIFrame.PlayerName.Text = self._player.Name
 	playerUIFrame.Rank.Text = "Rank " .. selectors.getStat(state, self._player.Name, "Rank")
+	playerUIFrame.Scared.Visible = selectors.getStat(state, self._player.Name, "CurrentFearMeter")
+		== selectors.getStat(state, self._player.Name, "MaxFearMeter")
 
-	local humanoid: Humanoid = self._player.Character and self._player.Character:FindFirstChildWhichIsA "Humanoid"
+	--local humanoid: Humanoid = self._player.Character and self._player.Character:FindFirstChildWhichIsA "Humanoid"
 
-	if not humanoid then
-		return
-	end
+	--if not humanoid then
+	--	return
+	--end
 
 	--local healthDisplay = self._activePlayerUI.Health
 	--if selectors.getCurrentTarget(state, self._player.Name) then

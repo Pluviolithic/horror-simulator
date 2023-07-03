@@ -9,15 +9,15 @@ local playerStatePromise = require(Client.State.PlayerStatePromise)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(Client.State.Store)
 
-local minSize = UDim2.fromScale(0.053, 0.88)
-local maxSize = UDim2.fromScale(0.981, 0.88)
+local minSize = UDim2.fromScale(0.878, 0.043)
+local maxSize = UDim2.fromScale(0.878, 0.871)
 
 local function updateBarSize(state, bar)
 	local percentage = selectors.getStat(state, player.Name, "CurrentFearMeter")
 		/ selectors.getStat(state, player.Name, "MaxFearMeter")
-	local relativeBarHeight = (maxSize.X.Scale - minSize.X.Scale) * percentage
+	local relativeBarHeight = (maxSize.Y.Scale - minSize.Y.Scale) * percentage
 
-	bar.Size = UDim2.fromScale(minSize.X.Scale + relativeBarHeight, minSize.Y.Scale)
+	bar.Size = UDim2.fromScale(minSize.X.Scale, minSize.Y.Scale + relativeBarHeight)
 end
 
 local function updateBarText(state, textLabel)

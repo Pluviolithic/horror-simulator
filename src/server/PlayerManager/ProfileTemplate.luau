@@ -11,6 +11,7 @@ return {
 
 		MaxFearMeter = 100,
 		CurrentFearMeter = 0,
+		LastScaredTimestamp = -1,
 
 		LogInCount = 0,
 		HoursPlayed = 0,
