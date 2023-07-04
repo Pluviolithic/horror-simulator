@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local StarterGui = game:GetService "StarterGui"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
@@ -93,6 +94,7 @@ end):andThen(function(interfaces)
 	}
 
 	playerStatePromise:andThen(function()
+		StarterGui:SetCore("ResetButtonCallback", false)
 		updateDisplays(displays)
 		store.changed:connect(function()
 			updateDisplays(displays)

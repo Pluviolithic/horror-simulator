@@ -13,6 +13,12 @@ return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName] = Dict.mergeDeep(defaultStates.Stats, action.profileData.Stats)
+			if
+				draft[action.playerName].CurrentFearMeter == draft[action.playerName].MaxFearMeter
+				and (os.time() - draft[action.playerName].LastScaredTimestamp) > 120
+			then
+				draft[action.playerName].CurrentFearMeter = 0
+			end
 		end)
 	end,
 	removePlayer = function(state, action)
@@ -31,6 +37,22 @@ return Rodux.createReducer({}, {
 			if action.statName == "Strength" then
 				draft[action.playerName].Rank = rankUtils.getRankFromStrength(draft[action.playerName][action.statName])
 				draft[action.playerName].MaxFearMeter = rankUtils.getMaxFearMeterFromRank(draft[action.playerName].Rank)
+			elseif action.statName == "CurrentFearMeter" then
+				if draft[action.playerName].CurrentFearMeter == draft[action.playerName].MaxFearMeter then
+					draft[action.playerName].LastScaredTimestamp = os.time()
+				else
+					draft[action.playerName].LastScaredTimestamp = -1
+				end
+			end
+		end)
+	end,
+	setPlayerStat = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName][action.statName] = action.value
+			if action.statName == "CurrentFearMeter" then
+				if draft[action.playerName].CurrentFearMeter == draft[action.playerName].MaxFearMeter then
+					draft[action.playerName].LastScaredTimestamp = os.time()
+				end
 			end
 		end)
 	end,

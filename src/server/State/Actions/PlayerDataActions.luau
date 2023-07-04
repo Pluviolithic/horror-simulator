@@ -25,6 +25,14 @@ return {
 			}
 		end
 	),
+	setPlayerStat = makeActionCreator("setPlayerStat", function(playerName: string, statName: string, value: number)
+		return {
+			value = value,
+			playerName = playerName,
+			statName = statName,
+			shouldSave = true,
+		}
+	end),
 	resetPlayerData = makeActionCreator("resetPlayerData", function(playerName: string)
 		return {
 			playerName = playerName,

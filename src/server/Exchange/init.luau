@@ -98,7 +98,7 @@ local function handlePunchingBag(bag: any)
 				reductionAmount = -currentFearMeter
 			end
 
-			store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", -maxFearMeter / 10))
+			store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", reductionAmount))
 
 			task.wait(0.6)
 		end

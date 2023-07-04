@@ -42,37 +42,33 @@ function StrengthMeters:_initialize(): ()
 end
 
 function StrengthMeters:Refresh(): ()
-    local meters = self._ui.Background.ScrollingFrame:GetChildren()
-    local strength = selectors.getStat(store:getState(), player.Name, "Strength")
-    local currentRank = selectors.getStat(store:getState(), player.Name, "Rank")
-    for _, meter in meters do
-        if not meter:IsA("ImageLabel") then
-            continue
-        end
+	local meters = self._ui.Background.ScrollingFrame:GetChildren()
+	local strength = selectors.getStat(store:getState(), player.Name, "Strength")
+	local currentRank = selectors.getStat(store:getState(), player.Name, "Rank")
+	for _, meter in meters do
+		if not meter:IsA "ImageLabel" then
+			continue
+		end
 
-        local meterRank = tonumber(meter.Name:match("%d+"))
-        local percentComplete = math.clamp(
-            strength / rankUtils.getRankRequirement(meterRank),
-            0,
-            1
-        )
+		local meterRank = tonumber(meter.Name:match "%d+")
+		local percentComplete = math.clamp(strength / rankUtils.getRankRequirement(meterRank), 0, 1)
 
-        meter.Level.Text.Text = currentRank
-        meter.Background.Bar.Size = UDim2.fromScale(
-            minBarSize.X.Scale + (maxBarSize.X.Scale - minBarSize.X.Scale) * percentComplete,
-            minBarSize.Y.Scale
-        )
+		meter.Level.Text.Text = currentRank
+		meter.Background.Bar.Size = UDim2.fromScale(
+			minBarSize.X.Scale + (maxBarSize.X.Scale - minBarSize.X.Scale) * percentComplete,
+			minBarSize.Y.Scale
+		)
 
-        if not meter:FindFirstChild("Locked") then
-            continue
-        end
+		if not meter:FindFirstChild "Locked" then
+			continue
+		end
 
-        if meterRank > (currentRank + 1) then
-            meter.Locked.Visible = true
-        else
-            meter.Locked.Visible = false
-        end
-    end
+		if meterRank > (currentRank + 1) then
+			meter.Locked.Visible = true
+		else
+			meter.Locked.Visible = false
+		end
+	end
 end
 
 task.spawn(StrengthMeters._initialize, StrengthMeters)

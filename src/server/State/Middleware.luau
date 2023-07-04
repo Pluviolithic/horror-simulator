@@ -95,22 +95,24 @@ local function instantiatePetsMiddleware(nextDispatch, store)
 	return function(action)
 		local oldState = store:getState()
 		nextDispatch(action)
-		if not action.playerName or not selectors.isPlayerLoaded(store:getState(), action.playerName) then
-			if action.playerName and workspace.PetModels:FindFirstChild(action.playerName) then
-				workspace.PetModels[action.playerName]:Destroy()
+		task.spawn(function()
+			if not action.playerName or not selectors.isPlayerLoaded(store:getState(), action.playerName) then
+				if action.playerName and workspace.PetModels:FindFirstChild(action.playerName) then
+					workspace.PetModels[action.playerName]:Destroy()
+				end
+				return
 			end
-			return
-		end
-		if
-			not selectors.isPlayerLoaded(oldState, action.playerName)
-			or Sift.Dictionary.equalsDeep(
-				selectors.getEquippedPets(oldState, action.playerName),
-				selectors.getEquippedPets(store:getState(), action.playerName)
-			)
-		then
-			return
-		end
-		petUtils.instantiatePets(action.playerName, selectors.getEquippedPets(store:getState(), action.playerName))
+			if
+				not selectors.isPlayerLoaded(oldState, action.playerName)
+				or Sift.Dictionary.equalsDeep(
+					selectors.getEquippedPets(oldState, action.playerName),
+					selectors.getEquippedPets(store:getState(), action.playerName)
+				)
+			then
+				return
+			end
+			petUtils.instantiatePets(action.playerName, selectors.getEquippedPets(store:getState(), action.playerName))
+		end)
 	end
 end
 

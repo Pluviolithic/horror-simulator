@@ -21,7 +21,7 @@ return {
 	getMaxFearMeterFromRank = function(rank: number): number
 		return strengthRanksFolder["Rank" .. rank].MaxMeter.Value
 	end,
-    getRankRequirement = function(rank: number): number
-        return strengthRanks[rank]
-    end,
+	getRankRequirement = function(rank: number): number
+		return strengthRanks[rank]
+	end,
 }
