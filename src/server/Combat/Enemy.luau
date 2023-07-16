@@ -238,7 +238,14 @@ local function handleEnemy(enemy)
 				currentTrack:Destroy()
 				currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
-				task.wait(0.5)
+				if
+					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+					== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+				then
+					task.wait(1)
+				else
+					task.wait(0.5)
+				end
 			until not runAnimations
 		end)
 
@@ -269,14 +276,20 @@ local function handleEnemy(enemy)
 			and selectors.isPlayerLoaded(store:getState(), player.Name)
 			and selectors.getCurrentTarget(store:getState(), player.Name) == enemy
 		do
-			local damageToDeal: number = math.clamp(
-				selectors.getStat(store:getState(), player.Name, "Strength") * damageMultiplier,
-				0,
-				maxHealth - totalDamageDealt
-			)
-			totalDamageDealt += damageToDeal
-			damageDealtByPlayer[player] = (damageDealtByPlayer[player] or 0) + damageToDeal
-			healthValue.Value = maxHealth - totalDamageDealt
+			if
+				selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+					~= selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+				or counter % 2 == 0
+			then
+				local damageToDeal: number = math.clamp(
+					selectors.getStat(store:getState(), player.Name, "Strength") * damageMultiplier,
+					0,
+					maxHealth - totalDamageDealt
+				)
+				totalDamageDealt += damageToDeal
+				damageDealtByPlayer[player] = (damageDealtByPlayer[player] or 0) + damageToDeal
+				healthValue.Value = maxHealth - totalDamageDealt
+			end
 
 			-- now receive damage from enemy
 			if not isBoss or counter % 2 == 0 then

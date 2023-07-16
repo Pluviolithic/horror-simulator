@@ -6,33 +6,46 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-local function isScared(player, state)
-	return selectors.getStat(state, player.Name, "CurrentFearMeter")
-			== selectors.getStat(state, player.Name, "MaxFearMeter")
-		and (os.time() - selectors.getStat(state, player.Name, "LastScaredTimestamp")) < 121
+local trackedPlayers = {}
+
+local function isScared(playerName, state)
+	return selectors.getStat(state, playerName, "CurrentFearMeter")
+			== selectors.getStat(state, playerName, "MaxFearMeter")
+		and (os.time() - selectors.getStat(state, playerName, "LastScaredTimestamp")) < 121
 end
 
 local function trackPlayerScaredStatus(player)
+	local playerName = player.Name
+	if trackedPlayers[player] then
+		return
+	end
+	trackedPlayers[player] = true
+
 	repeat
 		task.wait(0.25)
-	until not isScared(player, store:getState())
+	until not selectors.isPlayerLoaded(store:getState(), playerName) or not isScared(playerName, store:getState())
+	print "tracking ended"
 
 	if
-		selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
-		== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+		selectors.isPlayerLoaded(store:getState(), playerName)
+		and selectors.getStat(store:getState(), playerName, "CurrentFearMeter")
+			== selectors.getStat(store:getState(), playerName, "MaxFearMeter")
 	then
-		store:dispatch(actions.setPlayerStat(player.Name, "CurrentFearMeter", 0))
+		store:dispatch(actions.setPlayerStat(playerName, "CurrentFearMeter", 0))
 	end
+
+	trackedPlayers[player] = nil
 end
 
-store.changed:connect(function(newState, oldState)
+store.changed:connect(function(newState)
+	print "heard update"
 	for _, player in Players:GetPlayers() do
-		if not selectors.isPlayerLoaded(newState, player) or not selectors.isPlayerLoaded(oldState, player) then
+		if not selectors.isPlayerLoaded(newState, player.Name) then
 			continue
 		end
 
-		if isScared(player, newState) and not isScared(player, oldState) then
-			task.spawn(trackPlayerScaredStatus, newState)
+		if isScared(player.Name, newState) then
+			task.spawn(trackPlayerScaredStatus, player)
 		end
 	end
 end)

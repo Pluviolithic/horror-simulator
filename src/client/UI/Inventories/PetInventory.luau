@@ -171,10 +171,6 @@ function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, lock
 end
 
 function PetInventory:Refresh()
-	if not selectors.isPlayerLoaded(store:getState(), player.Name) then
-		return
-	end
-
 	if
 		selectors.getStat(store:getState(), player.Name, "MaxPetCount") == 180
 		and self._ui.Background.Storage:FindFirstChild "Buy"

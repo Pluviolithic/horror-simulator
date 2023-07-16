@@ -133,10 +133,6 @@ end
 function WeaponShop:Refresh(): ()
 	local restAreLocked: boolean = false
 
-	if not selectors.isPlayerLoaded(store:getState(), player.Name) then
-		return
-	end
-
 	self:ClearFocusedDisplay()
 
 	for _, button in self._itemButtons do

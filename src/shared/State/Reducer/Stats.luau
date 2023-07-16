@@ -49,7 +49,10 @@ return Rodux.createReducer({}, {
 	setPlayerStat = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName][action.statName] = action.value
-			if action.statName == "CurrentFearMeter" then
+			if action.statName == "Strength" then
+				draft[action.playerName].Rank = rankUtils.getRankFromStrength(draft[action.playerName][action.statName])
+				draft[action.playerName].MaxFearMeter = rankUtils.getMaxFearMeterFromRank(draft[action.playerName].Rank)
+			elseif action.statName == "CurrentFearMeter" then
 				if draft[action.playerName].CurrentFearMeter == draft[action.playerName].MaxFearMeter then
 					draft[action.playerName].LastScaredTimestamp = os.time()
 				end

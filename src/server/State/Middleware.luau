@@ -2,13 +2,13 @@ local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
-local Sift = require(ReplicatedStorage.Common.lib.Sift)
+--local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
-local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
+--local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
 local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
@@ -91,6 +91,7 @@ local function updateLeaderstatsMiddleware(nextDispatch, store)
 	end
 end
 
+--[[
 local function instantiatePetsMiddleware(nextDispatch, store)
 	return function(action)
 		local oldState = store:getState()
@@ -115,11 +116,13 @@ local function instantiatePetsMiddleware(nextDispatch, store)
 		end)
 	end
 end
+--]]
 
 return {
 	updateClientMiddleware,
 	savePlayerDataMiddleware,
 	updateLeaderstatsMiddleware,
-	instantiatePetsMiddleware,
+	--instantiatePetsMiddleware,
+	--trackPlayerScaredStatusMiddleware,
 	if displayServerLogs then Rodux.loggerMiddleware else nil,
 }

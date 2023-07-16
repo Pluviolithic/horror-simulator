@@ -26,6 +26,8 @@ end
 function StrengthMeters:_initialize(): ()
 	interfaces[self] = true
 
+	self._secondaryUIBar = player.PlayerGui:WaitForChild "Rank"
+
 	player.PlayerGui:WaitForChild("Rank").Open.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)
@@ -45,15 +47,25 @@ function StrengthMeters:Refresh(): ()
 	local meters = self._ui.Background.ScrollingFrame:GetChildren()
 	local strength = selectors.getStat(store:getState(), player.Name, "Strength")
 	local currentRank = selectors.getStat(store:getState(), player.Name, "Rank")
+
+	table.insert(meters, self._secondaryUIBar)
+
 	for _, meter in meters do
 		if not meter:IsA "ImageLabel" then
 			continue
 		end
 
 		local meterRank = tonumber(meter.Name:match "%d+")
+		if not meterRank then
+			meterRank = currentRank
+		end
+
 		local percentComplete = math.clamp(strength / rankUtils.getRankRequirement(meterRank), 0, 1)
 
-		meter.Level.Text.Text = currentRank
+		if meter:FindFirstChild "Level" then
+			meter.Level.Text.Text = currentRank
+		end
+
 		meter.Background.Bar.Size = UDim2.fromScale(
 			minBarSize.X.Scale + (maxBarSize.X.Scale - minBarSize.X.Scale) * percentComplete,
 			minBarSize.Y.Scale

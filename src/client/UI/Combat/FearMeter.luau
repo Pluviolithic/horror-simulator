@@ -44,19 +44,49 @@ playerStatePromise:andThen(function()
 	local currentState = store:getState()
 	local bar = fearMeter.Background.Bar
 
+	local function hideFearMeter()
+		fearMeter.Fear.Visible = false
+		fearMeter.Icon.Visible = false
+		fearMeter.Image.Visible = false
+		fearMeter.Enable.Visible = true
+		fearMeter.Disable.Visible = false
+		fearMeter.Background.Visible = false
+	end
+
 	updateBarSize(store:getState(), bar)
 	updateBarText(store:getState(), fearMeter.Fear)
-	store.changed:connect(function(newState)
+	store.changed:connect(function(newState, oldState)
 		currentState = newState
 		updateBarSize(newState, bar)
 		updateBarText(newState, fearMeter.Fear)
+
+        if not selectors.isPlayerLoaded(oldState, player.Name) then
+            return
+        end
+
+        if selectors.getCurrentTarget(newState, player.Name) ~= selectors.getCurrentTarget(oldState, player.Name) then
+            if selectors.getStat(newState, player.Name, "CurrentFearMeter") >= selectors.getStat(newState, player.Name, "MaxFearMeter") * 0.9 then
+                hideFearMeter()
+            end
+        end
 	end)
+
+	fearMeter.Enable.Activated:Connect(function()
+		fearMeter.Fear.Visible = true
+		fearMeter.Icon.Visible = true
+		fearMeter.Image.Visible = true
+		fearMeter.Enable.Visible = false
+		fearMeter.Disable.Visible = true
+		fearMeter.Background.Visible = true
+	end)
+
+	fearMeter.Disable.Activated:Connect(hideFearMeter)
 
 	RunService.RenderStepped:Connect(function()
 		local secondsSinceEpoch = workspace:GetServerTimeNow()
 		local secondsSinceLastScared = secondsSinceEpoch
 			- selectors.getStat(currentState, player.Name, "LastScaredTimestamp")
-		if secondsSinceLastScared < 121 then
+		if secondsSinceLastScared < 120 then
 			fearMeter.ScaredTextTimer.Text = string.format(
 				"Lower your fear meter by working out or wait " .. "%02i:%02i" .. " minutes.",
 				(120 - secondsSinceLastScared) / 60 % 60,
