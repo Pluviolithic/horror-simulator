@@ -30,7 +30,7 @@ function PlayerStatusUI:_updateUIFields(state)
 	end
 	local playerUIFrame = self._activePlayerUI.Frame
 
-	playerUIFrame.PlayerName.Text = self._player.Name
+	playerUIFrame.PlayerName.Text = self._player.DisplayName
 	playerUIFrame.Rank.Text = "Rank " .. selectors.getStat(state, self._player.Name, "Rank")
 	playerUIFrame.Scared.Visible = selectors.getStat(state, self._player.Name, "CurrentFearMeter")
 		== selectors.getStat(state, self._player.Name, "MaxFearMeter")
