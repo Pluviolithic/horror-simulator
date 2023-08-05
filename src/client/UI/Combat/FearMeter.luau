@@ -53,6 +53,15 @@ playerStatePromise:andThen(function()
 		fearMeter.Background.Visible = false
 	end
 
+	local function revealFearMeter()
+		fearMeter.Fear.Visible = true
+		fearMeter.Icon.Visible = true
+		fearMeter.Image.Visible = true
+		fearMeter.Enable.Visible = false
+		fearMeter.Disable.Visible = true
+		fearMeter.Background.Visible = true
+	end
+
 	updateBarSize(store:getState(), bar)
 	updateBarText(store:getState(), fearMeter.Fear)
 	store.changed:connect(function(newState, oldState)
@@ -60,26 +69,26 @@ playerStatePromise:andThen(function()
 		updateBarSize(newState, bar)
 		updateBarText(newState, fearMeter.Fear)
 
-        if not selectors.isPlayerLoaded(oldState, player.Name) then
-            return
-        end
+		if not selectors.isPlayerLoaded(oldState, player.Name) then
+			return
+		end
 
-        if selectors.getCurrentTarget(newState, player.Name) ~= selectors.getCurrentTarget(oldState, player.Name) then
-            if selectors.getStat(newState, player.Name, "CurrentFearMeter") >= selectors.getStat(newState, player.Name, "MaxFearMeter") * 0.9 then
-                hideFearMeter()
-            end
-        end
+		local currentTarget = selectors.getCurrentTarget(newState, player.Name)
+		local previousTarget = selectors.getCurrentTarget(oldState, player.Name)
+
+		if currentTarget ~= previousTarget and currentTarget then
+			if
+				selectors.getStat(newState, player.Name, "CurrentFearMeter")
+				>= selectors.getStat(newState, player.Name, "MaxFearMeter") * 0.9
+			then
+				hideFearMeter()
+			end
+		elseif previousTarget and not currentTarget then
+			revealFearMeter()
+		end
 	end)
 
-	fearMeter.Enable.Activated:Connect(function()
-		fearMeter.Fear.Visible = true
-		fearMeter.Icon.Visible = true
-		fearMeter.Image.Visible = true
-		fearMeter.Enable.Visible = false
-		fearMeter.Disable.Visible = true
-		fearMeter.Background.Visible = true
-	end)
-
+	fearMeter.Enable.Activated:Connect(revealFearMeter)
 	fearMeter.Disable.Activated:Connect(hideFearMeter)
 
 	RunService.RenderStepped:Connect(function()
