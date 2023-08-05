@@ -328,7 +328,7 @@ local function handleEnemy(enemy)
 					continue
 				end
 
-				local petFearMultiplier = selectors.getStat(store:getState(), player.Name, "PetFearMultiplier")
+				local petFearMultiplier = selectors.getStat(store:getState(), otherPlayer.Name, "PetFearMultiplier")
 				if petFearMultiplier > 0 then
 					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage * petFearMultiplier))
 				else
