@@ -23,7 +23,6 @@ local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
 -- eventually add most of these to a config folder
 local hatchTime: number = 3
-local eggGemPrice: number = 50
 local hatching: boolean = false
 local hatchDisplayTime: number = 4
 local maxActivationDistance: number = 15
@@ -33,6 +32,7 @@ local autoLastEnabled = -1
 local autoLastDisabled = 0
 
 local rarityColorConfig = ReplicatedStorage.Config.RarityColors
+local eggGemPricesConfig = ReplicatedStorage.Config.Pets.Prices
 
 local petAreas = {}
 local rarityListeners = {}
@@ -102,6 +102,7 @@ function displayPurchaseResults(results: { string }?, areaName: string, count: n
 	end
 
 	if auto and autoLastEnabled > autoLastDisabled then
+		local eggGemPrice = eggGemPricesConfig[areaName].Value
 		if
 			selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count
 				> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
@@ -119,8 +120,9 @@ function displayPurchaseResults(results: { string }?, areaName: string, count: n
 end
 
 local function handleShop(shop): ()
-	local areaName: string = shop.Name:sub(1, -6)
-	local debounce: boolean = true
+	local areaName = shop.Name:sub(1, -6)
+	local debounce = true
+	local eggGemPrice = eggGemPricesConfig[areaName].Value
 	local function buyEgg(count: number, auto: boolean): ()
 		if not debounce then
 			return
