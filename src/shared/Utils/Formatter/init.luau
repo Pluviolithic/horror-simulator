@@ -9,7 +9,7 @@ function Formatter.formatNumberWithSuffix(n: number): string
 	local power: number = math.floor(getPower(n) / 3)
 
 	if power < 1 then
-		return tostring(n)
+		return tostring(math.round(n))
 	end
 
 	local nString: string = tostring(n / 10 ^ (power * 3))
