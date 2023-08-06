@@ -154,6 +154,7 @@ Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
 end)
 
 Remotes.Server:Get("UnequipAllPets"):Connect(function(player: Player)
+	store:dispatch(actions.unlockPlayerPets(player.Name, selectors.getEquippedPets(store:getState(), player.Name)))
 	store:dispatch(actions.unequipPlayerPets(player.Name, selectors.getEquippedPets(store:getState(), player.Name)))
 	return 0
 end)
