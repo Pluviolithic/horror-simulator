@@ -211,7 +211,10 @@ local function handleEnemy(enemy)
 			end)
 		)
 
-		task.wait(player:DistanceFromCharacter(rootPart.Position) / humanoid.WalkSpeed)
+		--task.wait(player:DistanceFromCharacter(rootPart.Position) / humanoid.WalkSpeed)
+		repeat
+			task.wait(0.25)
+		until cleanedUp or (player:DistanceFromCharacter(rootPart.Position) <= fightRange)
 
 		if cleanedUp then
 			return
