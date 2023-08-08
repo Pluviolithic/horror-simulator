@@ -24,7 +24,6 @@ local function trackPlayerScaredStatus(player)
 	repeat
 		task.wait(0.25)
 	until not selectors.isPlayerLoaded(store:getState(), playerName) or not isScared(playerName, store:getState())
-	print "tracking ended"
 
 	if
 		selectors.isPlayerLoaded(store:getState(), playerName)
@@ -38,7 +37,6 @@ local function trackPlayerScaredStatus(player)
 end
 
 store.changed:connect(function(newState)
-	print "heard update"
 	for _, player in Players:GetPlayers() do
 		if not selectors.isPlayerLoaded(newState, player.Name) then
 			continue
