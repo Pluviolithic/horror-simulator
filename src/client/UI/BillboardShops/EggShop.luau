@@ -319,7 +319,7 @@ CollectionService:GetInstanceAddedSignal("EggShop"):Connect(handleShop)
 
 local function updateFoundsDisplay(foundPets): ()
 	for petName in foundPets do
-		local petUI = player.PlayerGui[petAreas[petName] .. "EggUI"].Background.Pets[petName]
+		local petUI = player.PlayerGui:WaitForChild(petAreas[petName] .. "EggUI").Background.Pets[petName]
 		petUI.PetName.Text = petName
 		petUI.PetImage.ImageColor3 = Color3.fromRGB(255, 255, 255)
 		petUI.PetImage.ImageTransparency = 0
