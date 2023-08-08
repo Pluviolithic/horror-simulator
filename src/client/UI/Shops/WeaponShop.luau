@@ -11,9 +11,10 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 
-local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
+local weapons = ReplicatedStorage.Weapons
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local gamepassPrices = ReplicatedStorage.Config.GamepassData.Prices
+local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
 
 WeaponShop.Trigger = "WeaponShop"
 WeaponShop._itemButtons = WeaponShop._ui.LeftBackground.ScrollingFrame:GetChildren()
@@ -42,6 +43,8 @@ function WeaponShop:_initialize(): ()
 
 		button.Activated:Connect(function()
 			local focusedDisplay = WeaponShop._ui.RightBackground
+			local price = weapons[button.Name].Price.Value
+			--local damage = weapons[button.Name].Price.Value
 
 			if button:FindFirstChild "Locked" and button.Locked.Visible then
 				return
@@ -55,6 +58,9 @@ function WeaponShop:_initialize(): ()
 			focusedDisplay.WeaponName.Text = button.WeaponName.Text
 			focusedDisplay.WeaponName.Visible = true
 
+			-- should change this to reference damage in weapon
+			-- probably requires string modification
+			-- TODO: ask Ex
 			focusedDisplay.Damage.Text = button.Damage.Value
 			focusedDisplay.Damage.Visible = true
 			focusedDisplay.DamageIcon.Visible = true
@@ -96,9 +102,7 @@ function WeaponShop:_initialize(): ()
 					focusedDisplay.GreenButton.Text.Text = "Purchase"
 					focusedDisplay.GreenButton.Visible = true
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
-						if
-							selectors.getStat(store:getState(), player.Name, "Gems") < tonumber(button.GemPrice.Text)
-						then
+						if selectors.getStat(store:getState(), player.Name, "Gems") < price then
 							return
 						end
 						Remotes.Client:Get("PurchaseWeapon"):CallServerAsync(button.Name)
