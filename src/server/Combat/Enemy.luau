@@ -22,7 +22,7 @@ local function handleEnemy(enemy)
 	local clickDetector: ClickDetector = enemy.Hitbox.ClickDetector
 	local goalPosition: Vector3 = enemy.Hitbox.Position
 	local enemyHumanoid = enemy.Humanoid
-	local maxHealth: number = enemyHumanoid.MaxHealth
+	local maxHealth: number = enemy.Configuration.Health
 
 	local NPCUI = enemy:FindFirstChild("NPCUI", true)
 	local healthValue: NumberValue = enemy.Configuration.Health
@@ -101,7 +101,6 @@ local function handleEnemy(enemy)
 
 			totalDamageDealt = 0
 			healthValue.Value = maxHealth
-			enemyHumanoid.Health = maxHealth
 			table.clear(damageDealtByPlayer)
 
 			endEnemyAnimations()
