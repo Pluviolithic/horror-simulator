@@ -55,11 +55,12 @@ function HealthBar:connect(humanoid: any)
 			return
 		end
 
-		local healthValue: NumberValue = humanoid.Configuration.Health
+		local healthValue: NumberValue = humanoid.Configuration.FearHealth
+		local maxHealth = healthValue.Value
 		self._healthBarConnection = healthValue:GetPropertyChangedSignal("Value"):Connect(function()
-			self:update(healthValue.Value, humanoidInstance.MaxHealth)
+			self:update(healthValue.Value, maxHealth)
 		end)
-		self:update(healthValue.Value, humanoidInstance.MaxHealth)
+		self:update(healthValue.Value, maxHealth)
 	end
 end
 

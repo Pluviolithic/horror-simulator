@@ -22,10 +22,10 @@ local function handleEnemy(enemy)
 	local clickDetector: ClickDetector = enemy.Hitbox.ClickDetector
 	local goalPosition: Vector3 = enemy.Hitbox.Position
 	local enemyHumanoid = enemy.Humanoid
-	local maxHealth: number = enemy.Configuration.Health
+	local maxHealth: number = enemy.Configuration.FearHealth.Value
 
 	local NPCUI = enemy:FindFirstChild("NPCUI", true)
-	local healthValue: NumberValue = enemy.Configuration.Health
+	local healthValue: NumberValue = enemy.Configuration.FearHealth
 	local damageValue: NumberValue = enemy.Configuration.Damage
 	local fightRange: number = enemy.Configuration.FightRange.Value
 	local gemAmountToDrop: number = enemy.Configuration.Gems.Value

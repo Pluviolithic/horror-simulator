@@ -28,7 +28,7 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].AwardedGamepasses[action.gamepassID] = true
 		end)
 	end,
-	givePlayerTeleport = function(state, action)
+	givePlayerTeleporter = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName].PurchasedTeleporters[action.areaName] = true
 		end)

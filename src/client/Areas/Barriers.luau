@@ -16,7 +16,13 @@ local debounce = false
 
 local function unlockArea(areaName: string, lock: boolean?)
 	for _, barrier in CollectionService:GetTagged(areaName .. "Barrier") do
+		local barrierUI = barrier:FindFirstChild "BarrierLockDisplay"
+
 		barrier.CanCollide = if lock then true else false
+
+		if barrierUI then
+			barrierUI.Enabled = if lock then true else false
+		end
 	end
 end
 
