@@ -8,17 +8,23 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 
+local debounce = false
 local player = Players.LocalPlayer
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 
 local teleporters = {}
-local debounce = false
+local originalTransparencies = {}
 
 local function unlockArea(areaName: string, lock: boolean?)
 	for _, barrier in CollectionService:GetTagged(areaName .. "Barrier") do
 		local barrierUI = barrier:FindFirstChild "BarrierLockDisplay"
 
+		if not originalTransparencies[barrier] then
+			originalTransparencies[barrier] = barrier.Transparency
+		end
+
 		barrier.CanCollide = if lock then true else false
+		barrier.Transparency = if lock then originalTransparencies[barrier] else 1
 
 		if barrierUI then
 			barrierUI.Enabled = if lock then true else false
