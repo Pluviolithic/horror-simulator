@@ -77,7 +77,11 @@ function StrengthMeters:Refresh(): ()
 	end
 
 	local percentComplete = math.clamp(
-		strength / (rankUtils.getRankRequirement(rankUtils.getRankFromStrength(strength) + 1) or strength),
+		strength
+			/ (
+				rankUtils.getRankRequirement(rankUtils.getRankFromStrength(strength) + 1)
+				or rankUtils.getRankFromStrength(strength)
+			),
 		0,
 		1
 	)
