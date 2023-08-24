@@ -10,6 +10,7 @@ return {
 		Rank = 1,
 
 		WalkSpeed = 14,
+		RequiredFear = 5,
 		MaxFearMeter = 100,
 		CurrentFearMeter = 0,
 		LastScaredTimestamp = -1,

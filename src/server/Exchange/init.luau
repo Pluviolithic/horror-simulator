@@ -14,7 +14,9 @@ local disableSwitch = Instance.new "BindableEvent"
 
 local function handlePunchingBag(bag: any)
 	local prompt: ProximityPrompt = bag.HumanoidLockPart.Prompt
+	local colorParts = bag:FindFirstChild("Color"):GetChildren()
 	local teleportPart: BasePart = bag.TPPart
+	local multiplier = bag.Multiplier.Value
 	local inUse: boolean = false
 
 	prompt.Triggered:Connect(function(player: Player)
@@ -24,7 +26,7 @@ local function handlePunchingBag(bag: any)
 			inUse
 			or selectors.getCurrentTarget(store:getState(), player.Name)
 			or selectors.getStat(store:getState(), player.Name, "Fear")
-				< selectors.getStat(store:getState(), player.Name, "Strength") * 5
+				< selectors.getStat(store:getState(), player.Name, "RequiredFear")
 		then
 			if selectors.getCurrentTarget(store:getState(), player.Name) == bag and not cancelled then
 				disableSwitch:Fire(player)
@@ -43,6 +45,10 @@ local function handlePunchingBag(bag: any)
 		humanoid.RootPart.CFrame = bag.HumanoidLockPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
 		prompt.ActionText = "Stop Training"
 
+		for _, part in colorParts do
+			part.Color = Color3.fromRGB(0, 255, 0)
+		end
+
 		local animationInstances: { Animation } = animations:FindFirstChild("Fists"):GetChildren()
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
@@ -58,6 +64,10 @@ local function handlePunchingBag(bag: any)
 				inUse = false
 				humanoid.RootPart.CFrame = teleportPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
 				Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, true)
+
+				for _, part in colorParts do
+					part.Color = Color3.fromRGB(231, 0, 0)
+				end
 			end
 		end)
 
@@ -77,18 +87,18 @@ local function handlePunchingBag(bag: any)
 			and selectors.getStat(store:getState(), player.Name, "Fear") >= selectors.getStat(
 				store:getState(),
 				player.Name,
-				"Strength"
-			) * 5
+				"RequiredFear"
+			)
 			and not cancelled
 		do
 			store:dispatch(
 				actions.incrementPlayerStat(
 					player.Name,
 					"Fear",
-					-selectors.getStat(store:getState(), player.Name, "Strength") * 5
+					-selectors.getStat(store:getState(), player.Name, "RequiredFear")
 				)
 			)
-			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", 1))
+			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", 1 * multiplier))
 
 			local maxFearMeter = selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 			local currentFearMeter = selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")

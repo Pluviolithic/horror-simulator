@@ -18,7 +18,7 @@ end)
 
 local function updateRequiredFearUIs(state, UIs)
 	for _, UI in UIs do
-		UI.Text = formatter.formatNumberWithSuffix(selectors.getStat(state, player.Name, "Strength") * 5)
+		UI.Text = formatter.formatNumberWithSuffix(selectors.getStat(state, player.Name, "RequiredFear"))
 	end
 end
 
