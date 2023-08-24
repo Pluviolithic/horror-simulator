@@ -45,7 +45,7 @@ petUtils = {
 			return a.Multiplier.Value > b.Multiplier.Value
 		end)
 
-		for i = 1, n do
+		for i = 1, math.min(n, #sortedPets) do
 			table.insert(bestPets, sortedPets[i].Name)
 		end
 
