@@ -15,6 +15,7 @@ local weapons = ReplicatedStorage.Weapons
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local gamepassPrices = ReplicatedStorage.Config.GamepassData.Prices
 local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
+local mainUI = player.PlayerGui:WaitForChild "MainUI"
 
 WeaponShop.Trigger = "WeaponShop"
 WeaponShop._itemButtons = WeaponShop._ui.LeftBackground.ScrollingFrame:GetChildren()
@@ -34,6 +35,10 @@ function WeaponShop:_initialize(): ()
 		then
 			WeaponShop:Refresh()
 		end
+	end)
+
+	mainUI.WeaponShop.Activated:Connect(function()
+		self:setEnabled(not self._isOpen)
 	end)
 
 	for _, button in WeaponShop._itemButtons do
