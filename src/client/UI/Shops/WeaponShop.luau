@@ -48,7 +48,10 @@ function WeaponShop:_initialize(): ()
 
 		button.Activated:Connect(function()
 			local focusedDisplay = WeaponShop._ui.RightBackground
-			local price = weapons[button.Name].Price.Value
+			local price = weapons[button.Name]:FindFirstChild "Price"
+			if price then
+				price = price.Value
+			end
 			--local damage = weapons[button.Name].Price.Value
 
 			if button:FindFirstChild "Locked" and button.Locked.Visible then
