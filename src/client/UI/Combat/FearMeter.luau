@@ -1,6 +1,7 @@
 local Players = game:GetService "Players"
 local RunService = game:GetService "RunService"
 local StarterPlayer = game:GetService "StarterPlayer"
+local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Client = StarterPlayer.StarterPlayerScripts.Client
@@ -79,7 +80,13 @@ playerStatePromise:andThen(function()
 		if currentTarget ~= previousTarget and currentTarget then
 			if
 				selectors.getStat(newState, player.Name, "CurrentFearMeter")
-				>= selectors.getStat(newState, player.Name, "MaxFearMeter") * 0.9
+					>= selectors.getStat(newState, player.Name, "MaxFearMeter") * 0.9
+				and selectors.getStat(newState, player.Name, "CurrentFearMeter") ~= selectors.getStat(
+					newState,
+					player.Name,
+					"MaxFearMeter"
+				)
+				and not CollectionService:HasTag(currentTarget, "PunchingBag")
 			then
 				hideFearMeter()
 			end
