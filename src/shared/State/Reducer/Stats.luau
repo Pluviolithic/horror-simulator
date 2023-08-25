@@ -8,6 +8,7 @@ local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 
 local produce = Immut.produce
+local baseRequiredFear = game:GetService("ReplicatedStorage").Config.Workout.RequiredFear.Value
 
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
@@ -37,7 +38,7 @@ return Rodux.createReducer({}, {
 			if action.statName == "Strength" then
 				draft[action.playerName].Rank = rankUtils.getRankFromStrength(draft[action.playerName][action.statName])
 				draft[action.playerName].MaxFearMeter = rankUtils.getMaxFearMeterFromRank(draft[action.playerName].Rank)
-				draft[action.playerName].RequiredFear = 5 * draft[action.playerName][action.statName]
+				draft[action.playerName].RequiredFear = baseRequiredFear * draft[action.playerName][action.statName]
 			elseif action.statName == "CurrentFearMeter" then
 				if draft[action.playerName].CurrentFearMeter == draft[action.playerName].MaxFearMeter then
 					draft[action.playerName].LastScaredTimestamp = os.time()
@@ -53,7 +54,7 @@ return Rodux.createReducer({}, {
 			if action.statName == "Strength" then
 				draft[action.playerName].Rank = rankUtils.getRankFromStrength(draft[action.playerName][action.statName])
 				draft[action.playerName].MaxFearMeter = rankUtils.getMaxFearMeterFromRank(draft[action.playerName].Rank)
-				draft[action.playerName].RequiredFear = 5 * draft[action.playerName][action.statName]
+				draft[action.playerName].RequiredFear = baseRequiredFear * draft[action.playerName][action.statName]
 			elseif action.statName == "CurrentFearMeter" then
 				if draft[action.playerName].CurrentFearMeter == draft[action.playerName].MaxFearMeter then
 					draft[action.playerName].LastScaredTimestamp = os.time()

@@ -3,14 +3,14 @@ return {
 		Fear = 0,
 		Kills = 0,
 		Rebirths = 0,
-		Strength = 1,
+		Strength = game:GetService("ReplicatedStorage").Config.Workout.Strength.Value,
 
 		Luck = 0,
 		Gems = 0,
 		Rank = 1,
 
 		WalkSpeed = 14,
-		RequiredFear = 5,
+		RequiredFear = game:GetService("ReplicatedStorage").Config.Workout.RequiredFear.Value,
 		MaxFearMeter = 100,
 		CurrentFearMeter = 0,
 		LastScaredTimestamp = -1,

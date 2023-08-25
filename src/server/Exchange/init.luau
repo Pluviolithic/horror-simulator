@@ -12,6 +12,9 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local animations = ReplicatedStorage.CombatAnimations
 local disableSwitch = Instance.new "BindableEvent"
 
+local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
+local baseStrength = ReplicatedStorage.Config.Workout.Strength.Value
+
 local function handlePunchingBag(bag: any)
 	local prompt: ProximityPrompt = bag.HumanoidLockPart.Prompt
 	local colorParts = bag:FindFirstChild("Color"):GetChildren()
@@ -78,7 +81,7 @@ local function handlePunchingBag(bag: any)
 				currentTrack:Destroy()
 				currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
-				task.wait(0.5)
+				task.wait(workoutSpeed)
 			until cancelled
 		end)
 
@@ -98,7 +101,7 @@ local function handlePunchingBag(bag: any)
 					-selectors.getStat(store:getState(), player.Name, "RequiredFear")
 				)
 			)
-			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", 1 * multiplier))
+			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", baseStrength * multiplier))
 
 			local maxFearMeter = selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 			local currentFearMeter = selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
@@ -110,7 +113,7 @@ local function handlePunchingBag(bag: any)
 
 			store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", reductionAmount))
 
-			task.wait(0.6)
+			task.wait(workoutSpeed)
 		end
 
 		if connection.Connected then
