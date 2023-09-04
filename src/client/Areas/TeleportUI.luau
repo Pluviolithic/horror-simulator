@@ -61,6 +61,8 @@ function TeleportUI:_initialize()
 		self:setEnabled(not self._isOpen)
 	end)
 
+	local confirmationJanitor = nil
+
 	for _, area in self._ui.Background.ScrollingFrame:GetChildren() do
 		if not area:IsA "ImageLabel" then
 			continue
@@ -73,7 +75,10 @@ function TeleportUI:_initialize()
 				if selectors.getStat(store:getState(), player.Name, "Gems") < area.Cost.Value then
 					return
 				end
-				confirmationUI({
+				if confirmationJanitor then
+					confirmationJanitor:Destroy()
+				end
+				confirmationJanitor = confirmationUI({
 					AreaName = area.Name,
 					Cost = area.Cost.Value,
 				}, function()
