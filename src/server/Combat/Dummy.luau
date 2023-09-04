@@ -9,13 +9,12 @@ local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-local fightRange: number = 2
-
 local function handleDummy(dummy)
 	local clickDetector: ClickDetector = dummy.Hitbox.ClickDetector
 	local goalPosition: Vector3 = dummy.Hitbox.Position
 	local fear: number = dummy.Configuration.Fear.Value
 	local NPCUI = dummy:FindFirstChild("NPCUI", true)
+	local fightRange: number = dummy.Configuration.FightRange.Value
 
 	NPCUI:FindFirstChild("NPCName", true).Text = "Dummy"
 
@@ -63,8 +62,7 @@ local function handleDummy(dummy)
 			return
 		end
 
-		local animationInstances: { Animation } =
-			animations[selectors.getEquippedWeapon(store:getState(), player.Name)]:GetChildren() :: { Animation }
+		local animationInstances: { Animation } = animations.Fists:GetChildren() :: { Animation }
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 		local runAnimations: boolean = true
@@ -99,7 +97,12 @@ local function handleDummy(dummy)
 			and selectors.isPlayerLoaded(store:getState(), player.Name)
 			and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
 		do
-			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
+			local petFearMultiplier = selectors.getStat(store:getState(), player.Name, "PetFearMultiplier")
+			if petFearMultiplier > 0 then
+				store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear * petFearMultiplier))
+			else
+				store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
+			end
 			task.wait(1)
 		end
 
