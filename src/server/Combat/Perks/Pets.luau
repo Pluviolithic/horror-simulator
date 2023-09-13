@@ -1,3 +1,4 @@
+local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
@@ -177,6 +178,20 @@ Remotes.Server:Get("EvolveAllPets"):Connect(function(player: Player)
 		until returnCode == 1
 	end
 	return 0
+end)
+
+store.changed:connect(function(newState, oldState)
+	for playerName, petInfo in newState.PetData do
+		if petInfo ~= oldState.PetData[playerName] then
+			petUtils.instantiatePets(playerName, selectors.getEquippedPets(store:getState(), playerName))
+		end
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+	if workspace.PetModels:FindFirstChild(player.Name) then
+		workspace.PetModels[player.Name]:Destroy()
+	end
 end)
 
 return 0

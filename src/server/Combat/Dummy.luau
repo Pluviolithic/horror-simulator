@@ -97,12 +97,13 @@ local function handleDummy(dummy)
 			and selectors.isPlayerLoaded(store:getState(), player.Name)
 			and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
 		do
-			local petFearMultiplier = selectors.getStat(store:getState(), player.Name, "PetFearMultiplier")
-			if petFearMultiplier > 0 then
-				store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear * petFearMultiplier))
-			else
-				store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
-			end
+			store:dispatch(
+				actions.incrementPlayerStat(
+					humanoid.Parent.Name,
+					"Fear",
+					fear * selectors.getStat(store:getState(), player.Name, "PetFearMultiplier")
+				)
+			)
 			task.wait(1)
 		end
 

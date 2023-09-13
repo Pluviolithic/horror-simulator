@@ -4,13 +4,25 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 
-local modelYOffset = ReplicatedStorage.Config.Pets.YOffset.Value
+local petConfig = ReplicatedStorage.Config.Pets
+local modelYOffset = petConfig.VerticalOffset.Value
+
+local baseBodyPosition = Instance.new "BodyPosition"
+local baseBodyGyro = Instance.new "BodyGyro"
+
+baseBodyPosition.D = petConfig.Dampening.Value
+baseBodyPosition.P = petConfig.Aggressiveness.Value
+baseBodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+
+baseBodyGyro.D = petConfig.Dampening.Value
+baseBodyGyro.P = petConfig.Aggressiveness.Value
+baseBodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
 
 local function calculatePosition(rootPart, numPets, i)
 	local petAngle = math.rad(180 / (numPets + 1))
 	local petRadius = 4
 
-	local bobOffset = Vector3.new(0, math.sin(tick() * 5 + i) * 0.3, 0)
+	local bobOffset = Vector3.new(0, math.sin(tick() * 5) * 0.3, 0)
 	local petOffset = Vector3.new(math.cos(petAngle * i) * petRadius, modelYOffset, math.sin(petAngle * i) * petRadius)
 	local petCFrame = rootPart.CFrame * CFrame.new(petOffset + bobOffset)
 	local lookVector = (rootPart.Position - petCFrame.Position).Unit
@@ -80,6 +92,8 @@ petUtils = {
 						newPet = table.remove(equippedPetModels, newPetIndex)
 					elseif isServer then
 						newPet = petUtils.getPet(petName):Clone()
+						baseBodyGyro:Clone().Parent = newPet.PrimaryPart
+						baseBodyPosition:Clone().Parent = newPet.PrimaryPart
 					else
 						continue
 					end

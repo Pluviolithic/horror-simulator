@@ -21,7 +21,7 @@ return {
 		MaxPetCount = 30,
 		CurrentPetCount = 0,
 		MaxPetEquipCount = 3,
-		PetFearMultiplier = 0,
+		PetFearMultiplier = 1,
 		CurrentPetEquipCount = 0,
 	},
 

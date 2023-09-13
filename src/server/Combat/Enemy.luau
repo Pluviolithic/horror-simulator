@@ -328,13 +328,13 @@ local function handleEnemy(enemy)
 					continue
 				end
 
-				local petFearMultiplier = selectors.getStat(store:getState(), otherPlayer.Name, "PetFearMultiplier")
-				if petFearMultiplier > 0 then
-					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage * petFearMultiplier))
-				else
-					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
-				end
-
+				store:dispatch(
+					actions.incrementPlayerStat(
+						otherPlayer.Name,
+						"Fear",
+						damage * selectors.getStat(store:getState(), otherPlayer.Name, "PetFearMultiplier")
+					)
+				)
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Kills"))
 
 				if damage >= maxHealth * gemRewardPercentage then
