@@ -104,9 +104,9 @@ petUtils = {
 					else
 						continue
 					end
-					newPet.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(Vector3.new(), look * Vector3.new(1, 0, 1))
+					newPet.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(position, look * Vector3.new(1, 0, 1))
 					newPet.PrimaryPart.BodyPosition.Position = position
-					newPet.PrimaryPart.Position = position
+					newPet:SetPrimaryPartCFrame(CFrame.lookAt(position, look * Vector3.new(1, 0, 1)))
 					newPet.Parent = petsModel
 
 					if isServer then

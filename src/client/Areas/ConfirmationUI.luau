@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local PlayerGui = Players.LocalPlayer:WaitForChild "PlayerGui"
 local confirmationUI = PlayerGui:WaitForChild("Teleport").Confirmation
+local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 
 --TODO: Set up to be a promise so don't have to yield for player gui
@@ -10,8 +11,11 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 return function(context, callback)
 	local destructor = Janitor.new()
 	confirmationUI.Visible = true
-	confirmationUI.WarningText.Text =
-		string.format("Unlock the %s teleport for %s Gems?", context.AreaName, context.Cost)
+	confirmationUI.WarningText.Text = string.format(
+		"Unlock the %s teleport for %s Gems?",
+		context.AreaName,
+		formatter.formatNumberWithSuffix(context.Cost)
+	)
 
 	destructor:Add(
 		confirmationUI.Purchase.Activated:Connect(function()

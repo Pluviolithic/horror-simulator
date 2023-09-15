@@ -11,7 +11,7 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(Client.State.Store)
 local camera = workspace.CurrentCamera
 
-local jumpscareGap = 240
+local jumpscareGap = 5
 local lastJumpscared = -1
 
 local function isScared(playerName, state)
@@ -41,8 +41,8 @@ local function jumpscarePlayer(enemyName)
 
 	local animationTrack = jumpscare.Enemy.AnimationController:LoadAnimation(animation)
 
-	animationTrack:AdjustSpeed(animationSpeed)
-	animationTrack:Play()
+	--animationTrack:AdjustSpeed(animationSpeed)
+	animationTrack:Play(animationSpeed)
 
 	task.spawn(function()
 		animationTrack.Ended:Wait()
@@ -57,7 +57,7 @@ playerStatePromise:andThen(function()
 		if
 			isScared(player.Name, newState)
 			and not isScared(player.Name, oldState)
-			and (os.time() - lastJumpscared) > 5
+			and (os.time() - lastJumpscared) > jumpscareGap
 		then
 			jumpscarePlayer(selectors.getCurrentTarget(newState, player.Name).Name)
 		end
