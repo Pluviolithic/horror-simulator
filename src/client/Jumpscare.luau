@@ -1,0 +1,67 @@
+local Players = game:GetService "Players"
+local StarterPlayer = game:GetService "StarterPlayer"
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
+
+local player = Players.LocalPlayer
+local Client = StarterPlayer.StarterPlayerScripts.Client
+
+local jumpscares = workspace:WaitForChild "Jumpscares"
+local playerStatePromise = require(Client.State.PlayerStatePromise)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
+local store = require(Client.State.Store)
+local camera = workspace.CurrentCamera
+
+local jumpscareGap = 240
+local lastJumpscared = -1
+
+local function isScared(playerName, state)
+	return selectors.getStat(state, playerName, "CurrentFearMeter")
+			== selectors.getStat(state, playerName, "MaxFearMeter")
+		and (os.time() - selectors.getStat(state, playerName, "LastScaredTimestamp")) < 121
+end
+
+local function jumpscarePlayer(enemyName)
+	local jumpscare = jumpscares[enemyName]
+	local animation = jumpscare.Enemy.Configuration.Anim
+	local animationSpeed = jumpscare.Enemy.Configuration.AnimSpeed.Value
+
+	camera.CameraType = Enum.CameraType.Scriptable
+	camera.CFrame = jumpscare.Camera.CFrame
+	lastJumpscared = os.time()
+
+	for _, sound in jumpscare.Enemy.Configuration.Sounds:GetChildren() do
+		task.delay(sound.Delay.Value, function()
+			sound:Play()
+			if sound:FindFirstChild "Duration" then
+				task.wait(sound.Duration.Value)
+				sound:Stop()
+			end
+		end)
+	end
+
+	local animationTrack = jumpscare.Enemy.AnimationController:LoadAnimation(animation)
+
+	animationTrack:AdjustSpeed(animationSpeed)
+	animationTrack:Play()
+
+	task.spawn(function()
+		animationTrack.Ended:Wait()
+
+		camera.CameraSubject = player.Character
+		camera.CameraType = Enum.CameraType.Custom
+	end)
+end
+
+playerStatePromise:andThen(function()
+	store.changed:connect(function(newState, oldState)
+		if
+			isScared(player.Name, newState)
+			and not isScared(player.Name, oldState)
+			and (os.time() - lastJumpscared) > 5
+		then
+			jumpscarePlayer(selectors.getCurrentTarget(newState, player.Name).Name)
+		end
+	end)
+end)
+
+return 0
