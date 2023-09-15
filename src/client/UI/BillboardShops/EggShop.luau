@@ -309,6 +309,7 @@ end)
 for _, petArea in ReplicatedStorage.Pets:GetChildren() do
 	for _, pet in petArea:GetChildren() do
 		petAreas[pet.Name] = petArea.Name
+		petAreas["Evolved " .. pet.Name] = petArea.Name
 	end
 end
 

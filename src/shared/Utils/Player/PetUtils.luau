@@ -86,8 +86,15 @@ petUtils = {
 			for petName, quantity in equippedPets do
 				for i = 1, quantity do
 					local position, look = calculatePosition(rootPart, quantity, i)
-					local newPetIndex = table.find(equippedPetModels, petName)
+					local newPetIndex = nil
 					local newPet = nil
+
+					for index, pet in equippedPetModels do
+						if pet.Name == petName then
+							newPetIndex = index
+						end
+					end
+
 					if newPetIndex then
 						newPet = table.remove(equippedPetModels, newPetIndex)
 					elseif isServer then
@@ -101,7 +108,10 @@ petUtils = {
 					newPet.PrimaryPart.BodyPosition.Position = position
 					newPet.PrimaryPart.Position = position
 					newPet.Parent = petsModel
-					newPet:FindFirstChildWhichIsA("BasePart"):SetNetworkOwner(Players[playerName])
+
+					if isServer then
+						newPet:FindFirstChildWhichIsA("BasePart"):SetNetworkOwner(Players[playerName])
+					end
 				end
 			end
 			for _, petModel in equippedPetModels do
