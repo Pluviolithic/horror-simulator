@@ -35,7 +35,6 @@ Promise.new(function(resolve)
 		Rank = player.PlayerGui:WaitForChild "Rank",
 		MainUI = player.PlayerGui:WaitForChild "MainUI",
 		WeaponShop = player.PlayerGui:WaitForChild "WeaponShop",
-		Jumpscares = player.PlayerGui:WaitForChild "Jumpscares",
 		PetInventory = player.PlayerGui:WaitForChild "PetInventory",
 		StrengthRanks = player.PlayerGui:WaitForChild "StrengthRanks",
 	}

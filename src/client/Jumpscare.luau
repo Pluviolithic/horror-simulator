@@ -23,7 +23,6 @@ end
 local function jumpscarePlayer(enemyName)
 	local jumpscare = jumpscares[enemyName]
 	local animation = jumpscare.Enemy.Configuration.Anim
-	local animationSpeed = jumpscare.Enemy.Configuration.AnimSpeed.Value
 
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.CFrame = jumpscare.Camera.CFrame
@@ -40,12 +39,14 @@ local function jumpscarePlayer(enemyName)
 	end
 
 	local animationTrack = jumpscare.Enemy.AnimationController:LoadAnimation(animation)
-
-	--animationTrack:AdjustSpeed(animationSpeed)
-	animationTrack:Play(animationSpeed)
+	animationTrack:Play()
 
 	task.spawn(function()
-		animationTrack.Ended:Wait()
+		if jumpscare.Enemy.Configuration:FindFirstChild "ScareDuration" then
+			task.wait(jumpscare.Enemy.Configuration.ScareDuration.Value)
+		else
+			animationTrack.Ended:Wait()
+		end
 
 		camera.CameraSubject = player.Character
 		camera.CameraType = Enum.CameraType.Custom
