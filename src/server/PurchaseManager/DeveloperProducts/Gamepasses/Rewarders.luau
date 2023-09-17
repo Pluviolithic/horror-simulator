@@ -16,21 +16,21 @@ return {
 		store:dispatch(actions.equipWeapon(player.Name, "Hero Blade"))
 	end,
 	[tostring(IDs["+50"].Value)] = function(player: Player)
-		store:dispatch(actions.increaseMaxPetCount(player.Name, 50))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 50))
 	end,
 	[tostring(IDs["+100"].Value)] = function(player: Player)
-		store:dispatch(actions.increaseMaxPetCount(player.Name, 100))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 100))
 	end,
 	[tostring(IDs["2XLuck"].Value)] = function(player: Player)
-		store:dispatch(actions.increasePlayerLuck(player.Name, 2))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "Luck", 2))
 	end,
 	[tostring(IDs["3XLuck"].Value)] = function(player: Player)
-		store:dispatch(actions.increasePlayerLuck(player.Name, 3))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "Luck", 3))
 	end,
 	[tostring(IDs["+1PetEquipped"].Value)] = function(player: Player)
-		store:dispatch(actions.increaseMaxPetEquipCount(player.Name, 1))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount", 1))
 	end,
 	[tostring(IDs["+2PetEquipped"].Value)] = function(player: Player)
-		store:dispatch(actions.increaseMaxPetEquipCount(player.Name, 2))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount", 2))
 	end,
 }
