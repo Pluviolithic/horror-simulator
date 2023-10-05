@@ -15,6 +15,16 @@ local disableSwitch = Instance.new "BindableEvent"
 local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
 local baseStrength = ReplicatedStorage.Config.Workout.Strength.Value
 
+local function removeIdleFromAnimationInstances(animationInstances)
+	for i, animationInstance in animationInstances do
+		if animationInstance.Name == "Idle" then
+			table.remove(animationInstances, i)
+			break
+		end
+	end
+	return animationInstances
+end
+
 local function handlePunchingBag(bag: any)
 	local prompt: ProximityPrompt = bag.HumanoidLockPart.Prompt
 	local colorParts = bag:FindFirstChild("Color"):GetChildren()
@@ -52,7 +62,8 @@ local function handlePunchingBag(bag: any)
 			part.Color = Color3.fromRGB(0, 255, 0)
 		end
 
-		local animationInstances: { Animation } = animations:FindFirstChild("Fists"):GetChildren()
+		local animationInstances: { Animation } =
+			removeIdleFromAnimationInstances(animations:FindFirstChild("Fists"):GetChildren())
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 

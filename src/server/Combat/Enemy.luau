@@ -18,6 +18,16 @@ local enemyRespawnRate: number = ReplicatedStorage.Config.Combat.EnemyRespawnRat
 
 local weapons = ReplicatedStorage.Weapons
 
+local function removeIdleFromAnimationInstances(animationInstances)
+	for i, animationInstance in animationInstances do
+		if animationInstance.Name == "Idle" then
+			table.remove(animationInstances, i)
+			break
+		end
+	end
+	return animationInstances
+end
+
 local function handleEnemy(enemy)
 	local clickDetector: ClickDetector = enemy.Hitbox.ClickDetector
 	local goalPosition: Vector3 = enemy.Hitbox.Position
@@ -34,7 +44,8 @@ local function handleEnemy(enemy)
 		else nil
 
 	local runEnemyAnimations: boolean = false
-	local attackAnimations: { Animation } = enemy.Configuration.AttackAnims:GetChildren()
+	local attackAnimations: { Animation } =
+		removeIdleFromAnimationInstances(enemy.Configuration.AttackAnims:GetChildren())
 	local currentAttackAnimation: Animation = attackAnimations[math.random(#attackAnimations)]:Clone()
 	local attackTrack: AnimationTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
 
@@ -155,8 +166,9 @@ local function handleEnemy(enemy)
 		local cleanedUp: boolean = false
 		local runAnimations: boolean = true
 
-		local animationInstances: { Animation } =
+		local animationInstances: { Animation } = removeIdleFromAnimationInstances(
 			animations[selectors.getEquippedWeapon(store:getState(), player.Name)]:GetChildren()
+		)
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 

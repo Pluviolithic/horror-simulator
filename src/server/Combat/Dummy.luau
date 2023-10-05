@@ -9,6 +9,16 @@ local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
+local function removeIdleFromAnimationInstances(animationInstances)
+	for i, animationInstance in animationInstances do
+		if animationInstance.Name == "Idle" then
+			table.remove(animationInstances, i)
+			break
+		end
+	end
+	return animationInstances
+end
+
 local function handleDummy(dummy)
 	local clickDetector: ClickDetector = dummy.Hitbox.ClickDetector
 	local goalPosition: Vector3 = dummy.Hitbox.Position
@@ -62,7 +72,8 @@ local function handleDummy(dummy)
 			return
 		end
 
-		local animationInstances: { Animation } = animations.Fists:GetChildren() :: { Animation }
+		local animationInstances: { Animation } =
+			removeIdleFromAnimationInstances(animations.Fists:GetChildren()) :: { Animation }
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 		local runAnimations: boolean = true
