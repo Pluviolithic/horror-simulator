@@ -30,11 +30,13 @@ local function jumpscarePlayer(enemyName)
 
 	for _, sound in jumpscare.Enemy.Configuration.Sounds:GetChildren() do
 		task.delay(sound.Delay.Value, function()
+			local timePosition = sound.TimePosition
 			sound:Play()
 			if sound:FindFirstChild "Duration" then
 				task.wait(sound.Duration.Value)
 				sound:Stop()
 			end
+			sound.TimePosition = timePosition
 		end)
 	end
 
