@@ -28,6 +28,7 @@ Remotes.Server:Get("PurchaseWeapon"):SetCallback(function(player: Player, weapon
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -price.Value))
 		store:dispatch(actions.givePlayerWeapon(player.Name, weaponName))
 		store:dispatch(actions.equipWeapon(player.Name, weaponName))
+		store:dispatch(actions.logPurchasedWeaponType(player.Name, weaponName))
 		return 0
 	end
 

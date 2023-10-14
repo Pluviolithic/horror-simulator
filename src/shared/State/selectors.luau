@@ -45,7 +45,6 @@ return {
 	getOwnedWeapons = function(state, playerName)
 		return state.WeaponData[playerName].OwnedWeapons
 	end,
-
 	getStats = function(state, playerName)
 		return state.Stats[playerName]
 	end,
@@ -60,5 +59,8 @@ return {
 	end,
 	getWeaponData = function(state, playerName)
 		return state.WeaponData[playerName]
+	end,
+	getMissionData = function(state, playerName)
+		return state.MissionData[playerName]
 	end,
 }

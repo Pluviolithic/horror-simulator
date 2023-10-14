@@ -48,4 +48,27 @@ return {
 		AwardedGamepasses = {},
 		PurchasedTeleporters = {},
 	},
+
+	MissionData = {
+		["Clown Town"] = {
+			CurrentMissionNumber = 1,
+			CurrentMissionProgress = 0,
+			Active = false,
+		},
+		["Spider Cave"] = {
+			CurrentMissionNumber = 1,
+			CurrentMissionProgress = 0,
+			Active = false,
+		},
+		["Howling Woods"] = {
+			CurrentMissionNumber = 1,
+			CurrentMissionProgress = 0,
+			Active = false,
+		},
+		["Zombie City"] = {
+			CurrentMissionNumber = 1,
+			CurrentMissionProgress = 0,
+			Active = false,
+		},
+	},
 }

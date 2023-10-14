@@ -2,6 +2,9 @@ local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local server = ServerScriptService.Server
+
+local actions = require(server.State.Actions)
 --local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
@@ -10,9 +13,11 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 --local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
-local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
+local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 local replicationRules = require(ServerScriptService.Server.State.ReplicationRules)
+local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
 
+local missionRequirements = ReplicatedStorage.Missions
 local displayServerLogs = ReplicatedStorage.Config.Output.DisplayServerLogs.Value
 
 local function getFilteredState(playerName, state)
@@ -91,34 +96,30 @@ local function updateLeaderstatsMiddleware(nextDispatch, store)
 	end
 end
 
---[[
-local function instantiatePetsMiddleware(nextDispatch, store)
+local function giveMissionRewards(nextDispatch, store)
 	return function(action)
 		local oldState = store:getState()
 		nextDispatch(action)
-		task.spawn(function()
-			if not action.playerName or not selectors.isPlayerLoaded(store:getState(), action.playerName) then
-				if action.playerName and workspace.PetModels:FindFirstChild(action.playerName) then
-					workspace.PetModels[action.playerName]:Destroy()
-				end
-				return
-			end
-			if
-				not selectors.isPlayerLoaded(oldState, action.playerName)
-				or Sift.Dictionary.equalsDeep(
-					selectors.getEquippedPets(oldState, action.playerName),
-					selectors.getEquippedPets(store:getState(), action.playerName)
-				)
-			then
-				return
-			end
-			petUtils.instantiatePets(action.playerName, selectors.getEquippedPets(store:getState(), action.playerName))
-		end)
+		if action.type ~= "logKilledEnemyType" then
+			return
+		end
+		local oldMissionData = selectors.getMissionData(oldState, action.playerName)
+		local newMissionData = selectors.getMissionData(store:getState(), action.playerName)
+
+		if oldMissionData == newMissionData then
+			return
+		end
+
+		if oldMissionData.CurrentMissionNumber ~= newMissionData.CurrentMissionNumber then
+			local missionReward =
+				missionRequirements[regionUtils.getPlayerLocationName(action.playerName)][oldMissionData.CurrentMissionNumber].Gems.Value
+			store:dispatch(actions.incrementPlayerStat(action.playerName, "Gems", missionReward))
+		end
 	end
 end
---]]
 
 return {
+	giveMissionRewards,
 	updateClientMiddleware,
 	savePlayerDataMiddleware,
 	updateLeaderstatsMiddleware,

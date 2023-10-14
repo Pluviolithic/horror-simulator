@@ -104,4 +104,9 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].PetFearMultiplier += removedPetFearMultiplier
 		end)
 	end,
+	completeMission = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].Gems += action.gemReward
+		end)
+	end,
 })
