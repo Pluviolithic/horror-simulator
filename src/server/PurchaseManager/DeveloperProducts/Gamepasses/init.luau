@@ -29,7 +29,7 @@ local function checkIfObtainedRewards(player: Player)
 				warn(err)
 				continue
 			end
-			if err then
+			if err and typeof(rewarder) == "function" then
 				if pcall(rewarder, player) then
 					store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
 				end
