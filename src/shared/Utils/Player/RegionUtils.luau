@@ -23,4 +23,7 @@ return {
 
 		return nil
 	end,
+	getRegions = function()
+		return missionZones
+	end,
 }
