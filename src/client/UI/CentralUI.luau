@@ -28,6 +28,9 @@ function CentralUI:setEnabled(enable: boolean?): ()
 	self._isOpen = enable
 
 	if not enable then
+		if self.OnClose then
+			self:OnClose()
+		end
 		return
 	end
 

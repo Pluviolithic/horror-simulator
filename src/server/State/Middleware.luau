@@ -26,6 +26,7 @@ local function getFilteredState(playerName, state)
 		PetData = selectors.getPetData(state, playerName),
 		WeaponData = selectors.getWeaponData(state, playerName),
 		PurchaseData = selectors.getPurchaseData(state, playerName),
+		MissionData = selectors.getMissionData(state, playerName),
 	}
 	for field, entry in filteredState do
 		for key in entry do

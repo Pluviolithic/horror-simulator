@@ -34,9 +34,9 @@ return Rodux.createReducer({}, {
 		return produce(state, function(draft)
 			draft[action.playerName][action.areaName].Active = false
 			draft[action.playerName][action.areaName].CurrentMissionNumber += 1
+			draft[action.playerName][action.areaName].CurrentMissionProgress = 0
 		end)
 	end,
-
 	logKilledEnemyType = function(state, action)
 		return produce(state, function(draft)
 			local playerRegion = regionUtils.getPlayerLocationName(action.playerName)
@@ -59,7 +59,6 @@ return Rodux.createReducer({}, {
 			end
 		end)
 	end,
-
 	logPurchasedWeaponType = function(state, action)
 		return produce(state, function(draft)
 			local playerRegion = regionUtils.getPlayerLocationName(action.playerName)
@@ -81,7 +80,6 @@ return Rodux.createReducer({}, {
 			end
 		end)
 	end,
-
 	logHatchedPetRarities = function(state, action)
 		return produce(state, function(draft)
 			local playerRegion = regionUtils.getPlayerLocationName(action.playerName)

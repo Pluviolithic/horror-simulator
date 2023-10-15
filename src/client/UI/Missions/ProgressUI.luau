@@ -13,10 +13,10 @@ local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 local missionRequirements = ReplicatedStorage.Missions
 
 local progressTextFormats = {
-	Enemy = "Defeat [enemy] [progress]",
+	Enemy = "Defeat {enemy} {progress}",
 	Weapon = "Buy a Weapon",
-	AnyPet = "Hatch Any Pet in [area] [progress]",
-	PetRarity = "Hatch rarity Pet in [area] [progress]",
+	AnyPet = "Hatch Any Pet in {area} {progress}",
+	PetRarity = "Hatch rarity Pet in {area} {progress}",
 }
 
 local function enteredRegion(regionName, progressUI)
@@ -32,7 +32,7 @@ local function enteredRegion(regionName, progressUI)
 
 		progressUI.Background.MissionName.Text = currentMissionRequirements.MissionName.Value
 
-		if currentMissionData.Progress == currentMissionRequirements.Requirements.Value then
+		if currentMissionData.CurrentMissionProgress == currentMissionRequirements.Requirements.Value then
 			progressUI.Background.Progress.Visible = false
 			progressUI.Background.Complete.Visible = true
 			progressUI.Enabled = true
@@ -40,16 +40,20 @@ local function enteredRegion(regionName, progressUI)
 		end
 
 		if progressText == progressTextFormats.Enemy then
-			progressText = progressText:gsub("[enemy]", currentMissionRequirements.Enemy.Value)
+			progressText = progressText:gsub("{enemy}", currentMissionRequirements.Enemy.Value)
 		elseif progressText == progressTextFormats.PetRarity then
 			progressText =
-				progressText:gsub("[rarity]", currentMissionRequirements.PetRarity.Value):gsub("[area]", regionName)
+				progressText:gsub("{rarity}", currentMissionRequirements.PetRarity.Value):gsub("{area}", regionName)
 		end
 
 		if not progressText:match "Weapon" then
 			progressText = progressText:gsub(
-				"[progress]",
-				"(" .. currentMissionData.Progress .. "/" .. currentMissionRequirements.Requirements.Value .. ")"
+				"{progress}",
+				"("
+					.. currentMissionData.CurrentMissionProgress
+					.. "/"
+					.. currentMissionRequirements.Requirements.Value
+					.. ")"
 			)
 		end
 
@@ -70,6 +74,14 @@ playerStatePromise:andThen(function()
 			enteredRegion(regionName, progressUI)
 		end)
 	end
+	store.changed:connect(function(newState, oldState)
+		local newMissionData = selectors.getMissionData(newState, player.Name)
+		local oldMissionData = selectors.getMissionData(oldState, player.Name)
+		if newMissionData == oldMissionData then
+			return
+		end
+		enteredRegion(regionUtils.getPlayerLocationName(player.Name), progressUI)
+	end)
 end)
 
 return 0

@@ -93,13 +93,11 @@ local Remotes = Net.CreateDefinitions {
 		Net.Middleware.RateLimit {
 			MaxRequestsPerMinute = 60,
 		},
-		Net.Middleware.TypeChecking(t.string),
 	},
-	CompleteMission = Net.Definitions.ClientToServerEvent {
+	CompleteMission = Net.Definitions.ServerFunction {
 		Net.Middleware.RateLimit {
 			MaxRequestsPerMinute = 60,
 		},
-		Net.Middleware.TypeChecking(t.string),
 	},
 
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
