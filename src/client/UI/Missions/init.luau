@@ -77,8 +77,16 @@ function MissionsUI:OnOpen()
 
 	if currentMissionData.Active then
 		if currentMissionData.CurrentMissionProgress == currentMissionRequirements.Requirements.Value then
-			self:RolloutDialogue "Good job for completing the quest!"
+			local pending = true
+			task.spawn(function()
+				self:RolloutDialogue "Good job for completing the quest!"
+				pending = false
+			end)
 			self._confirmConnection = self._ui.Dialogue.Confirm.Activated:Connect(function()
+				if pending then
+					self._confirmPressed = true
+					return
+				end
 				self._confirmConnection:Disconnect()
 				Remotes.Client:Get("CompleteMission"):CallServerAsync():andThen(function()
 					if self._ui.Enabled then
@@ -87,8 +95,16 @@ function MissionsUI:OnOpen()
 				end)
 			end)
 		else
-			self:RolloutDialogue "Finish your current quest before starting the next one."
+			local pending = true
+			task.spawn(function()
+				self:RolloutDialogue "Finish your current quest before starting the next one."
+				pending = false
+			end)
 			self._confirmConnection = self._ui.Dialogue.Confirm.Activated:Connect(function()
+				if pending then
+					self._confirmPressed = true
+					return
+				end
 				self._confirmConnection:Disconnect()
 				self:setEnabled(false)
 			end)
@@ -102,6 +118,7 @@ function MissionsUI:OnOpen()
 		self._ui.Dialogue.Confirm.Activated:Connect(function()
 			if pending then
 				self._confirmPressed = true
+				return
 			end
 			i += 1
 			if i > dialogueSegmentCount then
@@ -121,6 +138,7 @@ function MissionsUI:OnClose()
 	if self._confirmConnection and self._confirmConnection.Connected then
 		self._confirmConnection:Disconnect()
 	end
+	self._confirmPressed = false
 	self._confirmConnection = nil
 end
 

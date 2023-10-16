@@ -11,7 +11,7 @@ return {
 		}
 	end),
 	completeMission = makeActionCreator(
-		"startMission",
+		"completeMission",
 		function(playerName: string, areaName: string, gemReward: number)
 			return {
 				areaName = areaName,
