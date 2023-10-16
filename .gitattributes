@@ -1,3 +1,0 @@
-# temporarily make .luau files have lua highlighting functionality
-# until the .luau file extension is officially supported
-*.luau linguist-language=Lua
