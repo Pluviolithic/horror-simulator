@@ -56,13 +56,17 @@ local function jumpscarePlayer(enemyName)
 end
 
 playerStatePromise:andThen(function()
+	local lastEnemyFought = selectors.getCurrentTarget(store:getState(), player.Name)
 	store.changed:connect(function(newState, oldState)
+		if selectors.getCurrentTarget(newState, player.Name) then
+			lastEnemyFought = selectors.getCurrentTarget(newState, player.Name)
+		end
 		if
 			isScared(player.Name, newState)
 			and not isScared(player.Name, oldState)
 			and (os.time() - lastJumpscared) > jumpscareGap
 		then
-			jumpscarePlayer(selectors.getCurrentTarget(newState, player.Name).Name)
+			jumpscarePlayer(lastEnemyFought.Name)
 		end
 	end)
 end)
