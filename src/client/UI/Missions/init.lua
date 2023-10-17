@@ -28,15 +28,8 @@ function MissionsUI:_initialize(): ()
 end
 
 function MissionsUI:RolloutDialogue(dialogueSegment)
+	local splitText = {}
 	local text = if typeof(dialogueSegment) == "string" then dialogueSegment else dialogueSegment.Value
-	for j = 1, #text do
-		self._ui.Dialogue.Background.Dialogue.Text = text:sub(1, j)
-		task.wait(rolloutSpeed)
-		if self._confirmPressed then
-			self._confirmPressed = false
-			break
-		end
-	end
 
 	if typeof(dialogueSegment) ~= "string" then
 		for _, colorValue in dialogueSegment:GetChildren() do
@@ -46,11 +39,53 @@ function MissionsUI:RolloutDialogue(dialogueSegment)
 					math.round(colorValue.Value.G * 255),
 					math.round(colorValue.Value.B * 255),
 				}
+
 				text = text:gsub(
 					attributeValue,
 					'<font color="rgb(' .. table.concat(rgb, ",") .. ')">' .. attributeValue .. "</font>"
 				)
 			end
+		end
+	end
+
+	local bracketStart = nil
+	for i = 1, #text do
+		local c = text:sub(i, i)
+		if c == "<" then
+			bracketStart = i
+		elseif c == ">" then
+			table.insert(splitText, text:sub(bracketStart, i))
+			bracketStart = nil
+		elseif not bracketStart then
+			table.insert(splitText, c)
+		end
+	end
+
+	local runningTotal = ""
+	local richtextActive = false
+	for i = 1, #splitText do
+		local currentSegment = splitText[i]
+
+		if currentSegment:match "color=" then
+			richtextActive = true
+			runningTotal = runningTotal .. currentSegment
+			continue
+		elseif currentSegment == "</font>" then
+			richtextActive = false
+		end
+
+		runningTotal = runningTotal .. currentSegment
+
+		if richtextActive then
+			self._ui.Dialogue.Background.Dialogue.Text = runningTotal .. "</font>"
+		else
+			self._ui.Dialogue.Background.Dialogue.Text = runningTotal
+		end
+
+		task.wait(rolloutSpeed)
+		if self._confirmPressed then
+			self._confirmPressed = false
+			break
 		end
 	end
 
