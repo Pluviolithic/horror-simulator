@@ -78,7 +78,8 @@ local function awardPetsToPlayer(player: Player, pets: { string }, eggGemPrice):
 	end
 	store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -eggGemPrice * #pets))
 	store:dispatch(actions.givePlayerPets(player.Name, petsDict))
-	store:dispatch(actions.logHatchedPetRarities(petUtils.getPetRarities(pets)))
+	print "logging hatched pets"
+	store:dispatch(actions.logHatchedPetRarities(player.Name, petUtils.getPetRarities(pets)))
 end
 
 Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: number, areaName: string)

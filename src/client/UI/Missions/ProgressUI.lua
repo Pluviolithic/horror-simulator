@@ -16,7 +16,7 @@ local progressTextFormats = {
 	Enemy = "Defeat {enemy} {progress}",
 	Weapon = "Buy a Weapon",
 	AnyPet = "Hatch Any Pet in {area} {progress}",
-	PetRarity = "Hatch rarity Pet in {area} {progress}",
+	PetRarity = "Hatch {rarity} Pet in {area} {progress}",
 }
 
 local function enteredRegion(regionName, progressUI)
@@ -39,23 +39,24 @@ local function enteredRegion(regionName, progressUI)
 			return
 		end
 
+		progressUI.Background.Complete.Visible = false
+		progressUI.Background.Progress.Visible = true
+
 		if progressText == progressTextFormats.Enemy then
 			progressText = progressText:gsub("{enemy}", currentMissionRequirements.Enemy.Value)
 		elseif progressText == progressTextFormats.PetRarity then
-			progressText =
-				progressText:gsub("{rarity}", currentMissionRequirements.PetRarity.Value):gsub("{area}", regionName)
+			progressText = progressText:gsub("{rarity}", currentMissionRequirements.PetRarity.Value)
 		end
 
-		if not progressText:match "Weapon" then
-			progressText = progressText:gsub(
-				"{progress}",
-				"("
-					.. currentMissionData.CurrentMissionProgress
-					.. "/"
-					.. currentMissionRequirements.Requirements.Value
-					.. ")"
-			)
-		end
+		progressText = progressText:gsub("{area}", regionName)
+		progressText = progressText:gsub(
+			"{progress}",
+			"("
+				.. currentMissionData.CurrentMissionProgress
+				.. "/"
+				.. currentMissionRequirements.Requirements.Value
+				.. ")"
+		)
 
 		progressUI.Background.Progress.Text = progressText
 		progressUI.Enabled = true

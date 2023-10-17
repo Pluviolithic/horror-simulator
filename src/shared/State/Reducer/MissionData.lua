@@ -83,17 +83,20 @@ return Rodux.createReducer({}, {
 	logHatchedPetRarities = function(state, action)
 		return produce(state, function(draft)
 			local playerRegion = regionUtils.getPlayerLocationName(action.playerName)
+			print("logging a pet hatching event from the " .. playerRegion .. " area")
 			if not playerRegion or not state[action.playerName][playerRegion].Active then
 				return
 			end
 			local currentMissionRequirements =
 				missionRequirements[playerRegion][tostring(state[action.playerName][playerRegion].CurrentMissionNumber)]
-
+			print "checking current mission type"
 			if currentMissionRequirements:FindFirstChild "AnyPet" then
+				print "mission is anypet type"
 				if
 					draft[action.playerName][playerRegion].CurrentMissionProgress
 					~= currentMissionRequirements.Requirements.Value
 				then
+					print "updating progress"
 					draft[action.playerName][playerRegion].CurrentMissionProgress += 1
 				end
 			elseif currentMissionRequirements:FindFirstChild "PetRarity" then

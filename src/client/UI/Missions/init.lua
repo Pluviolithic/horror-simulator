@@ -8,6 +8,7 @@ local Client = StarterPlayer.StarterPlayerScripts.Client
 
 local store = require(Client.State.Store)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
@@ -18,7 +19,7 @@ local rolloutSpeed = ReplicatedStorage.Config.Text.MissionTextRolloutSpeed.Value
 local MissionsUI = CentralUI.new(player.PlayerGui:WaitForChild "MissionsUI")
 
 function MissionsUI:_initialize(): ()
-	self._confirmPressed = false
+	self._janitor = Janitor.new()
 	interfaces[self] = true
 
 	self._ui.Dialogue.Cancel.Activated:Connect(function()
@@ -75,6 +76,9 @@ function MissionsUI:OnOpen()
 		.. #missionRequirements[playerRegion]:GetChildren()
 		.. ")"
 
+	self._confirmPressed = false
+	self._janitor:Cleanup()
+
 	if currentMissionData.Active then
 		if currentMissionData.CurrentMissionProgress == currentMissionRequirements.Requirements.Value then
 			local pending = true
@@ -82,40 +86,44 @@ function MissionsUI:OnOpen()
 				self:RolloutDialogue "Good job for completing the quest!"
 				pending = false
 			end)
-			self._confirmConnection = self._ui.Dialogue.Confirm.Activated:Connect(function()
+			self._janitor:Add(self._ui.Dialogue.Confirm.Activated:Connect(function()
 				if pending then
 					self._confirmPressed = true
 					return
 				end
-				self._confirmConnection:Disconnect()
+				self._janitor:Cleanup()
 				Remotes.Client:Get("CompleteMission"):CallServerAsync():andThen(function()
 					if self._ui.Enabled then
 						self:OnOpen()
 					end
 				end)
-			end)
+			end))
 		else
 			local pending = true
 			task.spawn(function()
 				self:RolloutDialogue "Finish your current quest before starting the next one."
 				pending = false
 			end)
-			self._confirmConnection = self._ui.Dialogue.Confirm.Activated:Connect(function()
+			self._janitor:Add(self._ui.Dialogue.Confirm.Activated:Connect(function()
 				if pending then
 					self._confirmPressed = true
 					return
 				end
-				self._confirmConnection:Disconnect()
+				self._janitor:Cleanup()
 				self:setEnabled(false)
-			end)
+			end))
 		end
 	else
 		local i = 1
-		local pending = false
+		local pending = true
 		local dialogueSegment = currentMissionRequirements.Dialogue:FindFirstChild(tostring(i))
-		self:RolloutDialogue(dialogueSegment)
 
-		self._ui.Dialogue.Confirm.Activated:Connect(function()
+		task.spawn(function()
+			self:RolloutDialogue(dialogueSegment)
+			pending = false
+		end)
+
+		self._janitor:Add(self._ui.Dialogue.Confirm.Activated:Connect(function()
 			if pending then
 				self._confirmPressed = true
 				return
@@ -130,16 +138,8 @@ function MissionsUI:OnOpen()
 				self:RolloutDialogue(dialogueSegment)
 				pending = false
 			end
-		end)
+		end))
 	end
-end
-
-function MissionsUI:OnClose()
-	if self._confirmConnection and self._confirmConnection.Connected then
-		self._confirmConnection:Disconnect()
-	end
-	self._confirmPressed = false
-	self._confirmConnection = nil
 end
 
 for _, missionPrompt in CollectionService:GetTagged "MissionPrompt" do
