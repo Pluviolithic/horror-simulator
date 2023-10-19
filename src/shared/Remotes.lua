@@ -99,9 +99,13 @@ local Remotes = Net.CreateDefinitions {
 			MaxRequestsPerMinute = 60,
 		},
 	},
+	DisableMissionRewardPopup = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+	},
 
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
-	--SendNPCHealthBar = Net.Definitions.ServerToClientEvent(),
 	SetControlsEnabled = Net.Definitions.ServerToClientEvent(),
 }
 

@@ -13,11 +13,11 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
-local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["Auto"].Value
-local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
+local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["AutoHatch"].Value
+local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xHatch"].Value
 local fasterHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["FasterHatch"].Value
-local doubleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["2XLuck"].Value
-local tripleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3XLuck"].Value
+local doubleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["2xLuck"].Value
+local tripleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xLuck"].Value
 
 local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
@@ -320,6 +320,10 @@ CollectionService:GetInstanceAddedSignal("EggShop"):Connect(handleShop)
 
 local function updateFoundsDisplay(foundPets): ()
 	for petName in foundPets do
+		if petName:match "Evolved" then
+			continue
+		end
+
 		local petUI = player.PlayerGui:WaitForChild(petAreas[petName] .. "EggUI").Background.Pets[petName]
 		petUI.PetName.Text = petName
 		petUI.PetImage.ImageColor3 = Color3.fromRGB(255, 255, 255)

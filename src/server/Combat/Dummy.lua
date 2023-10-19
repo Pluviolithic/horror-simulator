@@ -112,7 +112,7 @@ local function handleDummy(dummy)
 				actions.incrementPlayerStat(
 					humanoid.Parent.Name,
 					"Fear",
-					fear * selectors.getStat(store:getState(), player.Name, "PetFearMultiplier")
+					fear * selectors.getStat(store:getState(), player.Name, "FearMultiplier")
 				)
 			)
 			task.wait(1)

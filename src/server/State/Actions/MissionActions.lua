@@ -21,6 +21,16 @@ return {
 			}
 		end
 	),
+	disableMissionRewardPopup = makeActionCreator(
+		"disableMissionRewardPopup",
+		function(playerName: string, areaName: string)
+			return {
+				areaName = areaName,
+				playerName = playerName,
+				shouldSave = true,
+			}
+		end
+	),
 	logKilledEnemyType = makeActionCreator("logKilledEnemyType", function(playerName: string, enemyType: string)
 		return {
 			enemyType = enemyType,

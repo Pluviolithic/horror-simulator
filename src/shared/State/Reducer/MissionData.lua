@@ -30,11 +30,23 @@ return Rodux.createReducer({}, {
 			draft[action.playerName][action.areaName].Active = true
 		end)
 	end,
+	disableMissionRewardPopup = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName][action.areaName].ViewedRewardPopup = true
+		end)
+	end,
 	completeMission = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName][action.areaName].Active = false
-			draft[action.playerName][action.areaName].CurrentMissionNumber += 1
-			draft[action.playerName][action.areaName].CurrentMissionProgress = 0
+
+			local playerRegion = regionUtils.getPlayerLocationName(action.playerName)
+			local nextMissionRequirements = missionRequirements[playerRegion]:FindFirstChild(
+				tostring(state[action.playerName][playerRegion].CurrentMissionNumber + 1)
+			)
+			if nextMissionRequirements then
+				draft[action.playerName][action.areaName].CurrentMissionProgress = 0
+				draft[action.playerName][action.areaName].CurrentMissionNumber += 1
+			end
 		end)
 	end,
 	logKilledEnemyType = function(state, action)
@@ -83,20 +95,16 @@ return Rodux.createReducer({}, {
 	logHatchedPetRarities = function(state, action)
 		return produce(state, function(draft)
 			local playerRegion = regionUtils.getPlayerLocationName(action.playerName)
-			print("logging a pet hatching event from the " .. playerRegion .. " area")
 			if not playerRegion or not state[action.playerName][playerRegion].Active then
 				return
 			end
 			local currentMissionRequirements =
 				missionRequirements[playerRegion][tostring(state[action.playerName][playerRegion].CurrentMissionNumber)]
-			print "checking current mission type"
 			if currentMissionRequirements:FindFirstChild "AnyPet" then
-				print "mission is anypet type"
 				if
 					draft[action.playerName][playerRegion].CurrentMissionProgress
 					~= currentMissionRequirements.Requirements.Value
 				then
-					print "updating progress"
 					draft[action.playerName][playerRegion].CurrentMissionProgress += 1
 				end
 			elseif currentMissionRequirements:FindFirstChild "PetRarity" then

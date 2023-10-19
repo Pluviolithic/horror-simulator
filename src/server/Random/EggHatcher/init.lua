@@ -12,7 +12,7 @@ local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 
 local eggGemPricesConfig = ReplicatedStorage.Config.Pets.Prices
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
-local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3X"].Value
+local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xHatch"].Value
 
 local luckBoostedRarities = {
 	Rare = true,
@@ -78,7 +78,6 @@ local function awardPetsToPlayer(player: Player, pets: { string }, eggGemPrice):
 	end
 	store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -eggGemPrice * #pets))
 	store:dispatch(actions.givePlayerPets(player.Name, petsDict))
-	print "logging hatched pets"
 	store:dispatch(actions.logHatchedPetRarities(player.Name, petUtils.getPetRarities(pets)))
 end
 

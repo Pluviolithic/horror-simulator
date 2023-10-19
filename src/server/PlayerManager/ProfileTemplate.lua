@@ -10,6 +10,7 @@ return {
 		Rank = 1,
 
 		WalkSpeed = 14,
+		FearMultiplier = 1,
 		RequiredFear = game:GetService("ReplicatedStorage").Config.Workout.RequiredFear.Value,
 		MaxFearMeter = 100,
 		CurrentFearMeter = 0,
@@ -21,7 +22,6 @@ return {
 		MaxPetCount = 30,
 		CurrentPetCount = 0,
 		MaxPetEquipCount = 3,
-		PetFearMultiplier = 1,
 		CurrentPetEquipCount = 0,
 	},
 
@@ -49,21 +49,25 @@ return {
 			CurrentMissionNumber = 1,
 			CurrentMissionProgress = 0,
 			Active = false,
+			ViewedRewardPopup = false,
 		},
 		["Spider Cave"] = {
 			CurrentMissionNumber = 1,
 			CurrentMissionProgress = 0,
 			Active = false,
+			ViewedRewardPopup = false,
 		},
 		["Howling Woods"] = {
 			CurrentMissionNumber = 1,
 			CurrentMissionProgress = 0,
 			Active = false,
+			ViewedRewardPopup = false,
 		},
 		["Zombie City"] = {
 			CurrentMissionNumber = 1,
 			CurrentMissionProgress = 0,
 			Active = false,
+			ViewedRewardPopup = false,
 		},
 	},
 }

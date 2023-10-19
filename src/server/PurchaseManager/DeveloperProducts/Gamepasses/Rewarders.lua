@@ -15,30 +15,30 @@ return {
 		store:dispatch(actions.givePlayerWeapon(player.Name, "Hero Blade"))
 		store:dispatch(actions.equipWeapon(player.Name, "Hero Blade"))
 	end,
-	[tostring(IDs["+50"].Value)] = function(player: Player)
+	[tostring(IDs["50PetStorage"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 50))
 	end,
-	[tostring(IDs["+100"].Value)] = function(player: Player)
+	[tostring(IDs["100PetStorage"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 100))
 	end,
-	[tostring(IDs["2XLuck"].Value)] = function(player: Player)
+	[tostring(IDs["2xLuck"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Luck", 2))
 	end,
-	[tostring(IDs["3XLuck"].Value)] = function(player: Player)
+	[tostring(IDs["3xLuck"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Luck", 3))
 	end,
-	[tostring(IDs["+1PetEquipped"].Value)] = function(player: Player)
+	[tostring(IDs["1PetEquipped"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount", 1))
 	end,
-	[tostring(IDs["+2PetEquipped"].Value)] = function(player: Player)
+	[tostring(IDs["2PetEquipped"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount", 2))
 	end,
 
-	[tostring(IDs["2XStrength"].Value)] = true,
-	[tostring(IDs["2XFear"].Value)] = true,
-	[tostring(IDs["2XGems"].Value)] = true,
-	[tostring(IDs["2XSpeed"].Value)] = true,
-	[tostring(IDs["2XAttackSpeed"].Value)] = true,
-	[tostring(IDs["3XWorkoutSpeed"].Value)] = true,
+	[tostring(IDs["2xStrength"].Value)] = true,
+	[tostring(IDs["2xFear"].Value)] = true,
+	[tostring(IDs["2xGems"].Value)] = true,
+	[tostring(IDs["2xSpeed"].Value)] = true,
+	[tostring(IDs["2xAttackSpeed"].Value)] = true,
+	[tostring(IDs["3xWorkoutSpeed"].Value)] = true,
 	[tostring(IDs.FreeTeleporter.Value)] = true,
 }

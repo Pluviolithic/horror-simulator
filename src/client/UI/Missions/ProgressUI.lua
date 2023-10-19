@@ -16,7 +16,7 @@ local progressTextFormats = {
 	Enemy = "Defeat {enemy} {progress}",
 	Weapon = "Buy a Weapon",
 	AnyPet = "Hatch Any Pet in {area} {progress}",
-	PetRarity = "Hatch {rarity} Pet in {area} {progress}",
+	PetRarity = "Hatch a {rarity} Pet in {area} {progress}",
 }
 
 local function enteredRegion(regionName, progressUI)
@@ -45,7 +45,11 @@ local function enteredRegion(regionName, progressUI)
 		if progressText == progressTextFormats.Enemy then
 			progressText = progressText:gsub("{enemy}", currentMissionRequirements.Enemy.Value)
 		elseif progressText == progressTextFormats.PetRarity then
-			progressText = progressText:gsub("{rarity}", currentMissionRequirements.PetRarity.Value)
+			if currentMissionRequirements.PetRarity.Value:sub(1, 1):lower():match "[aeiou]" then
+				progressText = progressText:gsub(" {rarity}", "n " .. currentMissionRequirements.PetRarity.Value)
+			else
+				progressText = progressText:gsub("{rarity}", currentMissionRequirements.PetRarity.Value)
+			end
 		end
 
 		progressText = progressText:gsub("{area}", regionName)

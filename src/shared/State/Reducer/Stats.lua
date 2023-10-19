@@ -89,7 +89,7 @@ return Rodux.createReducer({}, {
 		end
 		return produce(state, function(draft)
 			draft[action.playerName].CurrentPetEquipCount += addedPetEquipCount
-			draft[action.playerName].PetFearMultiplier += addedPetFearMultiplier
+			draft[action.playerName].FearMultiplier += addedPetFearMultiplier
 		end)
 	end,
 	unequipPlayerPets = function(state, action)
@@ -101,7 +101,7 @@ return Rodux.createReducer({}, {
 		end
 		return produce(state, function(draft)
 			draft[action.playerName].CurrentPetEquipCount += removedPetEquipCount
-			draft[action.playerName].PetFearMultiplier += removedPetFearMultiplier
+			draft[action.playerName].FearMultiplier += removedPetFearMultiplier
 		end)
 	end,
 	completeMission = function(state, action)
