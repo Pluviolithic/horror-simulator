@@ -13,15 +13,35 @@ local Zone = require(ReplicatedStorage.Common.lib.ZonePlus)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local playerStatePromise = require(Client.State.PlayerStatePromise)
 local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
+local statusUIListeners = {}
 local missionRequirements = ReplicatedStorage.Missions
 local missionSkipProductID = ReplicatedStorage.Config.DevProductData.IDs.MissionSkip.Value
 local rolloutSpeed = ReplicatedStorage.Config.Text.MissionTextRolloutSpeed.Value
 local MissionsUI = CentralUI.new(player.PlayerGui:WaitForChild "MissionsUI")
 local MissionFearRewardUI = require(script.MissionFearRewardUI)
+
+local function handleMissionStatusUI(statusUI, areaName)
+	local frame = statusUI.MissionUI.Frame
+	statusUIListeners[areaName] = function(missionData)
+		local currentMissionRequirements = missionRequirements[areaName][tostring(missionData.CurrentMissionNumber)]
+		if missionData.Active then
+			if missionData.CurrentMissionProgress == currentMissionRequirements.Requirements.Value then
+				frame.Mission.Visible = false
+				frame.Completed.Visible = true
+				return
+			end
+		else
+			frame.Completed.Visible = false
+			frame.Mission.Visible = true
+			return
+		end
+	end
+end
 
 function MissionsUI:_initialize(): ()
 	self._janitor = Janitor.new()
@@ -51,7 +71,6 @@ function MissionsUI:_initialize(): ()
 		end
 
 		MarketplaceService:PromptProductPurchase(player, missionSkipProductID)
-		self:setEnabled(false)
 	end)
 
 	for _, hitbox in CollectionService:GetTagged "NPCHitbox" do
@@ -256,6 +275,7 @@ end
 
 for _, missionPrompt in CollectionService:GetTagged "MissionPrompt" do
 	local debounce = false
+	local areaName = missionPrompt.Parent.Parent.Name:sub(1, -12)
 	missionPrompt.Triggered:Connect(function(source)
 		if source ~= player or debounce then
 			return
@@ -265,9 +285,27 @@ for _, missionPrompt in CollectionService:GetTagged "MissionPrompt" do
 		task.wait(0.5)
 		debounce = false
 	end)
+	handleMissionStatusUI(missionPrompt.Parent.Parent.MissionStatus, areaName)
 end
 
 task.spawn(MissionsUI._initialize, MissionsUI)
+playerStatePromise:andThen(function()
+	for areaName, listener in statusUIListeners do
+		listener(selectors.getMissionData(store:getState(), player.Name)[areaName])
+	end
+	store.changed:connect(function(newState, oldState)
+		local newMissionData = selectors.getMissionData(newState, player.Name)
+		local oldMissionData = selectors.getMissionData(oldState, player.Name)
+		if newMissionData == oldMissionData then
+			return
+		end
+		MissionsUI:OnOpen()
+		for areaName, listener in statusUIListeners do
+			listener(newMissionData[areaName])
+		end
+	end)
+end)
+
 require(script.ProgressUI)
 
 return 0
