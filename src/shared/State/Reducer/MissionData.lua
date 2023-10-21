@@ -38,14 +38,17 @@ return Rodux.createReducer({}, {
 	completeMission = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName][action.areaName].Active = false
-
-			local playerRegion = regionUtils.getPlayerLocationName(action.playerName)
-			local nextMissionRequirements = missionRequirements[playerRegion]:FindFirstChild(
-				tostring(state[action.playerName][playerRegion].CurrentMissionNumber + 1)
+			local nextMissionRequirements = missionRequirements[action.areaName]:FindFirstChild(
+				tostring(state[action.playerName][action.areaName].CurrentMissionNumber + 1)
 			)
 			if nextMissionRequirements then
 				draft[action.playerName][action.areaName].CurrentMissionProgress = 0
 				draft[action.playerName][action.areaName].CurrentMissionNumber += 1
+			elseif action.skipped then
+				draft[action.playerName][action.areaName].CurrentMissionProgress =
+					missionRequirements[action.areaName][tostring(
+						state[action.playerName][action.areaName].CurrentMissionNumber
+					)].Requirements.Value
 			end
 		end)
 	end,

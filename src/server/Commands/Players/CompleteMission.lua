@@ -9,10 +9,5 @@ return {
 			Name = "Player",
 			Description = "The player whose mission you want to complete.",
 		},
-		{
-			Type = "number",
-			Name = "GemReward",
-			Description = "The reward you want to give in gems.",
-		},
 	},
 }

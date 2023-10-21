@@ -99,7 +99,6 @@ function MissionsUI:RolloutDialogue(dialogueSegment, gemRewardValue)
 						attributeValue,
 						'<font color="rgb(' .. table.concat(rgb, ",") .. ')">' .. gemRewardText .. "</font>"
 					)
-					print(text)
 					continue
 				end
 

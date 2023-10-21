@@ -12,11 +12,12 @@ return {
 	end),
 	completeMission = makeActionCreator(
 		"completeMission",
-		function(playerName: string, areaName: string, gemReward: number)
+		function(playerName: string, areaName: string, gemReward: number, skipped: boolean)
 			return {
 				areaName = areaName,
 				playerName = playerName,
 				gemReward = gemReward,
+				skipped = skipped,
 				shouldSave = true,
 			}
 		end

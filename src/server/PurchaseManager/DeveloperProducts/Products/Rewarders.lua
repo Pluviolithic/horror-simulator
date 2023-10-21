@@ -14,6 +14,6 @@ return {
 		local currentMissionData = selectors.getMissionData(store:getState(), player.Name)[areaName]
 		local gemReward =
 			ReplicatedStorage.Missions[areaName][tostring(currentMissionData.CurrentMissionNumber)].Gems.Value
-		store:dispatch(actions.completeMission(player.Name, areaName, gemReward))
+		store:dispatch(actions.completeMission(player.Name, areaName, gemReward, true))
 	end,
 }
