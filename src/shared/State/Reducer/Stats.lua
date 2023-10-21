@@ -3,7 +3,6 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local Immut = require(ReplicatedStorage.Common.lib.Immut)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
-local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 
@@ -82,26 +81,20 @@ return Rodux.createReducer({}, {
 	end,
 	equipPlayerPets = function(state, action)
 		local addedPetEquipCount = 0
-		local addedPetFearMultiplier = 0
-		for petName, quantity in action.petsToEquip do
+		for _, quantity in action.petsToEquip do
 			addedPetEquipCount += quantity
-			addedPetFearMultiplier += petUtils.getPet(petName).Multiplier.Value * quantity
 		end
 		return produce(state, function(draft)
 			draft[action.playerName].CurrentPetEquipCount += addedPetEquipCount
-			draft[action.playerName].FearMultiplier += addedPetFearMultiplier
 		end)
 	end,
 	unequipPlayerPets = function(state, action)
 		local removedPetEquipCount = 0
-		local removedPetFearMultiplier = 0
-		for petName, quantity in action.petsToUnequip do
+		for _, quantity in action.petsToUnequip do
 			removedPetEquipCount -= quantity
-			removedPetFearMultiplier -= petUtils.getPet(petName).Multiplier.Value * quantity
 		end
 		return produce(state, function(draft)
 			draft[action.playerName].CurrentPetEquipCount += removedPetEquipCount
-			draft[action.playerName].FearMultiplier += removedPetFearMultiplier
 		end)
 	end,
 	completeMission = function(state, action)

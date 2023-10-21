@@ -33,8 +33,10 @@ return {
 	[tostring(IDs["2PetEquipped"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount", 2))
 	end,
+	[tostring(IDs["2xStrength"].Value)] = function(player: Player)
+		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "StrengthMultiplier", 2))
+	end,
 
-	[tostring(IDs["2xStrength"].Value)] = true,
 	[tostring(IDs["2xFear"].Value)] = true,
 	[tostring(IDs["2xGems"].Value)] = true,
 	[tostring(IDs["2xSpeed"].Value)] = true,

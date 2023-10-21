@@ -63,4 +63,7 @@ return {
 	getMissionData = function(state, playerName)
 		return state.MissionData[playerName]
 	end,
+	getMultiplierData = function(state, playerName)
+		return state.MultiplierData[playerName]
+	end,
 }

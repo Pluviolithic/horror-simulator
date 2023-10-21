@@ -27,6 +27,7 @@ local function getFilteredState(playerName, state)
 		WeaponData = selectors.getWeaponData(state, playerName),
 		PurchaseData = selectors.getPurchaseData(state, playerName),
 		MissionData = selectors.getMissionData(state, playerName),
+		MultiplierData = selectors.getMultiplierData(state, playerName),
 	}
 	for field, entry in filteredState do
 		for key in entry do
@@ -113,7 +114,21 @@ local function giveMissionRewards(nextDispatch, store)
 	end
 end
 
+local function applyMultipliers(nextDispatch, store)
+	return function(action)
+		if action.statName and action.incrementAmount then
+			if action.incrementAmount > 0 then
+				local multiplier =
+					selectors.getMultiplierData(store:getState(), action.playerName)[action.statName .. "Multiplier"]
+				action.incrementAmount *= (multiplier or 1)
+			end
+		end
+		nextDispatch(action)
+	end
+end
+
 return {
+	applyMultipliers,
 	giveMissionRewards,
 	updateClientMiddleware,
 	savePlayerDataMiddleware,

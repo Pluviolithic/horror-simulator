@@ -7,12 +7,12 @@ return {
 		{
 			Type = "player",
 			Name = "Player",
-			Description = "The player whose stat you want to increment.",
+			Description = "The player whose stat you want to set.",
 		},
 		{
 			Type = "string",
 			Name = "Stat",
-			Description = "The stat you want to increment.",
+			Description = "The stat you want to set.",
 		},
 		{
 			Type = "number",

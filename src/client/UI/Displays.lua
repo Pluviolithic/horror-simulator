@@ -71,7 +71,9 @@ end):andThen(function(interfaces)
 			first = interfaces.PetInventory.Background.Multiplier.Amount,
 			second = function()
 				return "X"
-					.. formatter.truncateMultiplier(selectors.getStat(store:getState(), player.Name, "FearMultiplier"))
+					.. formatter.truncateMultiplier(
+						selectors.getMultiplierData(store:getState(), player.Name).FearMultiplier
+					)
 			end,
 		},
 		{

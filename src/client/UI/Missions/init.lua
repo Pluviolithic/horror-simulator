@@ -38,12 +38,13 @@ local function handleMissionStatusUI(statusUI, areaName)
 			if missionData.CurrentMissionProgress == currentMissionRequirements.Requirements.Value then
 				frame.Mission.Visible = false
 				frame.Completed.Visible = true
-				return
 			end
-		else
+		elseif missionData.CurrentMissionProgress ~= currentMissionRequirements.Requirements.Value then
 			frame.Completed.Visible = false
 			frame.Mission.Visible = true
-			return
+		else
+			frame.Completed.Visible = false
+			frame.Mission.Visible = false
 		end
 	end
 end
