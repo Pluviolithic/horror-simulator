@@ -42,6 +42,13 @@ petUtils = {
 		end
 		return nil
 	end,
+	getPetRarities = function(petNames: { string }): { string }
+		local rarities = {}
+		for _, petName in petNames do
+			table.insert(rarities, ReplicatedStorage.Pets:FindFirstChild(petName, true).RarityName.Value)
+		end
+		return rarities
+	end,
 	getBestPetNames = function(ownedPets, n): { string }
 		local sortedPets = {}
 		local bestPets = {}

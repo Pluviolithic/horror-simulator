@@ -1,9 +1,9 @@
 local rewarders = require(script.Rewarders)
 
-return function(player: Player, gamepassID: number): (boolean, string?)
-	if not rewarders[gamepassID] then
+return function(player: Player, productID: number): (boolean, string?)
+	if not rewarders[tostring(productID)] then
 		return
 	end
 
-	return pcall(rewarders[gamepassID], player)
+	return pcall(rewarders[tostring(productID)], player)
 end

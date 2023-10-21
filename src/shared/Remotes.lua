@@ -89,9 +89,23 @@ local Remotes = Net.CreateDefinitions {
 		},
 		Net.Middleware.TypeChecking(t.string),
 	},
+	StartMission = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+	},
+	CompleteMission = Net.Definitions.ServerFunction {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+	},
+	DisableMissionRewardPopup = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+	},
 
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
-	--SendNPCHealthBar = Net.Definitions.ServerToClientEvent(),
 	SetControlsEnabled = Net.Definitions.ServerToClientEvent(),
 }
 

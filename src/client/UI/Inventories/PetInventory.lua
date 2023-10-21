@@ -55,17 +55,17 @@ function PetInventory:_initialize(): ()
 	self._ui.Background.Storage.Buy.Activated:Connect(function()
 		local maxPetCount = selectors.getStat(store:getState(), player.Name, "MaxPetCount")
 		if maxPetCount == 30 or maxPetCount == 130 then
-			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+50"].Value)
+			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["50PetStorage"].Value)
 		else
-			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+100"].Value)
+			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["100PetStorage"].Value)
 		end
 	end)
 
 	self._ui.Background.Equipped.Buy.Activated:Connect(function()
 		if selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount") == 3 then
-			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+1PetEquipped"].Value)
+			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["1PetEquipped"].Value)
 		else
-			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["+2PetEquipped"].Value)
+			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2PetEquipped"].Value)
 		end
 	end)
 
