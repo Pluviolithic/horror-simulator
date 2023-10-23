@@ -21,6 +21,7 @@ local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.Collidab
 local statusUIListeners = {}
 local missionRequirements = ReplicatedStorage.Missions
 local missionSkipProductID = ReplicatedStorage.Config.DevProductData.IDs.MissionSkip.Value
+local doubleGemsGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs["2xGems"].Value)
 local rolloutSpeed = ReplicatedStorage.Config.Text.MissionTextRolloutSpeed.Value
 local MissionsUI = CentralUI.new(player.PlayerGui:WaitForChild "MissionsUI")
 local MissionFearRewardUI = require(script.MissionFearRewardUI)
@@ -87,6 +88,10 @@ function MissionsUI:_initialize(): ()
 end
 
 function MissionsUI:RolloutDialogue(dialogueSegment, gemRewardValue)
+	if selectors.hasGamepass(store:getState(), player.Name, doubleGemsGamepassID) then
+		gemRewardValue *= 2
+	end
+
 	local splitText = {}
 	local text = if typeof(dialogueSegment) == "string" then dialogueSegment else dialogueSegment.Value
 	local gemRewardText = formatter.formatNumberWithSuffix(gemRewardValue) .. " Gems"

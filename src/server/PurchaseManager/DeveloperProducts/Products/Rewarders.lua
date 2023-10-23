@@ -15,5 +15,6 @@ return {
 		local gemReward =
 			ReplicatedStorage.Missions[areaName][tostring(currentMissionData.CurrentMissionNumber)].Gems.Value
 		store:dispatch(actions.completeMission(player.Name, areaName, gemReward, true))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", gemReward))
 	end,
 }

@@ -25,7 +25,8 @@ Remotes.Server:Get("CompleteMission"):SetCallback(function(player: Player)
 		return false
 	end
 
-	store:dispatch(actions.completeMission(player.Name, areaName, currentMissionRequirements.Gems.Value))
+	store:dispatch(actions.completeMission(player.Name, areaName))
+	store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", currentMissionRequirements.Gems.Value))
 
 	return true
 end)

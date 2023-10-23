@@ -36,9 +36,13 @@ return {
 	[tostring(IDs["2xStrength"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "StrengthMultiplier", 2))
 	end,
+	[tostring(IDs["2xFear"].Value)] = function(player: Player)
+		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "FearMultiplier", 2))
+	end,
+	[tostring(IDs["2xGems"].Value)] = function(player: Player)
+		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "GemsMultiplier", 2))
+	end,
 
-	[tostring(IDs["2xFear"].Value)] = true,
-	[tostring(IDs["2xGems"].Value)] = true,
 	[tostring(IDs["2xSpeed"].Value)] = true,
 	[tostring(IDs["2xAttackSpeed"].Value)] = true,
 	[tostring(IDs["3xWorkoutSpeed"].Value)] = true,

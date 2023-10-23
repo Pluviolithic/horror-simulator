@@ -27,6 +27,7 @@ return {
 	MultiplierData = {
 		FearMultiplier = 1,
 		StrengthMultiplier = 1,
+		GemsMultiplier = 1,
 	},
 
 	PurchaseData = {
