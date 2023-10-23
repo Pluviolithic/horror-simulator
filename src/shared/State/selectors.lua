@@ -66,4 +66,7 @@ return {
 	getMultiplierData = function(state, playerName)
 		return state.MultiplierData[playerName]
 	end,
+	getAudioData = function(state, playerName)
+		return state.AudioData[playerName]
+	end,
 }

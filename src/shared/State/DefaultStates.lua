@@ -80,4 +80,9 @@ return {
 			ViewedRewardPopup = false,
 		},
 	},
+
+	AudioData = {
+		PrimarySoundRegion = nil,
+		BackgroundTracks = {},
+	},
 }
