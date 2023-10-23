@@ -340,13 +340,7 @@ local function handleEnemy(enemy)
 					continue
 				end
 
-				store:dispatch(
-					actions.incrementPlayerStat(
-						otherPlayer.Name,
-						"Fear",
-						damage * selectors.getMultiplierData(store:getState(), otherPlayer.Name).FearMultiplier
-					)
-				)
+				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Kills"))
 				store:dispatch(actions.logKilledEnemyType(otherPlayer.Name, enemy.Name))
 
