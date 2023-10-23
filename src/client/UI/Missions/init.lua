@@ -53,20 +53,20 @@ function MissionsUI:_initialize(): ()
 	self._janitor = Janitor.new()
 	interfaces[self] = true
 
-	self._ui.Dialogue.Cancel.Activated:Connect(function()
+	self._ui.Dialogue.Frame.Cancel.Activated:Connect(function()
 		self:setEnabled(false)
 	end)
 
-	self._ui.Dialogue.Skip.MouseEnter:Connect(function()
-		self._ui.Dialogue.Skip.ScrollText.Visible = true
+	self._ui.Dialogue.Frame.Skip.MouseEnter:Connect(function()
+		self._ui.Dialogue.Frame.Skip.ScrollText.Visible = true
 	end)
 
-	self._ui.Dialogue.Skip.MouseLeave:Connect(function()
-		self._ui.Dialogue.Skip.ScrollText.Visible = false
+	self._ui.Dialogue.Frame.Skip.MouseLeave:Connect(function()
+		self._ui.Dialogue.Frame.Skip.ScrollText.Visible = false
 	end)
 
-	self._ui.Dialogue.Skip.Visible = false
-	self._ui.Dialogue.Skip.Activated:Connect(function()
+	self._ui.Dialogue.Frame.Skip.Visible = false
+	self._ui.Dialogue.Frame.Skip.Activated:Connect(function()
 		local playerRegion = regionUtils.getPlayerLocationName(player.Name)
 		local currentMissionData = selectors.getMissionData(store:getState(), player.Name)[playerRegion]
 		local currentMissionRequirements =
@@ -184,14 +184,14 @@ function MissionsUI:OnOpen()
 
 	if currentMissionData.Active then
 		if currentMissionData.CurrentMissionProgress == currentMissionRequirements.Requirements.Value then
-			self._ui.Dialogue.Skip.Visible = false
+			self._ui.Dialogue.Frame.Skip.Visible = false
 
 			local pending = true
 			task.spawn(function()
 				self:RolloutDialogue("Good job for completing the quest!", currentMissionRequirements.Gems.Value)
 				pending = false
 			end)
-			self._janitor:Add(self._ui.Dialogue.Confirm.Activated:Connect(function()
+			self._janitor:Add(self._ui.Dialogue.Frame.Confirm.Activated:Connect(function()
 				if pending then
 					self._confirmPressed = true
 					return
@@ -204,7 +204,7 @@ function MissionsUI:OnOpen()
 				end)
 			end))
 		else
-			self._ui.Dialogue.Skip.Visible = true
+			self._ui.Dialogue.Frame.Skip.Visible = true
 
 			local pending = true
 			task.spawn(function()
@@ -214,7 +214,7 @@ function MissionsUI:OnOpen()
 				)
 				pending = false
 			end)
-			self._janitor:Add(self._ui.Dialogue.Confirm.Activated:Connect(function()
+			self._janitor:Add(self._ui.Dialogue.Frame.Confirm.Activated:Connect(function()
 				if pending then
 					self._confirmPressed = true
 					return
@@ -224,7 +224,7 @@ function MissionsUI:OnOpen()
 			end))
 		end
 	elseif currentMissionData.CurrentMissionProgress ~= currentMissionRequirements.Requirements.Value then
-		self._ui.Dialogue.Skip.Visible = true
+		self._ui.Dialogue.Frame.Skip.Visible = true
 
 		local i = 1
 		local pending = true
@@ -235,7 +235,7 @@ function MissionsUI:OnOpen()
 			pending = false
 		end)
 
-		self._janitor:Add(self._ui.Dialogue.Confirm.Activated:Connect(function()
+		self._janitor:Add(self._ui.Dialogue.Frame.Confirm.Activated:Connect(function()
 			if pending then
 				self._confirmPressed = true
 				return
@@ -252,7 +252,7 @@ function MissionsUI:OnOpen()
 			end
 		end))
 	else
-		self._ui.Dialogue.Skip.Visible = false
+		self._ui.Dialogue.Frame.Skip.Visible = false
 		local pending = true
 
 		if not currentMissionData.ViewedRewardPopup then
@@ -268,7 +268,7 @@ function MissionsUI:OnOpen()
 			pending = false
 		end)
 
-		self._janitor:Add(self._ui.Dialogue.Confirm.Activated:Connect(function()
+		self._janitor:Add(self._ui.Dialogue.Frame.Confirm.Activated:Connect(function()
 			if pending then
 				self._confirmPressed = true
 				return
