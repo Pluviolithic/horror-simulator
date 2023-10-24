@@ -45,8 +45,10 @@ soundFolder.Name = "AudioInstances"
 soundFolder.Parent = workspace
 
 store.changed:connect(function(newState, oldState)
-	local oldPrimarySoundRegion = selectors.getAudioData(oldState, player.Name).PrimarySoundRegion
-	local newPrimarySoundRegion = selectors.getAudioData(newState, player.Name).PrimarySoundRegion
+	local oldAudioData = selectors.getAudioData(oldState, player.Name)
+	local newAudioData = selectors.getAudioData(newState, player.Name)
+	local oldPrimarySoundRegion = oldAudioData.PrimarySoundRegion
+	local newPrimarySoundRegion = newAudioData.PrimarySoundRegion
 
 	-- need to analyze this chunk of code to see if it's necessary or broken
 
@@ -72,6 +74,16 @@ store.changed:connect(function(newState, oldState)
 			volumeKnobs.on[oldPrimarySoundRegion]:Cancel()
 			volumeKnobs.off[oldPrimarySoundRegion]:Play()
 		end
+	end
+
+	if
+		newPrimarySoundRegion
+		and newAudioData.BackgroundTracks[newPrimarySoundRegion]
+			~= oldAudioData.BackgroundTracks[newPrimarySoundRegion]
+	then
+		local soundInstance = createSoundInstance(newPrimarySoundRegion)
+		soundInstance.SoundId = "rbxassetid://"
+			.. selectors.getAudioData(newState, player.Name).BackgroundTracks[newPrimarySoundRegion]
 	end
 
 	-- The update cycle is such that newPrimarySoundRegion will either

@@ -24,12 +24,12 @@ return Rodux.createReducer({}, {
 	end,
 	addOccupiedSoundRegion = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName][action.occupiedSoundRegion] = true
+			draft[action.playerName].OccupiedSoundRegions[action.occupiedSoundRegion] = true
 		end)
 	end,
 	removeOccupiedSoundRegion = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName][action.occupiedSoundRegion] = nil
+			draft[action.playerName].OccupiedSoundRegions[action.deoccupiedSoundRegion] = nil
 		end)
 	end,
 	setPrimarySoundRegion = function(state, action)

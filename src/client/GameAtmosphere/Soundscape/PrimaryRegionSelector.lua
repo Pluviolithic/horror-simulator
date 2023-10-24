@@ -2,6 +2,7 @@ local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
+local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local actions = require(StarterPlayer.StarterPlayerScripts.Client.State.Actions)
@@ -11,7 +12,7 @@ local regionPriorities = ReplicatedStorage.Config.Audio.SoundRegionPriorities
 local regionsAndPriorities = {}
 
 -- initialize priority values for comparison later
-for _, regionPriority in ipairs(regionPriorities:GetChildren()) do
+for _, regionPriority in regionPriorities:GetChildren() do
 	regionsAndPriorities[regionPriority.Name] = regionPriority.Value
 end
 
@@ -22,12 +23,17 @@ store.changed:connect(function(newState, oldState)
 	local highestPriority, associatedSoundRegion = -1, nil
 
 	-- verify whether this actually does anything
-	if oldSoundRegions == newSoundRegions then
+	if
+		Sift.Array.equals(
+			Sift.Dictionary.keys(oldSoundRegions.OccupiedSoundRegions),
+			Sift.Dictionary.keys(newSoundRegions.OccupiedSoundRegions)
+		)
+	then
 		return
 	end
 
-	for region, priority in pairs(regionsAndPriorities) do
-		if not newSoundRegions[region] then
+	for region, priority in regionsAndPriorities do
+		if not newSoundRegions.OccupiedSoundRegions[region] then
 			continue
 		end
 		-- compare other regions to the current highest priority

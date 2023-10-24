@@ -83,6 +83,7 @@ return {
 
 	AudioData = {
 		PrimarySoundRegion = nil,
+		OccupiedSoundRegions = {},
 		BackgroundTracks = {},
 	},
 }
