@@ -108,8 +108,13 @@ return Rodux.createReducer({}, {
 					draft[action.playerName][playerRegion].CurrentMissionProgress
 					~= currentMissionRequirements.Requirements.Value
 				then
-					draft[action.playerName][playerRegion].CurrentMissionProgress += 1
+					draft[action.playerName][playerRegion].CurrentMissionProgress += #action.petRarities
 				end
+
+				draft[action.playerName][playerRegion].CurrentMissionProgress = math.min(
+					draft[action.playerName][playerRegion].CurrentMissionProgress,
+					currentMissionRequirements.Requirements.Value
+				)
 			elseif currentMissionRequirements:FindFirstChild "PetRarity" then
 				for _, rarity in action.petRarities do
 					if rarity ~= currentMissionRequirements.PetRarity.Value then
