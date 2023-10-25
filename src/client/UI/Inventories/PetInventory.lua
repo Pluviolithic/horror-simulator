@@ -69,42 +69,44 @@ function PetInventory:_initialize(): ()
 		end
 	end)
 
-	self._confirmationDestructors = {}
-
 	self._ui.Background.UnequipAll.Activated:Connect(function()
-		table.insert(
-			self._confirmationDestructors,
-			confirmationUI("UnequipAll", function()
-				Remotes.Client:Get("UnequipAllPets"):SendToServer()
-			end)
-		)
+		if self._confirmationDestructor then
+			self._confirmationDestructor:Cleanup()
+		end
+		self._confirmationDestructor = confirmationUI("UnequipAll", function()
+			Remotes.Client:Get("UnequipAllPets"):SendToServer()
+			self:_clearFocusedDisplay()
+		end)
 	end)
 
 	self._ui.Background.EquipBest.Activated:Connect(function()
-		table.insert(
-			self._confirmationDestructors,
-			confirmationUI("EquipBest", function()
-				Remotes.Client:Get("EquipBestPets"):SendToServer()
-			end)
-		)
+		if self._confirmationDestructor then
+			self._confirmationDestructor:Cleanup()
+		end
+		self._confirmationDestructor = confirmationUI("EquipBest", function()
+			Remotes.Client:Get("EquipBestPets"):SendToServer()
+			self:_clearFocusedDisplay()
+		end)
 	end)
 
 	self._ui.Background.EvolveAll.Activated:Connect(function()
-		table.insert(
-			self._confirmationDestructors,
-			confirmationUI("EvolveAll", function()
-				Remotes.Client:Get("EvolveAllPets"):SendToServer()
-			end)
-		)
+		if self._confirmationDestructor then
+			self._confirmationDestructor:Cleanup()
+		end
+		self._confirmationDestructor = confirmationUI("EvolveAll", function()
+			Remotes.Client:Get("EvolveAllPets"):SendToServer()
+			self:_clearFocusedDisplay()
+		end)
 	end)
 
 	self._ui.Background.DeleteAll.Activated:Connect(function()
-		table.insert(
-			self._confirmationDestructors,
-			confirmationUI("DeleteAll", function()
-				Remotes.Client:Get("DeleteAllPets"):SendToServer()
-			end)
-		)
+		if self._confirmationDestructor then
+			self._confirmationDestructor:Cleanup()
+		end
+		self._confirmationDestructor = confirmationUI("DeleteAll", function()
+			Remotes.Client:Get("DeleteAllPets"):SendToServer()
+			self:_clearFocusedDisplay()
+		end)
 	end)
 
 	playerStatePromise:andThen(function()
@@ -184,11 +186,6 @@ function PetInventory:Refresh()
 	then
 		self._ui.Background.Equipped.Buy:Destroy()
 	end
-
-	for _, confirmationDestructor in self._confirmationDestructors do
-		confirmationDestructor:Cleanup()
-	end
-	self._confirmationDestructors = {}
 
 	-- clear the inventory
 	for _, rarityTemplate in pairs(self._ui.Background.ScrollingFrame:GetChildren()) do
@@ -304,7 +301,7 @@ function PetInventory:_setFocusedDisplay(details)
 
 	self._focusedTemplate = details.PetTemplate
 
-	if not details.Locked then
+	if not details.Locked and details.PetTemplate:FindFirstChild "Unlocked" then
 		details.PetTemplate.Unlocked.Visible = true
 	end
 
@@ -352,6 +349,7 @@ function PetInventory:_setFocusedDisplay(details)
 		else
 			return
 		end
+		details.Locked = not details.Locked
 		details.Equipped = not details.Equipped
 		self:_setFocusedDisplay(details)
 	end))
