@@ -26,13 +26,10 @@ return Rodux.createReducer({}, {
 	end,
 	incrementPlayerMultiplier = function(state, action)
 		return produce(state, function(draft)
-			if state[action.playerName][action.multiplierName] < 2 then
-				draft[action.playerName][action.multiplierName] += action.incrementAmount - 1
-			else
-				draft[action.playerName][action.multiplierName] += action.incrementAmount
-			end
-			if draft[action.playerName][action.multiplierName] < 1 then
-				draft[action.playerName][action.multiplierName] += 1
+			local multiplierWholePartCount = draft[action.playerName][action.multiplierName .. "Count"] or 0
+			draft[action.playerName][action.multiplierName] += action.incrementAmount
+			if action.incrementAmount > 1 then
+				draft[action.playerName][action.multiplierName .. "Count"] = multiplierWholePartCount + 1
 			end
 		end)
 	end,
@@ -45,31 +42,33 @@ return Rodux.createReducer({}, {
 		end)
 	end,
 	equipPlayerPets = function(state, action)
-		local addedFearMultiplier = 0
-		for petName, quantity in action.petsToEquip do
-			addedFearMultiplier += petUtils.getPet(petName).Multiplier.Value * quantity
-		end
 		return produce(state, function(draft)
-			if state[action.playerName].FearMultiplier < 2 then
-				draft[action.playerName].FearMultiplier += addedFearMultiplier - 1
-			else
-				draft[action.playerName].FearMultiplier += addedFearMultiplier
+			local multiplierWholePartCount = draft[action.playerName].FearMultiplierCount or 0
+			local addedFearMultiplier = 0
+			for petName, quantity in action.petsToEquip do
+				local singleMultiplier = petUtils.getPet(petName).Multiplier.Value
+				addedFearMultiplier += singleMultiplier * quantity
+				if singleMultiplier > 1 then
+					multiplierWholePartCount += quantity
+				end
 			end
-			if draft[action.playerName].FearMultiplier < 1 then
-				draft[action.playerName].FearMultiplier += 1
-			end
+			draft[action.playerName].FearMultiplier += addedFearMultiplier
+			draft[action.playerName].FearMultiplierCount = multiplierWholePartCount
 		end)
 	end,
 	unequipPlayerPets = function(state, action)
-		local removedFearMultiplier = 0
-		for petName, quantity in action.petsToUnequip do
-			removedFearMultiplier -= petUtils.getPet(petName).Multiplier.Value * quantity
-		end
 		return produce(state, function(draft)
-			draft[action.playerName].FearMultiplier += removedFearMultiplier
-			if draft[action.playerName].FearMultiplier < 1 then
-				draft[action.playerName].FearMultiplier += 1
+			local multiplierWholePartCount = draft[action.playerName].FearMultiplierCount or 0
+			local removedFearMultiplier = 0
+			for petName, quantity in action.petsToUnequip do
+				local singleMultiplier = petUtils.getPet(petName).Multiplier.Value
+				removedFearMultiplier -= singleMultiplier * quantity
+				if singleMultiplier > 1 then
+					multiplierWholePartCount -= quantity
+				end
 			end
+			draft[action.playerName].FearMultiplier += removedFearMultiplier
+			draft[action.playerName].FearMultiplierCount = multiplierWholePartCount
 		end)
 	end,
 })

@@ -25,9 +25,9 @@ return {
 	},
 
 	MultiplierData = {
-		FearMultiplier = 1,
-		StrengthMultiplier = 1,
-		GemsMultiplier = 1,
+		FearMultiplier = 0,
+		StrengthMultiplier = 0,
+		GemsMultiplier = 0,
 	},
 
 	PetData = {

@@ -224,8 +224,12 @@ function PetInventory:Refresh()
 				Quantity = quantity,
 				PetImage = pet.ImageID.Value,
 				PetTemplate = petTemplate,
-				Multiplier = pet.Multiplier.Value + 1,
+				Multiplier = pet.Multiplier.Value,
 			}
+
+			if details.Multiplier < 1 then
+				details.Multiplier += 1
+			end
 
 			if lockCounters[petName] and lockCounters[petName] > 0 then
 				lockCounters[petName] -= 1
