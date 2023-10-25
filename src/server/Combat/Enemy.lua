@@ -340,12 +340,12 @@ local function handleEnemy(enemy)
 					continue
 				end
 
-				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage))
+				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Fear", damage, enemy.Name))
 				store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Kills"))
 				store:dispatch(actions.logKilledEnemyType(otherPlayer.Name, enemy.Name))
 
 				if damage >= maxHealth * gemRewardPercentage then
-					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Gems", gemAmountToDrop))
+					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Gems", gemAmountToDrop, enemy.Name))
 				end
 
 				--if not selectors.getCurrentTarget(store:getState(), otherPlayer.Name) then

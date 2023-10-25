@@ -120,7 +120,18 @@ local function applyMultipliers(nextDispatch, store)
 			if action.incrementAmount > 0 then
 				local multiplierData = selectors.getMultiplierData(store:getState(), action.playerName)
 				local multiplier = multiplierData[action.statName .. "Multiplier"] or 0
-				if (multiplierData[action.statName .. "MultiplierCount"] or 0) < 1 then
+				local multiplierCount = multiplierData[action.statName .. "MultiplierCount"] or 0
+
+				if action.source then
+					local sourceMultiplier = multiplierData[action.source .. action.statName .. "Multiplier"] or 0
+					local sourceMultiplierCount = multiplierData[action.source .. action.statName .. "MultiplierCount"]
+						or 0
+
+					multiplier += sourceMultiplier
+					multiplierCount += sourceMultiplierCount
+				end
+
+				if multiplierCount < 1 then
 					action.incrementAmount *= (1 + multiplier)
 				else
 					action.incrementAmount *= multiplier

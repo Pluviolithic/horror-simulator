@@ -112,7 +112,7 @@ local function handlePunchingBag(bag: any)
 					-selectors.getStat(store:getState(), player.Name, "RequiredFear")
 				)
 			)
-			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", baseStrength * multiplier))
+			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", baseStrength * multiplier, bag.Name))
 
 			local maxFearMeter = selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 			local currentFearMeter = selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")

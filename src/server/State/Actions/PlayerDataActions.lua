@@ -16,11 +16,18 @@ return {
 	end),
 	incrementPlayerStat = makeActionCreator(
 		"incrementPlayerStat",
-		function(playerName: string, statName: string, incrementAmount: number, skipMultipliers: boolean)
+		function(
+			playerName: string,
+			statName: string,
+			incrementAmount: number,
+			source: string?,
+			skipMultipliers: boolean?
+		)
 			return {
 				incrementAmount = incrementAmount,
 				playerName = playerName,
 				statName = statName,
+				source = source,
 				skipMultipliers = skipMultipliers,
 				shouldSave = true,
 			}

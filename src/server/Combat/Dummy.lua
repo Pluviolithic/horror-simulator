@@ -108,7 +108,7 @@ local function handleDummy(dummy)
 			and selectors.isPlayerLoaded(store:getState(), player.Name)
 			and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
 		do
-			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear))
+			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear, dummy.Name))
 			task.wait(1)
 		end
 
