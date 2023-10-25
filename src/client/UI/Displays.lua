@@ -70,8 +70,9 @@ end):andThen(function(interfaces)
 		{
 			first = interfaces.PetInventory.Background.Multiplier.Amount,
 			second = function()
-				local multiplier = selectors.getMultiplierData(store:getState(), player.Name).FearMultiplier
-				if multiplier < 1 then
+				local multiplierData = selectors.getMultiplierData(store:getState(), player.Name)
+				local multiplier = multiplierData.FearMultiplier or 0
+				if (multiplierData.FearMultiplierCount or 0) < 1 then
 					multiplier += 1
 				end
 				return "X" .. formatter.truncateMultiplier(multiplier)
