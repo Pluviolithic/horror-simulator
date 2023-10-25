@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local Client = StarterPlayer.StarterPlayerScripts.Client
 local player = Players.LocalPlayer
 
+local actions = require(StarterPlayer.StarterPlayerScripts.Client.State.Actions)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(Client.State.Store)
@@ -114,10 +115,7 @@ playerStatePromise:andThen(function()
 				fearMeter.ScaredTextTimer.Visible = true
 				vignette.Enabled = true
 
-				local humanoid = player.Character and player.Character:FindFirstChild "Humanoid"
-				if humanoid then
-					humanoid.WalkSpeed = 10
-				end
+				store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", -4))
 			end
 		else
 			if vignette.Enabled then
@@ -125,10 +123,7 @@ playerStatePromise:andThen(function()
 				fearMeter.ScaredTextTimer.Visible = false
 				vignette.Enabled = false
 
-				local humanoid = player.Character and player.Character:FindFirstChild "Humanoid"
-				if humanoid then
-					humanoid.WalkSpeed = 14
-				end
+				store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", 4))
 			end
 		end
 	end)

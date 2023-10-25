@@ -20,6 +20,8 @@ local profileTemplate = require(ServerScriptService.Server.PlayerManager.Profile
 local missionRequirements = ReplicatedStorage.Missions
 local displayServerLogs = ReplicatedStorage.Config.Output.DisplayServerLogs.Value
 
+local applyMultiplierToNegativeWhitelist = {}
+
 local function getFilteredState(playerName, state)
 	local filteredState = {
 		Stats = selectors.getStats(state, playerName),
@@ -117,7 +119,7 @@ end
 local function applyMultipliers(nextDispatch, store)
 	return function(action)
 		if action.statName and action.incrementAmount then
-			if action.incrementAmount > 0 then
+			if action.incrementAmount > 0 or applyMultiplierToNegativeWhitelist[action.statName] then
 				local multiplierData = selectors.getMultiplierData(store:getState(), action.playerName)
 				local multiplier = multiplierData[action.statName .. "Multiplier"] or 0
 				local multiplierCount = multiplierData[action.statName .. "MultiplierCount"] or 0
