@@ -29,10 +29,15 @@ local function checkIfObtainedRewards(player: Player)
 				warn(err)
 				continue
 			end
-			if err and typeof(rewarder) == "function" then
+			if not err then
+				continue
+			end
+			if typeof(rewarder) == "function" then
 				if pcall(rewarder, player) then
 					store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
 				end
+			else
+				store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
 			end
 		end
 	end
@@ -50,5 +55,11 @@ return function(player: Player, gamepassID: number): (boolean, string?)
 		return false
 	end
 
-	return pcall(rewarders[tostring(gamepassID)], player)
+	if typeof(rewarders[tostring(gamepassID)]) == "function" then
+		store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
+		return pcall(rewarders[tostring(gamepassID)], player)
+	else
+		store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
+		return true
+	end
 end

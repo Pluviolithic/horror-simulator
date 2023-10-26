@@ -10,15 +10,16 @@ local doubleSpeedGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs
 
 local function updateWalkSpeedMiddleware(nextDispatch, store)
 	return function(action)
+		local oldWalkSpeed, newWalkSpeed
+		if selectors.isPlayerLoaded(store:getState(), player.Name) then
+			oldWalkSpeed = selectors.getStat(store:getState(), player.Name, "WalkSpeed")
+		end
 		nextDispatch(action)
-		if
-			action.playerName ~= player.Name
-			or (action.statName ~= "WalkSpeed" and action.gamepassID ~= doubleSpeedGamepassID)
-		then
-			return
+		if selectors.isPlayerLoaded(store:getState(), player.Name) then
+			newWalkSpeed = selectors.getStat(store:getState(), player.Name, "WalkSpeed")
 		end
 		local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
-		if humanoid then
+		if humanoid and oldWalkSpeed ~= newWalkSpeed then
 			humanoid.WalkSpeed = selectors.getStat(store:getState(), player.Name, "WalkSpeed")
 			if selectors.hasGamepass(store:getState(), player.Name, doubleSpeedGamepassID) then
 				humanoid.WalkSpeed *= 2
