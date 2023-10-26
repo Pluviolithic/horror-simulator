@@ -33,6 +33,9 @@ local function getFilteredState(playerName, state)
 	}
 	for field, entry in filteredState do
 		for key in entry do
+			if key:match "Multiplier" then
+				continue
+			end
 			if not profileTemplate[field][key] then
 				entry[key] = nil
 			end

@@ -32,15 +32,18 @@ return Rodux.createReducer({}, {
 			local multiplierWholePartCount = draft[action.playerName][action.multiplierName .. "Count"] or 0
 			draft[action.playerName][action.multiplierName] += action.incrementAmount
 			if action.incrementAmount > 1 then
-				draft[action.playerName][action.multiplierName .. "Count"] = multiplierWholePartCount + 1
+				multiplierWholePartCount += 1
 			end
+			draft[action.playerName][action.multiplierName .. "Count"] = multiplierWholePartCount
 		end)
 	end,
 	setPlayerMultiplier = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName][action.multiplierName] = action.value
-			if draft[action.playerName][action.multiplierName] < 1 then
-				draft[action.playerName][action.multiplierName] += 1
+			if action.value > 1 then
+				draft[action.playerName][action.multiplierName .. "Count"] = 1
+			else
+				draft[action.playerName][action.multiplierName .. "Count"] = 0
 			end
 		end)
 	end,

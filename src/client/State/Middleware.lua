@@ -11,7 +11,10 @@ local doubleSpeedGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs
 local function updateWalkSpeedMiddleware(nextDispatch, store)
 	return function(action)
 		nextDispatch(action)
-		if action.playerName ~= player.Name or action.statName ~= "WalkSpeed" then
+		if
+			action.playerName ~= player.Name
+			or (action.statName ~= "WalkSpeed" and action.gamepassID ~= doubleSpeedGamepassID)
+		then
 			return
 		end
 		local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
