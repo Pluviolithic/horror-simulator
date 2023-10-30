@@ -5,7 +5,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 
 local server = ServerScriptService.Server
 local animations = ReplicatedStorage.CombatAnimations
-local gemRewardPercentage: number = 0.3
+local gemRewardPercentage = 0.3
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
@@ -13,8 +13,12 @@ local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 --local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-local bossRespawnRate: number = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
-local enemyRespawnRate: number = ReplicatedStorage.Config.Combat.EnemyRespawnRate.Value
+local bossRespawnRate = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
+local enemyRespawnRate = ReplicatedStorage.Config.Combat.EnemyRespawnRate.Value
+local bossAttackSpeed = ReplicatedStorage.Config.Combat.BossAttackSpeed.Value
+local enemyAttackSpeed = ReplicatedStorage.Config.Combat.EnemyAttackSpeed.Value
+local playerAttackSpeed = ReplicatedStorage.Config.Combat.PlayerAttackSpeed.Value
+local doubleAttackSpeedID = tostring(ReplicatedStorage.Config.GamepassData.IDs["2xAttackSpeed"].Value)
 
 local weapons = ReplicatedStorage.Weapons
 
@@ -26,6 +30,12 @@ local function removeIdleFromAnimationInstances(animationInstances)
 		end
 	end
 	return animationInstances
+end
+
+local function getPlayerAttackSpeed(player)
+	return if selectors.hasGamepass(store:getState(), player.Name, doubleAttackSpeedID)
+		then playerAttackSpeed / 2
+		else playerAttackSpeed
 end
 
 local function handleEnemy(enemy)
@@ -72,16 +82,30 @@ local function handleEnemy(enemy)
 	NPCUI.Enabled = true
 
 	local function startEnemyAnimations(): ()
-		local t = if isBoss then 1 else 0.5
+		local t = if isBoss then bossAttackSpeed else enemyAttackSpeed
 		runEnemyAnimations = true
 		repeat
+			task.wait(t)
+
 			attackTrack.Priority = Enum.AnimationPriority.Action
 			attackTrack:Play()
 			attackTrack.Stopped:Wait()
 			attackTrack:Destroy()
 			currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
 			attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
-			task.wait(t)
+
+			for _, player in engagedPlayers do
+				local fearMeterGoal = math.min(
+					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter") + damageValue.Value,
+					selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+				)
+				local fearMeterAddendum = fearMeterGoal
+					- selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+
+				if fearMeterAddendum ~= 0 then
+					store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", fearMeterAddendum))
+				end
+			end
 		until not runEnemyAnimations
 	end
 
@@ -222,7 +246,6 @@ local function handleEnemy(enemy)
 			end)
 		)
 
-		--task.wait(player:DistanceFromCharacter(rootPart.Position) / humanoid.WalkSpeed)
 		humanoid.MoveToFinished:Wait()
 
 		if cleanedUp or (player:DistanceFromCharacter(rootPart.Position) > fightRange + 5) then
@@ -243,20 +266,22 @@ local function handleEnemy(enemy)
 			humanoid:AddAccessory(weaponAccessory)
 		end
 
+		local currentIndex, maxIndex = 0, #animationInstances
 		task.spawn(function()
 			repeat
+				currentIndex = (currentIndex % maxIndex) + 1
 				currentTrack:Play()
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
-				currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
+				currentAnimation = animationInstances[currentIndex]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				if
 					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
 					== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 				then
-					task.wait(1)
+					task.wait(getPlayerAttackSpeed(player) * 2)
 				else
-					task.wait(0.5)
+					task.wait(getPlayerAttackSpeed(player))
 				end
 			until not runAnimations
 		end)
@@ -303,28 +328,20 @@ local function handleEnemy(enemy)
 				healthValue.Value = maxHealth - totalDamageDealt
 			end
 
-			-- now receive damage from enemy
-			if not isBoss or counter % 2 == 0 then
-				local fearMeterGoal = math.min(
-					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter") + damageValue.Value,
-					selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
-				)
-				local fearMeterAddendum = fearMeterGoal
-					- selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
-
-				if fearMeterAddendum ~= 0 then
-					store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", fearMeterAddendum))
-				end
-				--humanoid.Health -= damageValue.Value
-			end
-
 			-- need to quick exit for this one
 			if totalDamageDealt >= maxHealth then
 				break
 			end
 
 			counter += 1
-			task.wait(1)
+			if
+				selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+				== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+			then
+				task.wait(getPlayerAttackSpeed(player) * 2)
+			else
+				task.wait(getPlayerAttackSpeed(player))
+			end
 		end
 
 		if totalDamageDealt >= maxHealth then

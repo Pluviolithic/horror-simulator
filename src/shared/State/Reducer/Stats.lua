@@ -36,7 +36,6 @@ return Rodux.createReducer({}, {
 			draft[action.playerName][action.statName] += (action.incrementAmount or 1)
 			if action.statName == "Strength" then
 				draft[action.playerName].Rank = rankUtils.getRankFromStrength(draft[action.playerName][action.statName])
-				draft[action.playerName].MaxFearMeter = rankUtils.getMaxFearMeterFromRank(draft[action.playerName].Rank)
 				draft[action.playerName].RequiredFear = baseRequiredFear * draft[action.playerName][action.statName]
 			elseif action.statName == "CurrentFearMeter" then
 				if draft[action.playerName].CurrentFearMeter == draft[action.playerName].MaxFearMeter then
@@ -52,7 +51,6 @@ return Rodux.createReducer({}, {
 			draft[action.playerName][action.statName] = action.value
 			if action.statName == "Strength" then
 				draft[action.playerName].Rank = rankUtils.getRankFromStrength(draft[action.playerName][action.statName])
-				draft[action.playerName].MaxFearMeter = rankUtils.getMaxFearMeterFromRank(draft[action.playerName].Rank)
 				draft[action.playerName].RequiredFear = baseRequiredFear * draft[action.playerName][action.statName]
 			elseif action.statName == "CurrentFearMeter" then
 				if draft[action.playerName].CurrentFearMeter == draft[action.playerName].MaxFearMeter then

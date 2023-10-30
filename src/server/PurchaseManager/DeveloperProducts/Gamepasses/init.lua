@@ -56,10 +56,10 @@ return function(player: Player, gamepassID: number): (boolean, string?)
 	end
 
 	if typeof(rewarders[tostring(gamepassID)]) == "function" then
-		store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
+		store:dispatch(actions.awardGamepassToPlayer(player.Name, tostring(gamepassID)))
 		return pcall(rewarders[tostring(gamepassID)], player)
 	else
-		store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
+		store:dispatch(actions.awardGamepassToPlayer(player.Name, tostring(gamepassID)))
 		return true
 	end
 end

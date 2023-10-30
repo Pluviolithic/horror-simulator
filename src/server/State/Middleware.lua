@@ -9,6 +9,7 @@ local actions = require(server.State.Actions)
 local Enum = require(ReplicatedStorage.Common.Utils.Enum)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
+local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 --local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
@@ -144,6 +145,18 @@ local function applyMultipliers(nextDispatch, store)
 			end
 		end
 		nextDispatch(action)
+		if action.statName == "Strength" then
+			local multiplier = selectors.getMultiplierData(store:getState(), action.playerName).MaxFearMeterMultiplier
+				or 1
+			store:dispatch(
+				actions.setPlayerStat(
+					action.playerName,
+					"MaxFearMeter",
+					rankUtils.getMaxFearMeterFromRank(selectors.getStat(store:getState(), action.playerName, "Rank"))
+						* multiplier
+				)
+			)
+		end
 	end
 end
 

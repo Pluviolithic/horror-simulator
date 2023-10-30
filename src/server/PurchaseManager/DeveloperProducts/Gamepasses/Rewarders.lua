@@ -3,6 +3,8 @@ local ServerScriptService = game:GetService "ServerScriptService"
 
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
+local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 
 local IDs = ReplicatedStorage.Config.GamepassData.IDs
 
@@ -43,6 +45,16 @@ return {
 	end,
 	[tostring(IDs["2xGems"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "GemsMultiplier", 2))
+	end,
+	[tostring(IDs["2xFearMeter"].Value)] = function(player: Player)
+		store:dispatch(
+			actions.setPlayerStat(
+				player.Name,
+				"MaxFearMeter",
+				rankUtils.getMaxFearMeterFromRank(selectors.getStat(store:getState(), player.Name, "Rank") * 2)
+			)
+		)
+		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "MaxFearMeterMultiplier", 2))
 	end,
 
 	[tostring(IDs["2xSpeed"].Value)] = true,

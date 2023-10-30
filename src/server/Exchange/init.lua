@@ -14,6 +14,7 @@ local disableSwitch = Instance.new "BindableEvent"
 
 local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
 local baseStrength = ReplicatedStorage.Config.Workout.Strength.Value
+local tripleWorkoutSpeedPassID = tostring(ReplicatedStorage.Config.GamepassData.IDs["3xWorkoutSpeed"].Value)
 
 local function removeIdleFromAnimationInstances(animationInstances)
 	for i, animationInstance in animationInstances do
@@ -124,7 +125,11 @@ local function handlePunchingBag(bag: any)
 
 			store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", reductionAmount))
 
-			task.wait(workoutSpeed)
+			if selectors.hasGamepass(store:getState(), player.Name, tripleWorkoutSpeedPassID) then
+				task.wait(workoutSpeed / 3)
+			else
+				task.wait(workoutSpeed)
+			end
 		end
 
 		if connection.Connected then

@@ -4,6 +4,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 
 local server = ServerScriptService.Server
 local animations = ReplicatedStorage.CombatAnimations
+local playerAttackSpeed = ReplicatedStorage.Config.Combat.PlayerAttackSpeed.Value
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
@@ -17,6 +18,12 @@ local function removeIdleFromAnimationInstances(animationInstances)
 		end
 	end
 	return animationInstances
+end
+
+local function getPlayerAttackSpeed(player)
+	return if selectors.hasGamepass(store:getState(), player.Name, doubleAttackSpeedID)
+		then playerAttackSpeed / 2
+		else playerAttackSpeed
 end
 
 local function handleDummy(dummy)
@@ -67,6 +74,7 @@ local function handleDummy(dummy)
 		end)
 
 		humanoid.MoveToFinished:Wait()
+
 		connection:disconnect()
 		if failed then
 			return
@@ -78,14 +86,23 @@ local function handleDummy(dummy)
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 		local runAnimations: boolean = true
 
+		local currentIndex, maxIndex = 0, #animationInstances
 		task.spawn(function()
 			while runAnimations do
+				currentIndex = (currentIndex % maxIndex) + 1
 				currentTrack:Play()
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
-				currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
+				currentAnimation = animationInstances[currentIndex]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
-				task.wait(0.5)
+				if
+					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+					== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+				then
+					task.wait(getPlayerAttackSpeed(player) * 2)
+				else
+					task.wait(getPlayerAttackSpeed(player))
+				end
 			end
 		end)
 
@@ -109,7 +126,14 @@ local function handleDummy(dummy)
 			and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
 		do
 			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear, dummy.Name))
-			task.wait(1)
+			if
+				selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+				== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+			then
+				task.wait(getPlayerAttackSpeed(player) * 2)
+			else
+				task.wait(getPlayerAttackSpeed(player))
+			end
 		end
 
 		--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
