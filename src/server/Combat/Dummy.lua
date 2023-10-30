@@ -5,6 +5,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local server = ServerScriptService.Server
 local animations = ReplicatedStorage.CombatAnimations
 local playerAttackSpeed = ReplicatedStorage.Config.Combat.PlayerAttackSpeed.Value
+local doubleAttackSpeedID = tostring(ReplicatedStorage.Config.GamepassData.IDs["2xAttackSpeed"].Value)
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
