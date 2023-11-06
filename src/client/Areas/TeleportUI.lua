@@ -72,7 +72,10 @@ function TeleportUI:_initialize()
 
 		area.Teleport.Activated:Connect(function()
 			if area.Locked.Visible or area.CostUI.Visible then
-				if selectors.getStat(store:getState(), player.Name, "Gems") < area.Cost.Value then
+				if
+					selectors.getStat(store:getState(), player.Name, "Strength") < areaRequirements[area.Name].Value
+					or selectors.getStat(store:getState(), player.Name, "Gems") < area.Cost.Value
+				then
 					return
 				end
 				if confirmationJanitor then

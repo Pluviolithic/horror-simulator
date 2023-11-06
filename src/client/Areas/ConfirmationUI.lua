@@ -12,7 +12,7 @@ return function(context, callback)
 	local destructor = Janitor.new()
 	confirmationUI.Visible = true
 	confirmationUI.WarningText.Text = string.format(
-		"Unlock the %s teleport for %s Gems?",
+		'Unlock the %s teleport for <font color= "rgb(224, 18, 231)">%s Gems</font>?',
 		context.AreaName,
 		formatter.formatNumberWithSuffix(context.Cost)
 	)
@@ -20,7 +20,7 @@ return function(context, callback)
 	destructor:Add(
 		confirmationUI.Purchase.Activated:Connect(function()
 			confirmationUI.Visible = false
-			destructor:Cleanup()
+			destructor:Destroy()
 			callback()
 		end),
 		"Disconnect"
@@ -29,7 +29,7 @@ return function(context, callback)
 	destructor:Add(
 		confirmationUI.Close.Activated:Connect(function()
 			confirmationUI.Visible = false
-			destructor:Cleanup()
+			destructor:Destroy()
 		end),
 		"Disconnect"
 	)
