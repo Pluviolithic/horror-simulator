@@ -123,21 +123,9 @@ local function handleEnemy(enemy)
 		table.remove(engagedPlayers, playerIndex)
 
 		if #engagedPlayers == 0 then
-			--for inflictingPlayer in damageDealtByPlayer do
-			--if not selectors.getCurrentTarget(store:getState(), inflictingPlayer.Name) then
-			--local humanoid = if inflictingPlayer.Character
-			--	then inflictingPlayer.Character:FindFirstChildOfClass "Humanoid"
-			--	else nil
-			--if humanoid then
-			--	humanoid.Health = humanoid.MaxHealth
-			--end
-			--end
-			--end
-
 			totalDamageDealt = 0
 			healthValue.Value = maxHealth
 			table.clear(damageDealtByPlayer)
-
 			endEnemyAnimations()
 		elseif targetPlayer == player then
 			if not isBoss then
@@ -181,9 +169,6 @@ local function handleEnemy(enemy)
 			return
 		else
 			store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
-			--if not damageDealtByPlayer[player] then
-			--humanoid.Health = humanoid.MaxHealth
-			--end
 		end
 
 		local connections = {}
@@ -221,6 +206,13 @@ local function handleEnemy(enemy)
 			runAnimations = false
 			currentTrack:Stop()
 
+			local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+			if humanoid then
+				for _, animationTrack in humanoid.Animator:GetPlayingAnimationTracks() do
+					animationTrack:Stop()
+				end
+			end
+
 			--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
 				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
@@ -232,7 +224,6 @@ local function handleEnemy(enemy)
 
 		table.insert(connections, humanoid.Died:Connect(cleanUpPlayer))
 
-		--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true, enemy)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
 		table.insert(connections, humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(cleanUpPlayer))
@@ -365,14 +356,6 @@ local function handleEnemy(enemy)
 					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Gems", gemAmountToDrop, enemy.Name))
 				end
 
-				--if not selectors.getCurrentTarget(store:getState(), otherPlayer.Name) then
-				--local otherHumanoid = otherPlayer.Character
-				--	and otherPlayer.Character:FindFirstChildOfClass "Humanoid"
-				--if not otherHumanoid then
-				--	continue
-				--end
-				--otherHumanoid.Health = otherHumanoid.MaxHealth
-				--end
 			end
 
 			enemy:Destroy()

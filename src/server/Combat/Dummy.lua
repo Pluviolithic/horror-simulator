@@ -55,7 +55,6 @@ local function handleDummy(dummy)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, dummy))
 		end
 
-		--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, true)
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
 		local failed: boolean = false
@@ -63,13 +62,11 @@ local function handleDummy(dummy)
 		connection = store.changed:connect(function(newState)
 			if selectors.getCurrentTarget(newState, player.Name) ~= dummy then
 				failed = true
-				--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			end
 		end)
 
 		task.spawn(function()
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
-			--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			failed = true
 		end)
@@ -114,7 +111,6 @@ local function handleDummy(dummy)
 			end
 			runAnimations = false
 			currentTrack:Stop()
-			--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 		end)
 
