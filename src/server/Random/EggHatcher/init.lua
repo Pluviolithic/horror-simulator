@@ -79,6 +79,21 @@ local function awardPetsToPlayer(player: Player, pets: { string }, eggGemPrice):
 	store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -eggGemPrice * #pets))
 	store:dispatch(actions.givePlayerPets(player.Name, petsDict))
 	store:dispatch(actions.logHatchedPetRarities(player.Name, petUtils.getPetRarities(pets)))
+
+	local petsToEquip, counter = {}, 0
+	for _, petName in petUtils.getBestPetNames(petsDict) do
+		if
+			Sift.Dictionary.count(selectors.getEquippedPets(store:getState(), player.Name))
+			>= selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount")
+		then
+			break
+		end
+		counter += 1
+		petsToEquip[petName] = if petsToEquip[petName] then petsToEquip[petName] + 1 else 1
+	end
+	if counter > 0 then
+		store:dispatch(actions.equipPlayerPets(player.Name, petsToEquip))
+	end
 end
 
 Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: number, areaName: string)
