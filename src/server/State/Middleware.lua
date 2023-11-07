@@ -20,6 +20,7 @@ local profileTemplate = require(ServerScriptService.Server.PlayerManager.Profile
 
 local missionRequirements = ReplicatedStorage.Missions
 local displayServerLogs = ReplicatedStorage.Config.Output.DisplayServerLogs.Value
+local doubleSpeedGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs["2xSpeed"].Value)
 
 local applyMultiplierToNegativeWhitelist = {}
 
@@ -98,6 +99,29 @@ local function updateLeaderstatsMiddleware(nextDispatch, store)
 	end
 end
 
+local function updateWalkSpeedMiddleware(nextDispatch, store)
+	return function(action)
+		local oldWalkSpeed, newWalkSpeed
+		if selectors.isPlayerLoaded(store:getState(), action.playerName) then
+			oldWalkSpeed = selectors.getStat(store:getState(), action.playerName, "WalkSpeed")
+		end
+		nextDispatch(action)
+		if selectors.isPlayerLoaded(store:getState(), action.playerName) then
+			newWalkSpeed = selectors.getStat(store:getState(), action.playerName, "WalkSpeed")
+		else
+			return
+		end
+		local player = Players[action.playerName]
+		local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
+		if humanoid and oldWalkSpeed ~= newWalkSpeed then
+			humanoid.WalkSpeed = selectors.getStat(store:getState(), action.playerName, "WalkSpeed")
+			if selectors.hasGamepass(store:getState(), action.playerName, doubleSpeedGamepassID) then
+				humanoid.WalkSpeed *= 2
+			end
+		end
+	end
+end
+
 local function giveMissionRewards(nextDispatch, store)
 	return function(action)
 		local oldState = store:getState()
@@ -166,7 +190,6 @@ return {
 	updateClientMiddleware,
 	savePlayerDataMiddleware,
 	updateLeaderstatsMiddleware,
-	--instantiatePetsMiddleware,
-	--trackPlayerScaredStatusMiddleware,
+	updateWalkSpeedMiddleware,
 	if displayServerLogs then Rodux.loggerMiddleware else nil,
 }

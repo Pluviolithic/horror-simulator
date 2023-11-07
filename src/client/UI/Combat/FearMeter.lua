@@ -7,7 +7,6 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local Client = StarterPlayer.StarterPlayerScripts.Client
 local player = Players.LocalPlayer
 
-local actions = require(StarterPlayer.StarterPlayerScripts.Client.State.Actions)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(Client.State.Store)
@@ -114,16 +113,12 @@ playerStatePromise:andThen(function()
 				fearMeter.ScaredText.Visible = true
 				fearMeter.ScaredTextTimer.Visible = true
 				vignette.Enabled = true
-
-				store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", -4))
 			end
 		else
 			if vignette.Enabled then
 				fearMeter.ScaredText.Visible = false
 				fearMeter.ScaredTextTimer.Visible = false
 				vignette.Enabled = false
-
-				store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", 4))
 			end
 		end
 	end)

@@ -36,7 +36,7 @@ local function trackPlayerScaredStatus(player)
 	trackedPlayers[player] = nil
 end
 
-store.changed:connect(function(newState)
+store.changed:connect(function(newState, oldState)
 	for _, player in Players:GetPlayers() do
 		if not selectors.isPlayerLoaded(newState, player.Name) then
 			continue
@@ -44,6 +44,11 @@ store.changed:connect(function(newState)
 
 		if isScared(player.Name, newState) then
 			task.spawn(trackPlayerScaredStatus, player)
+			if not isScared(player.Name, oldState) then
+				store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", -4))
+			end
+		elseif isScared(player.Name, oldState) then
+			store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", 4))
 		end
 	end
 end)
