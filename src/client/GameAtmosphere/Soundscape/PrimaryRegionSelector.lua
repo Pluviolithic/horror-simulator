@@ -37,7 +37,7 @@ store.changed:connect(function(newState, oldState)
 			continue
 		end
 		-- compare other regions to the current highest priority
-		if priority > highestPriority and region ~= oldSoundRegions.PrimarySoundRegion then
+		if priority > highestPriority then
 			highestPriority = priority
 			associatedSoundRegion = region
 		end

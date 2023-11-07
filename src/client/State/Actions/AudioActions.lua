@@ -27,24 +27,4 @@ return {
 			playerName = playerName,
 		}
 	end),
-	updateActiveRadioList = makeActionCreator(
-		"updateActiveRadioList",
-		function(playerName: string, inRange: boolean, soundID: number)
-			return {
-				inRange = inRange,
-				soundID = soundID,
-				playerName = playerName,
-			}
-		end
-	),
-	changeBackgroundTrack = makeActionCreator(
-		"changeBackgroundTrack",
-		function(playerName: string, backgroundAreaName, newBackgroundTrack)
-			return {
-				backgroundAreaName = backgroundAreaName,
-				newBackgroundTrack = newBackgroundTrack,
-				playerName = playerName,
-			}
-		end
-	),
 }

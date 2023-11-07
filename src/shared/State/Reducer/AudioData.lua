@@ -37,9 +37,4 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].PrimarySoundRegion = action.primarySoundRegion
 		end)
 	end,
-	changeBackgroundTrack = function(state, action)
-		return produce(state, function(draft)
-			draft[action.playerName].BackgroundTracks[action.backgroundAreaName] = action.newBackgroundTrack
-		end)
-	end,
 })
