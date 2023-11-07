@@ -78,7 +78,7 @@ function TeleportUI:_initialize()
 				then
 					return
 				end
-				if confirmationJanitor then
+				if confirmationJanitor and confirmationJanitor.Destroy then
 					confirmationJanitor:Destroy()
 				end
 				confirmationJanitor = confirmationUI({
