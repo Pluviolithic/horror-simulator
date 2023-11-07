@@ -206,7 +206,7 @@ local function handleEnemy(enemy)
 			runAnimations = false
 			currentTrack:Stop()
 
-			local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+			humanoid = player.Character and player.Character:FindFirstChild "Humanoid"
 			if humanoid then
 				for _, animationTrack in humanoid.Animator:GetPlayingAnimationTracks() do
 					animationTrack:Stop()
@@ -355,7 +355,6 @@ local function handleEnemy(enemy)
 				if damage >= maxHealth * gemRewardPercentage then
 					store:dispatch(actions.incrementPlayerStat(otherPlayer.Name, "Gems", gemAmountToDrop, enemy.Name))
 				end
-
 			end
 
 			enemy:Destroy()
