@@ -42,6 +42,13 @@ petUtils = {
 		end
 		return nil
 	end,
+	countPetsInDict = function(dict): number
+		local counter = 0
+		for _, quantity in dict do
+			counter += quantity
+		end
+		return counter
+	end,
 	getPetRarities = function(petNames: { string }): { string }
 		local rarities = {}
 		for _, petName in petNames do

@@ -81,11 +81,9 @@ local function awardPetsToPlayer(player: Player, pets: { string }, eggGemPrice):
 	store:dispatch(actions.logHatchedPetRarities(player.Name, petUtils.getPetRarities(pets)))
 
 	local petsToEquip, counter = {}, 0
-	for _, petName in petUtils.getBestPetNames(petsDict) do
-		if
-			Sift.Dictionary.count(selectors.getEquippedPets(store:getState(), player.Name))
-			>= selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount")
-		then
+	local equippedPetsCount = petUtils.countPetsInDict(selectors.getEquippedPets(store:getState(), player.Name))
+	for _, petName in petUtils.getBestPetNames(petsDict, #pets) do
+		if equippedPetsCount + counter >= selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount") then
 			break
 		end
 		counter += 1
@@ -93,6 +91,7 @@ local function awardPetsToPlayer(player: Player, pets: { string }, eggGemPrice):
 	end
 	if counter > 0 then
 		store:dispatch(actions.equipPlayerPets(player.Name, petsToEquip))
+		store:dispatch(actions.lockPlayerPets(player.Name, petsToEquip))
 	end
 end
 
