@@ -7,9 +7,9 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 
 local contextMessages = {
 	UnequipAll = "Are you sure you want to Unequip All Pets?",
-	EquipBest = "Are you sure you want to Equip Your Best Pet?",
+	EquipBest = "Are you sure you want to Equip Your Best Pets?",
 	EvolveAll = "Are you sure you want to Evolve All Pets?",
-	DeleteAll = "Delete All Pets? Make sure all the pets you want to keep are Locked",
+	DeleteAll = "Delete All Pets? Make sure all the pets you want to keep are Locked.",
 }
 
 --TODO: Set up to be a promise so don't have to yield for player gui
