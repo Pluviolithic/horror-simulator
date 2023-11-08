@@ -56,7 +56,6 @@ return {
 		)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "MaxFearMeterMultiplier", 2))
 	end,
-
 	[tostring(IDs["2xSpeed"].Value)] = true,
 	[tostring(IDs["2xAttackSpeed"].Value)] = true,
 	[tostring(IDs["3xWorkoutSpeed"].Value)] = true,

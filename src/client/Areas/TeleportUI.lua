@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.ConfirmationUI)
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -12,12 +13,11 @@ local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
 
+local freeTeleportersGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs.FreeTeleporters.Value)
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local player = Players.LocalPlayer
 
 local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport")
-
-local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 local function getAreaTeleporter(areaName: string): Instance?
 	for _, teleporter in CollectionService:GetTagged "AreaTeleport" do
@@ -48,6 +48,10 @@ function TeleportUI:_initialize()
 						selectors.getPurchasedTeleporters(newState, player.Name),
 						selectors.getPurchasedTeleporters(oldState, player.Name)
 					)
+					or (
+						selectors.hasGamepass(newState, player.Name, freeTeleportersGamepassID)
+						and not selectors.hasGamepass(oldState, player.Name, freeTeleportersGamepassID)
+					)
 				)
 			then
 				self:Refresh()
@@ -71,10 +75,14 @@ function TeleportUI:_initialize()
 		area.Teleport.Active = true
 
 		area.Teleport.Activated:Connect(function()
+			local hasFreeTeleporters = selectors.hasGamepass(store:getState(), player.Name, freeTeleportersGamepassID)
 			if area.Locked.Visible or area.CostUI.Visible then
 				if
 					selectors.getStat(store:getState(), player.Name, "Strength") < areaRequirements[area.Name].Value
-					or selectors.getStat(store:getState(), player.Name, "Gems") < area.Cost.Value
+					or (
+						selectors.getStat(store:getState(), player.Name, "Gems") < area.Cost.Value
+						and not hasFreeTeleporters
+					)
 				then
 					return
 				end
@@ -83,7 +91,7 @@ function TeleportUI:_initialize()
 				end
 				confirmationJanitor = confirmationUI({
 					AreaName = area.Name,
-					Cost = area.Cost.Value,
+					Cost = if hasFreeTeleporters then 0 else area.Cost.Value,
 				}, function()
 					Remotes.Client:Get("PurchaseTeleporter"):SendToServer(area.Name)
 				end)
@@ -114,6 +122,10 @@ function TeleportUI:Refresh()
 		if selectors.hasTeleporter(store:getState(), player.Name, requirement.Name) then
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = false
 		elseif not shouldLock then
+			if selectors.hasGamepass(store:getState(), player.Name, freeTeleportersGamepassID) then
+				self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Text =
+					'<font color= "rgb(224, 18, 231)">0 Gems</font>?'
+			end
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = true
 		end
 	end
