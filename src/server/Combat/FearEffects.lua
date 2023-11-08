@@ -6,6 +6,7 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
+local doubleFearMeterGamepassID = tostring(ReplicatedStorage.Config.Gamepasses.DoubleFearMeter.Value)
 local trackedPlayers = {}
 
 local function isScared(playerName, state)
@@ -49,6 +50,8 @@ store.changed:connect(function(newState, oldState)
 		elseif isScared(player.Name, oldState) then
 			store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", 4))
 		end
+		-- if player has bought the 2x fear meter, reset their fear meter
+		if
 	end
 end)
 
