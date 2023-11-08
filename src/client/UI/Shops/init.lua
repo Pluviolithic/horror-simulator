@@ -4,8 +4,7 @@ local StarterPlayer = game:GetService "StarterPlayer"
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local ZoneUtils = require(ReplicatedStorage.Common.Utils.ZoneUtils)
 local Zone = require(ReplicatedStorage.Common.lib.ZonePlus)
-local interfaces =
-	require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces) :: { [typeof(setmetatable({}, CentralUI))]: boolean }
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 for _, module in script:GetChildren() do
 	task.spawn(function()
