@@ -1,5 +1,6 @@
 local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
+local ContentProvider = game:GetService "ContentProvider"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local player = Players.LocalPlayer
@@ -70,5 +71,11 @@ playerStatePromise:andThen(function()
 		end
 	end)
 end)
+
+local jumpscareAnimations = {}
+for _, jumpscare in jumpscares:GetChildren() do
+	table.insert(jumpscareAnimations, jumpscare.Enemy.Configuration.Anim)
+end
+ContentProvider:PreloadAsync(jumpscareAnimations)
 
 return 0
