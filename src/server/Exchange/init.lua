@@ -23,9 +23,10 @@ local function getSortedAnimationInstances(animationInstances)
 			break
 		end
 	end
-	return table.sort(animationInstances, function(a, b)
-		return tonumber(a.Name:match "%d+") or 0 < tonumber(b.Name:match "%d+") or 0
+	table.sort(animationInstances, function(a, b)
+		return tonumber(a.Name:match "%d+") < tonumber(b.Name:match "%d+")
 	end)
+	return animationInstances
 end
 
 local function handlePunchingBag(bag: any)

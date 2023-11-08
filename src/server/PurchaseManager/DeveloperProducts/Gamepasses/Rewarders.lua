@@ -59,5 +59,5 @@ return {
 	[tostring(IDs["2xSpeed"].Value)] = true,
 	[tostring(IDs["2xAttackSpeed"].Value)] = true,
 	[tostring(IDs["3xWorkoutSpeed"].Value)] = true,
-	[tostring(IDs.FreeTeleporter.Value)] = true,
+	[tostring(IDs.FreeTeleporters.Value)] = true,
 }

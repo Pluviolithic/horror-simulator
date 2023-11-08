@@ -6,7 +6,7 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-local doubleFearMeterGamepassID = tostring(ReplicatedStorage.Config.Gamepasses.DoubleFearMeter.Value)
+local doubleFearMeterGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs["2xFearMeter"].Value)
 local trackedPlayers = {}
 
 local function isScared(playerName, state)
@@ -52,6 +52,7 @@ store.changed:connect(function(newState, oldState)
 		end
 		if
 			selectors.hasGamepass(newState, player.Name, doubleFearMeterGamepassID)
+			and selectors.isPlayerLoaded(oldState, player.Name)
 			and not selectors.hasGamepass(oldState, player.Name, doubleFearMeterGamepassID)
 		then
 			store:dispatch(actions.setPlayerStat(player.Name, "CurrentFearMeter", 0))
