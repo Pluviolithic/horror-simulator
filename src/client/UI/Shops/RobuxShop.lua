@@ -5,10 +5,10 @@ local MarketplaceService = game:GetService "MarketplaceService"
 
 local player = Players.LocalPlayer
 
-local Remotes = require(ReplicatedStorage.Common.Remotes)
-local Table = require(ReplicatedStorage.Common.Utils.Table)
-local selectors = require(ReplicatedStorage.Common.State.selectors)
-local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+--local Remotes = require(ReplicatedStorage.Common.Remotes)
+--local Table = require(ReplicatedStorage.Common.Utils.Table)
+--local selectors = require(ReplicatedStorage.Common.State.selectors)
+--local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
@@ -55,14 +55,14 @@ function RobuxShop:_initialize(): ()
 		self:_closeFramesWithExclude(self._ui.Background.PetsFrame)
 	end)
 
-    for _, buttonDisplay in self._ui.Background.GamepassesFrame:GetChildren() do
-        local gamepassIDInstance = gamepassIDs:FindFirstChild(button.Name)
-        if gamepassIDInstance then
-            buttonDisplay.Purchase.Activated:Connect(function()
-                MarketplaceService:PromptGamePassPurchase(player, gamepassIDInstance.Value)
-            end)
-        end
-    end
+	for _, buttonDisplay in self._ui.Background.GamepassesFrame:GetChildren() do
+		local gamepassIDInstance = gamepassIDs:FindFirstChild(buttonDisplay.Name)
+		if gamepassIDInstance then
+			buttonDisplay.Purchase.Activated:Connect(function()
+				MarketplaceService:PromptGamePassPurchase(player, gamepassIDInstance.Value)
+			end)
+		end
+	end
 end
 
 task.spawn(RobuxShop._initialize, RobuxShop)

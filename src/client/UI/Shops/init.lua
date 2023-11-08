@@ -1,7 +1,6 @@
-local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local StarterPlayer = game:GetService "StarterPlayer"
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
-local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local ZoneUtils = require(ReplicatedStorage.Common.Utils.ZoneUtils)
 local Zone = require(ReplicatedStorage.Common.lib.ZonePlus)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
