@@ -10,7 +10,8 @@ return {
 		Rank = 1,
 
 		WalkSpeed = 14,
-		RequiredFear = game:GetService("ReplicatedStorage").Config.Workout.RequiredFear.Value,
+		RequiredFear = game:GetService("ReplicatedStorage").Config.Workout.RequiredFear.Value
+			* game:GetService("ReplicatedStorage").Config.Workout.Strength.Value,
 		MaxFearMeter = 100,
 		CurrentFearMeter = 0,
 		LastScaredTimestamp = -1,
