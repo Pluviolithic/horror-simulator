@@ -28,45 +28,45 @@ return {
 		return state.CombatData[playerName].CurrentEnemy or state.CombatData[playerName].CurrentPunchingBag
 	end,
 	getEquippedPets = function(state, playerName)
-		return state.PetData[playerName].EquippedPets
+		return table.clone(state.PetData[playerName].EquippedPets)
 	end,
 	getLockedPets = function(state, playerName)
-		return state.PetData[playerName].LockedPets
+		return table.clone(state.PetData[playerName].LockedPets)
 	end,
 	getOwnedPets = function(state, playerName)
-		return state.PetData[playerName].OwnedPets
+		return table.clone(state.PetData[playerName].OwnedPets)
 	end,
 	getFoundPets = function(state, playerName)
-		return state.PetData[playerName].FoundPets
+		return table.clone(state.PetData[playerName].FoundPets)
 	end,
 	getEquippedWeapon = function(state, playerName)
 		return state.WeaponData[playerName].EquippedWeapon
 	end,
 	getOwnedWeapons = function(state, playerName)
-		return state.WeaponData[playerName].OwnedWeapons
+		return table.clone(state.WeaponData[playerName].OwnedWeapons)
 	end,
 	getStats = function(state, playerName)
-		return state.Stats[playerName]
+		return table.clone(state.Stats[playerName])
 	end,
 	getPurchaseData = function(state, playerName)
-		return state.PurchaseData[playerName]
+		return table.clone(state.PurchaseData[playerName])
 	end,
 	getPurchasedTeleporters = function(state, playerName)
-		return state.PurchaseData[playerName].PurchasedTeleporters
+		return table.clone(state.PurchaseData[playerName].PurchasedTeleporters)
 	end,
 	getPetData = function(state, playerName)
-		return state.PetData[playerName]
+		return table.clone(state.PetData[playerName])
 	end,
 	getWeaponData = function(state, playerName)
-		return state.WeaponData[playerName]
+		return table.clone(state.WeaponData[playerName])
 	end,
 	getMissionData = function(state, playerName)
-		return state.MissionData[playerName]
+		return table.clone(state.MissionData[playerName])
 	end,
 	getMultiplierData = function(state, playerName)
-		return state.MultiplierData[playerName]
+		return table.clone(state.MultiplierData[playerName])
 	end,
 	getAudioData = function(state, playerName)
-		return state.AudioData[playerName]
+		return table.clone(state.AudioData[playerName])
 	end,
 }

@@ -21,7 +21,7 @@ return Rodux.createReducer({}, {
 	end,
 	resetPlayerData = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = defaultStates.MultiplierData
+			draft[action.playerName] = table.clone(defaultStates.MultiplierData)
 		end)
 	end,
 	incrementPlayerMultiplier = function(state, action)

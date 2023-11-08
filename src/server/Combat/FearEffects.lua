@@ -9,6 +9,9 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local trackedPlayers = {}
 
 local function isScared(playerName, state)
+	if not selectors.isPlayerLoaded(state, playerName) then
+		return false
+	end
 	return selectors.getStat(state, playerName, "CurrentFearMeter")
 			== selectors.getStat(state, playerName, "MaxFearMeter")
 		and (os.time() - selectors.getStat(state, playerName, "LastScaredTimestamp")) < 121
@@ -38,10 +41,6 @@ end
 
 store.changed:connect(function(newState, oldState)
 	for _, player in Players:GetPlayers() do
-		if not selectors.isPlayerLoaded(newState, player.Name) then
-			continue
-		end
-
 		if isScared(player.Name, newState) then
 			task.spawn(trackPlayerScaredStatus, player)
 			if not isScared(player.Name, oldState) then

@@ -25,6 +25,7 @@ local doubleSpeedGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs
 local applyMultiplierToNegativeWhitelist = {}
 
 local function getFilteredState(playerName, state)
+	state = table.clone(state)
 	local filteredState = {
 		Stats = selectors.getStats(state, playerName),
 		PetData = selectors.getPetData(state, playerName),
@@ -60,7 +61,7 @@ end
 
 local function savePlayerDataMiddleware(nextDispatch, store)
 	return function(action)
-		local oldState = store:getState()
+		local oldState = table.clone(store:getState())
 		nextDispatch(action)
 		if not action.shouldSave then
 			return
@@ -124,7 +125,7 @@ end
 
 local function giveMissionRewards(nextDispatch, store)
 	return function(action)
-		local oldState = store:getState()
+		local oldState = table.clone(store:getState())
 		nextDispatch(action)
 		if action.type ~= "logKilledEnemyType" then
 			return

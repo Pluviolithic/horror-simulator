@@ -22,7 +22,7 @@ return Rodux.createReducer({}, {
 	end,
 	resetPlayerData = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = defaultStates.MissionData
+			draft[action.playerName] = table.clone(defaultStates.MissionData)
 		end)
 	end,
 	startMission = function(state, action)

@@ -45,11 +45,11 @@ dependencies = []
 [[package]]
 name = "pluviolithic/horror-simulator"
 version = "1.0.0"
-dependencies = [["Datastructures", "howmanysmall/datastructures@1.1.1"], ["Immut", "solarhorizon/immut@0.4.4"], ["Janitor", "howmanysmall/janitor@1.15.1"], ["Net", "vorlias/net@3.0.4"], ["Promise", "evaera/promise@3.2.1"], ["Rodux", "roblox/rodux@4.0.0-rc.0"], ["Sift", "csqrl/sift@0.0.3"], ["ZonePlus", "legendoj1/zoneplus@3.2.2"], ["t", "osyrisrblx/t@3.0.0"]]
+dependencies = [["Datastructures", "howmanysmall/datastructures@1.1.1"], ["Immut", "solarhorizon/immut@0.4.4"], ["Janitor", "howmanysmall/janitor@1.15.1"], ["Net", "vorlias/net@3.0.4"], ["Promise", "evaera/promise@3.2.1"], ["Rodux", "roblox/rodux@3.0.0"], ["Sift", "csqrl/sift@0.0.3"], ["ZonePlus", "legendoj1/zoneplus@3.2.2"], ["t", "osyrisrblx/t@3.0.0"]]
 
 [[package]]
 name = "roblox/rodux"
-version = "4.0.0-rc.0"
+version = "3.0.0"
 dependencies = []
 
 [[package]]

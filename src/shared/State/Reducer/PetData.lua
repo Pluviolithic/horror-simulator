@@ -20,7 +20,7 @@ return Rodux.createReducer({}, {
 	end,
 	resetPlayerData = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = defaultStates.PetData
+			draft[action.playerName] = table.clone(defaultStates.PetData)
 		end)
 	end,
 	givePlayerPets = function(state, action)

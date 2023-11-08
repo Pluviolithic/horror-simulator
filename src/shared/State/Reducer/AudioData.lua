@@ -9,7 +9,7 @@ local produce = Immut.produce
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = defaultStates.AudioData
+			draft[action.playerName] = table.clone(defaultStates.AudioData)
 		end)
 	end,
 	removePlayer = function(state, action)
@@ -19,7 +19,7 @@ return Rodux.createReducer({}, {
 	end,
 	resetPlayerData = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = defaultStates.AudioData
+			draft[action.playerName] = table.clone(defaultStates.AudioData)
 		end)
 	end,
 	addOccupiedSoundRegion = function(state, action)
