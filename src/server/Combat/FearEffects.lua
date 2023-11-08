@@ -50,8 +50,12 @@ store.changed:connect(function(newState, oldState)
 		elseif isScared(player.Name, oldState) then
 			store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", 4))
 		end
-		-- if player has bought the 2x fear meter, reset their fear meter
 		if
+			selectors.hasGamepass(newState, player.Name, doubleFearMeterGamepassID)
+			and not selectors.hasGamepass(oldState, player.Name, doubleFearMeterGamepassID)
+		then
+			store:dispatch(actions.setPlayerStat(player.Name, "CurrentFearMeter", 0))
+		end
 	end
 end)
 
