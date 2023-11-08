@@ -80,9 +80,8 @@ local function handleDummy(dummy)
 			return
 		end
 
+		local currentAnimation, currentTrack = nil, nil
 		local animationInstances = getSortedAnimationInstances(animations.Fists:GetChildren())
-		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
-		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 		local runAnimations: boolean = true
 
 		local currentIndex, maxIndex = 0, #animationInstances

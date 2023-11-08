@@ -16,14 +16,16 @@ local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
 local baseStrength = ReplicatedStorage.Config.Workout.Strength.Value
 local tripleWorkoutSpeedPassID = tostring(ReplicatedStorage.Config.GamepassData.IDs["3xWorkoutSpeed"].Value)
 
-local function removeIdleFromAnimationInstances(animationInstances)
+local function getSortedAnimationInstances(animationInstances)
 	for i, animationInstance in animationInstances do
 		if animationInstance.Name == "Idle" then
 			table.remove(animationInstances, i)
 			break
 		end
 	end
-	return animationInstances
+	return table.sort(animationInstances, function(a, b)
+		return tonumber(a.Name:match "%d+") or 0 < tonumber(b.Name:match "%d+") or 0
+	end)
 end
 
 local function handlePunchingBag(bag: any)
@@ -63,10 +65,8 @@ local function handlePunchingBag(bag: any)
 			part.Color = Color3.fromRGB(0, 255, 0)
 		end
 
-		local animationInstances: { Animation } =
-			removeIdleFromAnimationInstances(animations:FindFirstChild("Fists"):GetChildren())
-		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
-		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
+		local currentAnimation, currentTrack = nil, nil
+		local animationInstances = getSortedAnimationInstances(animations:FindFirstChild("Fists"):GetChildren())
 
 		local connection
 		connection = disableSwitch.Event:Connect(function(disablingPlayer: Player)
@@ -86,13 +86,15 @@ local function handlePunchingBag(bag: any)
 			end
 		end)
 
+		local currentIndex, maxIndex = 0, #animationInstances
 		task.spawn(function()
 			repeat
+				currentIndex = (currentIndex % maxIndex) + 1
+				currentAnimation = animationInstances[currentIndex]:Clone()
+				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				currentTrack:Play()
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
-				currentAnimation = animationInstances[math.random(#animationInstances)]:Clone()
-				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				task.wait(workoutSpeed)
 			until cancelled
 		end)
