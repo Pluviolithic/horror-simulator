@@ -22,14 +22,16 @@ local doubleAttackSpeedID = tostring(ReplicatedStorage.Config.GamepassData.IDs["
 
 local weapons = ReplicatedStorage.Weapons
 
-local function removeIdleFromAnimationInstances(animationInstances)
+local function getSortedAnimationInstances(animationInstances)
 	for i, animationInstance in animationInstances do
 		if animationInstance.Name == "Idle" then
 			table.remove(animationInstances, i)
 			break
 		end
 	end
-	return animationInstances
+	return table.sort(animationInstances, function(a, b)
+		return tonumber(a.Name:match "%d+") or 0 < tonumber(b.Name:match "%d+") or 0
+	end)
 end
 
 local function getPlayerAttackSpeed(player)
@@ -54,8 +56,7 @@ local function handleEnemy(enemy)
 		else nil
 
 	local runEnemyAnimations: boolean = false
-	local attackAnimations: { Animation } =
-		removeIdleFromAnimationInstances(enemy.Configuration.AttackAnims:GetChildren())
+	local attackAnimations = getSortedAnimationInstances(enemy.Configuration.AttackAnims:GetChildren())
 	local currentAttackAnimation: Animation = attackAnimations[math.random(#attackAnimations)]:Clone()
 	local attackTrack: AnimationTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
 
@@ -175,11 +176,10 @@ local function handleEnemy(enemy)
 		local cleanedUp: boolean = false
 		local runAnimations: boolean = true
 
-		local animationInstances: { Animation } = removeIdleFromAnimationInstances(
+		local currentAnimation, currentTrack = nil, nil
+		local animationInstances = getSortedAnimationInstances(
 			animations[selectors.getEquippedWeapon(store:getState(), player.Name)]:GetChildren()
 		)
-		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
-		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 
 		local function cleanUpPlayer(skipPlayerRemoval: boolean?): ()
 			if cleanedUp then
@@ -206,14 +206,6 @@ local function handleEnemy(enemy)
 			runAnimations = false
 			currentTrack:Stop()
 
-			humanoid = player.Character and player.Character:FindFirstChild "Humanoid"
-			if humanoid then
-				for _, animationTrack in humanoid.Animator:GetPlayingAnimationTracks() do
-					animationTrack:Stop()
-				end
-			end
-
-			--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 			if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
 				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			end
@@ -261,11 +253,11 @@ local function handleEnemy(enemy)
 		task.spawn(function()
 			repeat
 				currentIndex = (currentIndex % maxIndex) + 1
+				currentAnimation = animationInstances[currentIndex]:Clone()
+				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				currentTrack:Play()
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
-				currentAnimation = animationInstances[currentIndex]:Clone()
-				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				if
 					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
 					== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")

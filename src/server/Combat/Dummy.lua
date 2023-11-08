@@ -11,14 +11,16 @@ local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-local function removeIdleFromAnimationInstances(animationInstances)
+local function getSortedAnimationInstances(animationInstances)
 	for i, animationInstance in animationInstances do
 		if animationInstance.Name == "Idle" then
 			table.remove(animationInstances, i)
 			break
 		end
 	end
-	return animationInstances
+	return table.sort(animationInstances, function(a, b)
+		return tonumber(a.Name:match "%d+") or 0 < tonumber(b.Name:match "%d+") or 0
+	end)
 end
 
 local function getPlayerAttackSpeed(player)
@@ -78,8 +80,7 @@ local function handleDummy(dummy)
 			return
 		end
 
-		local animationInstances: { Animation } =
-			removeIdleFromAnimationInstances(animations.Fists:GetChildren()) :: { Animation }
+		local animationInstances = getSortedAnimationInstances(animations.Fists:GetChildren())
 		local currentAnimation: Animation = animationInstances[math.random(#animationInstances)]:Clone()
 		local currentTrack: AnimationTrack = humanoid:LoadAnimation(currentAnimation)
 		local runAnimations: boolean = true
@@ -88,11 +89,11 @@ local function handleDummy(dummy)
 		task.spawn(function()
 			while runAnimations do
 				currentIndex = (currentIndex % maxIndex) + 1
+				currentAnimation = animationInstances[currentIndex]:Clone()
+				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				currentTrack:Play()
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
-				currentAnimation = animationInstances[currentIndex]:Clone()
-				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				if
 					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
 					== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
