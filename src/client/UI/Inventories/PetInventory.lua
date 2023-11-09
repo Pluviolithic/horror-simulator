@@ -62,7 +62,10 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.Equipped.Buy.Activated:Connect(function()
-		if selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount") == 3 then
+		if
+			not selectors.hasGamepass(store:getState(), player.Name, tostring(gamepassIDs["1PetEquipped"].Value))
+			or selectors.hasGamepass(store:getState(), player.Name, tostring(gamepassIDs["2PetEquipped"].Value))
+		then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["1PetEquipped"].Value)
 		else
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2PetEquipped"].Value)
