@@ -107,6 +107,7 @@ local Remotes = Net.CreateDefinitions {
 
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
 	SetControlsEnabled = Net.Definitions.ServerToClientEvent(),
+	NotifyOfShutdown = Net.Definitions.ServerToClientEvent(),
 }
 
 return Remotes

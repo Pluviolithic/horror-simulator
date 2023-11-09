@@ -93,5 +93,6 @@ Remotes.Server:Get("GetGlobalState"):SetCallback(function()
 end)
 
 require(script.GlobalLeaderboards)
+require(script.SoftShutdown)
 
 return 0
