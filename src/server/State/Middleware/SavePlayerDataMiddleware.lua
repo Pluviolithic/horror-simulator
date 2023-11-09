@@ -1,0 +1,51 @@
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local ServerScriptService = game:GetService "ServerScriptService"
+
+local selectors = require(ReplicatedStorage.Common.State.selectors)
+local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
+local profileTemplate = require(ServerScriptService.Server.PlayerManager.ProfileTemplate)
+
+local function getFilteredState(playerName, state)
+	state = table.clone(state)
+	local filteredState = {
+		Stats = selectors.getStats(state, playerName),
+		PetData = selectors.getPetData(state, playerName),
+		WeaponData = selectors.getWeaponData(state, playerName),
+		PurchaseData = selectors.getPurchaseData(state, playerName),
+		MissionData = selectors.getMissionData(state, playerName),
+		--MultiplierData = selectors.getMultiplierData(state, playerName),
+	}
+	for field, entry in filteredState do
+		for key in entry do
+			if key:match "Multiplier" then
+				continue
+			end
+			if not profileTemplate[field][key] then
+				entry[key] = nil
+			end
+		end
+	end
+	return filteredState
+end
+
+return function(nextDispatch, store)
+	return function(action)
+		local oldState = table.clone(store:getState())
+		nextDispatch(action)
+		if not action.shouldSave then
+			return
+		end
+
+		local newState = store:getState()
+		local profileData = profiles[action.playerName].Data
+
+		local filteredOldState = getFilteredState(action.playerName, oldState)
+		local filteredNewState = getFilteredState(action.playerName, newState)
+
+		for key, value in filteredNewState do
+			if filteredOldState[key] ~= value then
+				profileData[key] = value
+			end
+		end
+	end
+end
