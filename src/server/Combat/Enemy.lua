@@ -205,7 +205,9 @@ local function handleEnemy(enemy)
 			end
 
 			runAnimations = false
-			currentTrack:Stop()
+			if currentTrack then
+				currentTrack:Stop()
+			end
 
 			if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
 				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
