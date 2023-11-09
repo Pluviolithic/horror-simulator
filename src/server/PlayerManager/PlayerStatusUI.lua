@@ -8,6 +8,7 @@ local store = require(ServerScriptService.Server.State.Store)
 --local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 local playerUITemplate = ReplicatedStorage.PlayerUI:Clone()
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local VIPGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs.VIP.Value)
 
 function PlayerStatusUI.new(player: Player)
 	local self = setmetatable({}, PlayerStatusUI)
@@ -35,18 +36,11 @@ function PlayerStatusUI:_updateUIFields(state)
 	playerUIFrame.Scared.Visible = selectors.getStat(state, self._player.Name, "CurrentFearMeter")
 		== selectors.getStat(state, self._player.Name, "MaxFearMeter")
 
-	--local humanoid: Humanoid = self._player.Character and self._player.Character:FindFirstChildWhichIsA "Humanoid"
-
-	--if not humanoid then
-	--	return
-	--end
-
-	--local healthDisplay = self._activePlayerUI.Health
-	--if selectors.getCurrentTarget(state, self._player.Name) then
-	--	healthDisplay.Visible = true
-	--else
-	--	healthDisplay.Visible = false
-	--end
+	if selectors.hasGamepass(state, self._player.Name, VIPGamepassID) then
+		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 182, 12)
+	else
+		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 255, 255)
+	end
 end
 
 function PlayerStatusUI:_applyUI(character: Model)
@@ -55,11 +49,6 @@ function PlayerStatusUI:_applyUI(character: Model)
 		self._listener:disconnect()
 	end
 	self._activePlayerUI = self._playerUI:Clone()
-	--self._healthBar = HealthBar.new(self._activePlayerUI.Health.Frame)
-
-	--task.spawn(function()
-	--self._healthBar:connect(character:WaitForChild "Humanoid")
-	--end)
 
 	self:_updateUIFields(store:getState())
 	self._listener = store.changed:connect(function(newState)

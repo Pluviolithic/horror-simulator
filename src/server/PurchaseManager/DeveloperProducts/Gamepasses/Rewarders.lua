@@ -18,6 +18,7 @@ return {
 		store:dispatch(actions.equipWeapon(player.Name, "Hero Blade"))
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "Training DummyFearMultiplier", 0.5))
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "PunchingBagStrengthMultiplier", 0.2))
+		player:SetAttribute("isVIP", true)
 	end,
 	[tostring(IDs["50PetStorage"].Value)] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 50))

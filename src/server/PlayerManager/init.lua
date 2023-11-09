@@ -10,10 +10,11 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local PlayerStatusUI = require(ServerScriptService.Server.PlayerManager.PlayerStatusUI)
+local VIPGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs.VIP.Value)
 
 local profileStore = ProfileService.GetProfileStore("PlayerData", profileTemplate)
 
-local function initializeLeaderboard(player: Player, data: typeof(profileTemplate))
+local function initializeLeaderboard(player: Player, data)
 	local leaderstats = Instance.new "Folder"
 	leaderstats.Name = "leaderstats"
 
@@ -65,6 +66,12 @@ local function onPlayerAdded(player: Player)
 		profiles[player.Name] = profile
 		store:dispatch(actions.addPlayer(player.Name, profile.Data))
 		store:dispatch(actions.incrementPlayerStat(player.Name, "LogInCount"))
+
+		if profile.Data.PurchaseData.AwardedGamepasses[VIPGamepassID] then
+			player:SetAttribute("isVIP", true)
+		else
+			player:SetAttribute("isVIP", false)
+		end
 	end
 end
 

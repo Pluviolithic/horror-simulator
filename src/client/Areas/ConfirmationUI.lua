@@ -12,7 +12,7 @@ return function(context, callback)
 	local destructor = Janitor.new()
 	confirmationUI.Visible = true
 	confirmationUI.WarningText.Text = string.format(
-		'Unlock the %s teleport for <font color= "rgb(224, 18, 231)">%s Gems</font>?',
+		'Unlock the %s teleport for <font color="rgb(224, 18, 231)">%s Gems</font>?',
 		context.AreaName,
 		formatter.formatNumberWithSuffix(context.Cost)
 	)
