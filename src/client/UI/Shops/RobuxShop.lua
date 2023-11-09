@@ -55,7 +55,7 @@ function RobuxShop:_initialize(): ()
 		self:_closeFramesWithExclude(self._ui.Background.PetsFrame)
 	end)
 
-	for _, buttonDisplay in self._ui.Background.GamepassesFrame:GetChildren() do
+	for _, buttonDisplay in self._ui.Background.GamepassesFrame.ScrollingFrame:GetChildren() do
 		local gamepassIDInstance = gamepassIDs:FindFirstChild(buttonDisplay.Name)
 		if gamepassIDInstance then
 			buttonDisplay.Purchase.Activated:Connect(function()
