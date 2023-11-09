@@ -15,7 +15,7 @@ game:BindToClose(function()
 	if game.PrivateServerId ~= "" and game.PrivateServerOwnerId == 0 then
 		local waitTime = 5
 		Players.PlayerAdded:Connect(function(player)
-			task.wait(5)
+			task.wait(waitTime)
 			waitTime /= 2
 			TeleportService:Teleport(game.PlaceId, player)
 		end)
