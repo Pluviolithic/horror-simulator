@@ -2,6 +2,7 @@ local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local MarketplaceService = game:GetService "MarketplaceService"
 
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.ConfirmationUI)
@@ -65,6 +66,10 @@ function TeleportUI:_initialize()
 		self:setEnabled(not self._isOpen)
 	end)
 
+	self._ui.Ad.Activated:Connect(function()
+		MarketplaceService:PromptGamePassPurchase(player, tonumber(freeTeleportersGamepassID))
+	end)
+
 	local confirmationJanitor = nil
 
 	for _, area in self._ui.Background.ScrollingFrame:GetChildren() do
@@ -123,11 +128,17 @@ function TeleportUI:Refresh()
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = false
 		elseif not shouldLock then
 			if selectors.hasGamepass(store:getState(), player.Name, freeTeleportersGamepassID) then
-				self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Text =
-					'<font color= "rgb(224, 18, 231)">0 Gems</font>?'
+				self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Gems.Text =
+					'<font color= "rgb(224, 18, 231)">0 Gems</font>'
 			end
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = true
 		end
+	end
+
+	if selectors.hasGamepass(store:getState(), player.Name, freeTeleportersGamepassID) then
+		self._ui.Ad.Visible = false
+	else
+		self._ui.Ad.Visible = true
 	end
 end
 
