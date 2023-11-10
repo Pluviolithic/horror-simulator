@@ -13,7 +13,6 @@ return Rodux.createReducer({}, {
 		return produce(state, function(draft)
 			draft[action.playerName] = table.clone(defaultStates.MultiplierData)
 
-			print(action.profileData)
 			local fearMultiplier, fearMultiplierWholePartCount =
 				petUtils.getEquippedPetsMultiplier(action.profileData.PetData.EquippedPets, action.playerName)
 			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xFear"].Value] then
