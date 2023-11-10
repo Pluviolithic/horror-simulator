@@ -12,6 +12,9 @@ return function(nextDispatch, store)
 			hadPass = selectors.hasGamepass(store:getState(), action.playerName, "2xSpeed")
 		end
 		nextDispatch(action)
+		if not Players:FindFirstChild(action.playerName) then
+			return
+		end
 		if selectors.isPlayerLoaded(store:getState(), action.playerName) then
 			newWalkSpeed = selectors.getStat(store:getState(), action.playerName, "WalkSpeed")
 			hasPass = selectors.hasGamepass(store:getState(), action.playerName, "2xSpeed")

@@ -12,7 +12,9 @@ return function(nextDispatch)
 		if replicationRule == Enum.ReplicationRules.All or not action.playerName then
 			Remotes.Server:Get("SendRoduxAction"):SendToAllPlayers(action)
 		elseif replicationRule ~= Enum.ReplicationRules.None then
-			Remotes.Server:Get("SendRoduxAction"):SendToPlayer(Players[action.playerName], action)
+			if Players:FindFirstChild(action.playerName) then
+				Remotes.Server:Get("SendRoduxAction"):SendToPlayer(Players[action.playerName], action)
+			end
 		end
 		nextDispatch(action)
 	end

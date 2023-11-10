@@ -37,6 +37,11 @@ return function(nextDispatch, store)
 		end
 
 		local newState = store:getState()
+
+		if not profiles[action.playerName] then
+			return
+		end
+
 		local profileData = profiles[action.playerName].Data
 
 		local filteredOldState = getFilteredState(action.playerName, oldState)

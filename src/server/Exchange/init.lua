@@ -1,3 +1,4 @@
+local Players = game:GetService "Players"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
@@ -75,11 +76,15 @@ local function handlePunchingBag(bag: any)
 				cancelled = true
 				connection:Disconnect()
 				currentTrack:Stop()
-				store:dispatch(actions.setCurrentPunchingBag(player.Name, nil))
+
 				prompt.ActionText = "Start Training"
 				inUse = false
 				humanoid.RootPart.CFrame = teleportPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
-				Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, true)
+
+				if Players:FindFirstChild(player.Name) then
+					store:dispatch(actions.setCurrentPunchingBag(player.Name, nil))
+					Remotes.Server:Get("SetControlsEnabled"):SendToPlayer(player, true)
+				end
 
 				for _, part in colorParts do
 					part.Color = Color3.fromRGB(231, 0, 0)

@@ -12,6 +12,11 @@ return function(nextDispatch, store)
 		end
 
 		local player = Players:FindFirstChild(action.playerName)
+
+		if not player then
+			return
+		end
+
 		local leaderstats = player:FindFirstChild "leaderstats"
 
 		if leaderstats then
