@@ -14,7 +14,7 @@ local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
 
-local freeTeleportersGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs.FreeTeleporters.Value)
+local freeTeleportersGamepassID = ReplicatedStorage.Config.GamepassData.IDs.FreeTeleporters.Value
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local player = Players.LocalPlayer
 
@@ -50,8 +50,8 @@ function TeleportUI:_initialize()
 						selectors.getPurchasedTeleporters(oldState, player.Name)
 					)
 					or (
-						selectors.hasGamepass(newState, player.Name, freeTeleportersGamepassID)
-						and not selectors.hasGamepass(oldState, player.Name, freeTeleportersGamepassID)
+						selectors.hasGamepass(newState, player.Name, "FreeTeleporters")
+						and not selectors.hasGamepass(oldState, player.Name, "FreeTeleporters")
 					)
 				)
 			then
@@ -67,7 +67,7 @@ function TeleportUI:_initialize()
 	end)
 
 	self._ui.Ad.Activated:Connect(function()
-		MarketplaceService:PromptGamePassPurchase(player, tonumber(freeTeleportersGamepassID))
+		MarketplaceService:PromptGamePassPurchase(player, freeTeleportersGamepassID)
 	end)
 
 	local confirmationJanitor = nil
@@ -80,7 +80,7 @@ function TeleportUI:_initialize()
 		area.Teleport.Active = true
 
 		area.Teleport.Activated:Connect(function()
-			local hasFreeTeleporters = selectors.hasGamepass(store:getState(), player.Name, freeTeleportersGamepassID)
+			local hasFreeTeleporters = selectors.hasGamepass(store:getState(), player.Name, "FreeTeleporters")
 			if area.Locked.Visible or area.CostUI.Visible then
 				if
 					selectors.getStat(store:getState(), player.Name, "Strength") < areaRequirements[area.Name].Value
@@ -127,7 +127,7 @@ function TeleportUI:Refresh()
 		if selectors.hasTeleporter(store:getState(), player.Name, requirement.Name) then
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = false
 		elseif not shouldLock then
-			if selectors.hasGamepass(store:getState(), player.Name, freeTeleportersGamepassID) then
+			if selectors.hasGamepass(store:getState(), player.Name, "FreeTeleporters") then
 				self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Gems.Text =
 					'<font color= "rgb(224, 18, 231)">0 Gems</font>'
 			end
@@ -135,7 +135,7 @@ function TeleportUI:Refresh()
 		end
 	end
 
-	if selectors.hasGamepass(store:getState(), player.Name, freeTeleportersGamepassID) then
+	if selectors.hasGamepass(store:getState(), player.Name, "FreeTeleporters") then
 		self._ui.Ad.Visible = false
 	else
 		self._ui.Ad.Visible = true

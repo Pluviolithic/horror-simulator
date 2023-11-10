@@ -9,45 +9,45 @@ local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local IDs = ReplicatedStorage.Config.GamepassData.IDs
 
 return {
-	[tostring(IDs.Scythe.Value)] = function(player: Player)
+	[IDs.Scythe.Value] = function(player: Player)
 		store:dispatch(actions.givePlayerWeapon(player.Name, "Scythe"))
 		store:dispatch(actions.equipWeapon(player.Name, "Scythe"))
 	end,
-	[tostring(IDs.VIP.Value)] = function(player: Player)
+	[IDs.VIP.Value] = function(player: Player)
 		store:dispatch(actions.givePlayerWeapon(player.Name, "Hero Blade"))
 		store:dispatch(actions.equipWeapon(player.Name, "Hero Blade"))
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "Training DummyFearMultiplier", 0.5))
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "PunchingBagStrengthMultiplier", 0.2))
 		player:SetAttribute("isVIP", true)
 	end,
-	[tostring(IDs["50PetStorage"].Value)] = function(player: Player)
+	[IDs["50PetStorage"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 50))
 	end,
-	[tostring(IDs["100PetStorage"].Value)] = function(player: Player)
+	[IDs["100PetStorage"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 100))
 	end,
-	[tostring(IDs["2xLuck"].Value)] = function(player: Player)
+	[IDs["2xLuck"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Luck", 2))
 	end,
-	[tostring(IDs["3xLuck"].Value)] = function(player: Player)
+	[IDs["3xLuck"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Luck", 3))
 	end,
-	[tostring(IDs["1PetEquipped"].Value)] = function(player: Player)
+	[IDs["1PetEquipped"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount", 1))
 	end,
-	[tostring(IDs["2PetEquipped"].Value)] = function(player: Player)
+	[IDs["2PetEquipped"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount", 2))
 	end,
-	[tostring(IDs["2xStrength"].Value)] = function(player: Player)
+	[IDs["2xStrength"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "StrengthMultiplier", 2))
 	end,
-	[tostring(IDs["2xFear"].Value)] = function(player: Player)
+	[IDs["2xFear"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "FearMultiplier", 2))
 	end,
-	[tostring(IDs["2xGems"].Value)] = function(player: Player)
+	[IDs["2xGems"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "GemsMultiplier", 2))
 	end,
-	[tostring(IDs["2xFearMeter"].Value)] = function(player: Player)
+	[IDs["2xFearMeter"].Value] = function(player: Player)
 		store:dispatch(
 			actions.setPlayerStat(
 				player.Name,
@@ -57,8 +57,8 @@ return {
 		)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "MaxFearMeterMultiplier", 2))
 	end,
-	[tostring(IDs["2xSpeed"].Value)] = true,
-	[tostring(IDs["2xAttackSpeed"].Value)] = true,
-	[tostring(IDs["3xWorkoutSpeed"].Value)] = true,
-	[tostring(IDs.FreeTeleporters.Value)] = true,
+	[IDs["2xSpeed"].Value] = true,
+	[IDs["2xAttackSpeed"].Value] = true,
+	[IDs["3xWorkoutSpeed"].Value] = true,
+	[IDs.FreeTeleporters.Value] = true,
 }

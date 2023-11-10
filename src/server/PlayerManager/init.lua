@@ -10,7 +10,7 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local PlayerStatusUI = require(ServerScriptService.Server.PlayerManager.PlayerStatusUI)
-local VIPGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs.VIP.Value)
+local VIPGamepassID = ReplicatedStorage.Config.GamepassData.IDs.VIP.Value
 
 local profileStore = ProfileService.GetProfileStore("PlayerData", profileTemplate)
 

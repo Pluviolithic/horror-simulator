@@ -2,16 +2,42 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Immut = require(ReplicatedStorage.Common.lib.Immut)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
-local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
 local produce = Immut.produce
+local GamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
 		return produce(state, function(draft)
-			draft[action.playerName] = Dict.mergeDeep(defaultStates.MultiplierData, action.profileData.MultiplierData)
+			draft[action.playerName] = table.clone(defaultStates.MultiplierData)
+
+			print(action.profileData)
+			local fearMultiplier, fearMultiplierWholePartCount =
+				petUtils.getEquippedPetsMultiplier(action.profileData.PetData.EquippedPets, action.playerName)
+			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xFear"].Value] then
+				fearMultiplier += 2
+				fearMultiplierWholePartCount += 1
+			end
+
+			draft[action.playerName].FearMultiplier = fearMultiplier
+			draft[action.playerName].FearMultiplierCount = fearMultiplierWholePartCount
+
+			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xStrength"].Value] then
+				draft[action.playerName].StrengthMultiplier = 2
+				draft[action.playerName].StrengthMultiplierCount = 1
+			end
+
+			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xGems"].Value] then
+				draft[action.playerName].GemsMultiplier = 2
+				draft[action.playerName].GemsMultiplierCount = 1
+			end
+
+			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xFearMeter"].Value] then
+				draft[action.playerName].MaxFearMeterMultiplier = 2
+				draft[action.playerName].MaxFearMeterMultiplierCount = 1
+			end
 		end)
 	end,
 	removePlayer = function(state, action)

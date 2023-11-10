@@ -8,7 +8,6 @@ local store = require(ServerScriptService.Server.State.Store)
 --local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 local playerUITemplate = ReplicatedStorage.PlayerUI:Clone()
 local selectors = require(ReplicatedStorage.Common.State.selectors)
-local VIPGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs.VIP.Value)
 
 function PlayerStatusUI.new(player: Player)
 	local self = setmetatable({}, PlayerStatusUI)
@@ -36,7 +35,7 @@ function PlayerStatusUI:_updateUIFields(state)
 	playerUIFrame.Scared.Visible = selectors.getStat(state, self._player.Name, "CurrentFearMeter")
 		== selectors.getStat(state, self._player.Name, "MaxFearMeter")
 
-	if selectors.hasGamepass(state, self._player.Name, VIPGamepassID) then
+	if selectors.hasGamepass(state, self._player.Name, "VIP") then
 		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 182, 12)
 	else
 		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 255, 255)

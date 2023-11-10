@@ -8,7 +8,6 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local teleporterPrices = ReplicatedStorage.Config.Teleports
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
-local freeTeleportersGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs.FreeTeleporters.Value)
 
 Remotes.Server:Get("PurchaseTeleporter"):Connect(function(player, areaName)
 	if not teleporterPrices:FindFirstChild(areaName) then
@@ -16,7 +15,7 @@ Remotes.Server:Get("PurchaseTeleporter"):Connect(function(player, areaName)
 	end
 
 	local price = teleporterPrices[areaName].Value
-	local hasFreeTeleporters = selectors.hasGamepass(store:getState(), player.Name, freeTeleportersGamepassID)
+	local hasFreeTeleporters = selectors.hasGamepass(store:getState(), player.Name, "FreeTeleporters")
 	if
 		(selectors.getStat(store:getState(), player.Name, "Gems") < price and not hasFreeTeleporters)
 		or selectors.getStat(store:getState(), player.Name, "Strength") < areaRequirements[areaName].Value

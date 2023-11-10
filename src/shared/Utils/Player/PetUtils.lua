@@ -42,6 +42,18 @@ petUtils = {
 		end
 		return nil
 	end,
+	getEquippedPetsMultiplier = function(equippedPets): (number, number)
+		local multiplier = 0
+		local multiplierWholePartCount = 0
+		for petName, quantity in equippedPets do
+			local pet = petUtils.getPet(petName)
+			multiplier += pet.Multiplier.Value * quantity
+			if pet.Multiplier.Value > 1 then
+				multiplierWholePartCount += quantity
+			end
+		end
+		return multiplier, multiplierWholePartCount
+	end,
 	countPetsInDict = function(dict): number
 		local counter = 0
 		for _, quantity in dict do

@@ -1,3 +1,7 @@
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
+
+local GamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
+
 return {
 	isPlayerLoaded = function(state, playerName)
 		return state.Stats[playerName]
@@ -9,8 +13,11 @@ return {
 	getStat = function(state, playerName, statName)
 		return state.Stats[playerName][statName]
 	end,
-	hasGamepass = function(state, playerName, gamepassID)
-		return state.PurchaseData[playerName].AwardedGamepasses[gamepassID]
+	hasGamepass = function(state, playerName, gamepass)
+		if GamepassIDs:FindFirstChild(gamepass) then
+			return state.PurchaseData[playerName].AwardedGamepasses[GamepassIDs[gamepass].Value]
+		end
+		return state.PurchaseData[playerName].AwardedGamepasses[gamepass]
 	end,
 	hasTeleporter = function(state, playerName, areaName)
 		return state.PurchaseData[playerName].PurchasedTeleporters[areaName]

@@ -51,15 +51,15 @@ end
 Players.PlayerAdded:Connect(checkIfObtainedRewards)
 
 return function(player: Player, gamepassID: number): (boolean, string?)
-	if not rewarders[tostring(gamepassID)] then
+	if not rewarders[gamepassID] then
 		return false
 	end
 
-	if typeof(rewarders[tostring(gamepassID)]) == "function" then
-		store:dispatch(actions.awardGamepassToPlayer(player.Name, tostring(gamepassID)))
-		return pcall(rewarders[tostring(gamepassID)], player)
+	if typeof(rewarders[gamepassID]) == "function" then
+		store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
+		return pcall(rewarders[gamepassID], player)
 	else
-		store:dispatch(actions.awardGamepassToPlayer(player.Name, tostring(gamepassID)))
+		store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
 		return true
 	end
 end

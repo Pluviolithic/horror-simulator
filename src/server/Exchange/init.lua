@@ -14,7 +14,7 @@ local disableSwitch = Instance.new "BindableEvent"
 
 local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
 local baseStrength = ReplicatedStorage.Config.Workout.Strength.Value
-local tripleWorkoutSpeedPassID = tostring(ReplicatedStorage.Config.GamepassData.IDs["3xWorkoutSpeed"].Value)
+local tripleWorkoutSpeedPassID = ReplicatedStorage.Config.GamepassData.IDs["3xWorkoutSpeed"].Value
 
 local function getSortedAnimationInstances(animationInstances)
 	for i, animationInstance in animationInstances do

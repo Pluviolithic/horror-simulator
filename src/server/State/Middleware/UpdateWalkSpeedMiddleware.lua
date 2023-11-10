@@ -3,8 +3,6 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-local doubleSpeedGamepassID = tostring(ReplicatedStorage.Config.GamepassData.IDs["2xSpeed"].Value)
-
 return function(nextDispatch, store)
 	return function(action)
 		local oldWalkSpeed, newWalkSpeed
@@ -21,7 +19,7 @@ return function(nextDispatch, store)
 		local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
 		if humanoid and oldWalkSpeed ~= newWalkSpeed then
 			humanoid.WalkSpeed = selectors.getStat(store:getState(), action.playerName, "WalkSpeed")
-			if selectors.hasGamepass(store:getState(), action.playerName, doubleSpeedGamepassID) then
+			if selectors.hasGamepass(store:getState(), action.playerName, "2xSpeed") then
 				humanoid.WalkSpeed *= 2
 			end
 		end

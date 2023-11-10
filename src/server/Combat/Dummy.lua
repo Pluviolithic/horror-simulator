@@ -5,7 +5,6 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local server = ServerScriptService.Server
 local animations = ReplicatedStorage.CombatAnimations
 local playerAttackSpeed = ReplicatedStorage.Config.Combat.PlayerAttackSpeed.Value
-local doubleAttackSpeedID = tostring(ReplicatedStorage.Config.GamepassData.IDs["2xAttackSpeed"].Value)
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
@@ -26,7 +25,7 @@ local function getSortedAnimationInstances(animationInstances)
 end
 
 local function getPlayerAttackSpeed(player)
-	return if selectors.hasGamepass(store:getState(), player.Name, doubleAttackSpeedID)
+	return if selectors.hasGamepass(store:getState(), player.Name, "2xAttackSpeed")
 		then playerAttackSpeed / 2
 		else playerAttackSpeed
 end
