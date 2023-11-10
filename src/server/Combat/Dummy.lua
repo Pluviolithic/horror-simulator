@@ -87,7 +87,12 @@ local function handleDummy(dummy)
 
 		local currentIndex, maxIndex = 0, #animationInstances
 		task.spawn(function()
-			while runAnimations do
+			while
+				runAnimations
+				and humanoid:IsDescendantOf(game)
+				and selectors.isPlayerLoaded(store:getState(), player.Name)
+				and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
+			do
 				currentIndex = (currentIndex % maxIndex) + 1
 				currentAnimation = animationInstances[currentIndex]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
@@ -107,6 +112,7 @@ local function handleDummy(dummy)
 
 		task.spawn(function()
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
+			print "running"
 			if failed then
 				return
 			end
@@ -133,8 +139,6 @@ local function handleDummy(dummy)
 				task.wait(getPlayerAttackSpeed(player))
 			end
 		end
-
-		--Remotes.Server:Get("SendNPCHealthBar"):SendToPlayer(player, NPCUI, false)
 	end)
 end
 
