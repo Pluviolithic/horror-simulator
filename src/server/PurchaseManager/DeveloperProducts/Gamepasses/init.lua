@@ -20,7 +20,6 @@ local function checkIfObtainedRewards(player: Player)
 		end)
 		coroutine.yield()
 	end
-
 	for gamepassID, rewarder in rewarders do
 		if not selectors.hasGamepass(store:getState(), player.Name, gamepassID) then
 			local success, err =

@@ -112,7 +112,6 @@ local function handleDummy(dummy)
 
 		task.spawn(function()
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
-			print "running"
 			if failed then
 				return
 			end

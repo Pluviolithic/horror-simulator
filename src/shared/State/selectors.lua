@@ -15,9 +15,9 @@ return {
 	end,
 	hasGamepass = function(state, playerName, gamepass)
 		if GamepassIDs:FindFirstChild(gamepass) then
-			return state.PurchaseData[playerName].AwardedGamepasses[GamepassIDs[gamepass].Value]
+			return state.PurchaseData[playerName].AwardedGamepasses[tostring(GamepassIDs[gamepass].Value)]
 		end
-		return state.PurchaseData[playerName].AwardedGamepasses[gamepass]
+		return state.PurchaseData[playerName].AwardedGamepasses[tostring(gamepass)]
 	end,
 	hasTeleporter = function(state, playerName, areaName)
 		return state.PurchaseData[playerName].PurchasedTeleporters[areaName]
