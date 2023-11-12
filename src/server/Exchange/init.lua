@@ -131,7 +131,9 @@ local function handlePunchingBag(bag: any)
 				reductionAmount = -currentFearMeter
 			end
 
-			store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", reductionAmount))
+			if reductionAmount < 0 then
+				store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", reductionAmount))
+			end
 
 			if selectors.hasGamepass(store:getState(), player.Name, tripleWorkoutSpeedPassID) then
 				task.wait(workoutSpeed / 3)

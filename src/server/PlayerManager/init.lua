@@ -86,6 +86,7 @@ Players.PlayerRemoving:Connect(function(player)
 	if profile ~= nil then
 		profile:Release()
 	end
+	store:dispatch(actions.removePlayer(player.Name))
 end)
 
 Remotes.Server:Get("GetGlobalState"):SetCallback(function()
