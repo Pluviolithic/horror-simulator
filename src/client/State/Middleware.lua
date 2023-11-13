@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local player = Players.LocalPlayer
@@ -24,7 +25,11 @@ local function updateIdleAnimationMiddleware(nextDispatch, store)
 					originalAnimationId = player.Character.Animate.idle.Animation1.AnimationId
 				end
 				local equippedWeapon = selectors.getEquippedWeapon(store:getState(), player.Name)
-				if equippedWeapon and not action.currentPunchingBag then
+				if
+					equippedWeapon
+					and not action.currentPunchingBag
+					and not CollectionService:HasTag(action.enemy, "Dummy")
+				then
 					player.Character.Animate.idle.Animation1.AnimationId =
 						ReplicatedStorage.CombatAnimations[equippedWeapon].Idle.AnimationId
 				else
