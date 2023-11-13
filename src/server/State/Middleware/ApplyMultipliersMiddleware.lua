@@ -14,6 +14,10 @@ return function(nextDispatch, store)
 		if action.statName and action.incrementAmount then
 			if action.incrementAmount > 0 or applyMultiplierToNegativeWhitelist[action.statName] then
 				local multiplierData = selectors.getMultiplierData(store:getState(), action.playerName)
+				if not multiplierData then
+					nextDispatch(action)
+					return
+				end
 				local multiplier = multiplierData[action.statName .. "Multiplier"] or 0
 				local multiplierCount = multiplierData[action.statName .. "MultiplierCount"] or 0
 

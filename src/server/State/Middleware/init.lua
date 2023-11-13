@@ -9,6 +9,5 @@ return {
 	require(script.UpdateClientMiddleware),
 	require(script.SavePlayerDataMiddleware),
 	require(script.UpdateLeaderstatsMiddleware),
-	require(script.UpdateWalkSpeedMiddleware),
 	if displayServerLogs then Rodux.loggerMiddleware else nil,
 }

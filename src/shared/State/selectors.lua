@@ -14,7 +14,9 @@ return {
 		return state.Stats[playerName][statName]
 	end,
 	hasGamepass = function(state, playerName, gamepass)
-		if GamepassIDs:FindFirstChild(gamepass) then
+		if not state.PurchaseData[playerName] then
+			return false
+		elseif GamepassIDs:FindFirstChild(gamepass) then
 			return state.PurchaseData[playerName].AwardedGamepasses[tostring(GamepassIDs[gamepass].Value)]
 		end
 		return state.PurchaseData[playerName].AwardedGamepasses[tostring(gamepass)]

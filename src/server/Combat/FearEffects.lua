@@ -39,15 +39,23 @@ local function trackPlayerScaredStatus(player)
 	trackedPlayers[player] = nil
 end
 
+local defaultWalkSpeed = 14
+local walkSpeedFearDebuff = -4
 store.changed:connect(function(newState, oldState)
 	for _, player in Players:GetPlayers() do
+		local hasPass = selectors.hasGamepass(newState, player.Name, "2xSpeed")
+		local modifiedDebuff = walkSpeedFearDebuff * (hasPass and 2 or 1)
+		local newWalkSpeed = defaultWalkSpeed * (hasPass and 2 or 1)
 		if isScared(player.Name, newState) then
 			task.spawn(trackPlayerScaredStatus, player)
-			if not isScared(player.Name, oldState) then
-				store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", -4))
-			end
+			newWalkSpeed += modifiedDebuff
 		elseif isScared(player.Name, oldState) then
 			store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", 4))
+			newWalkSpeed -= modifiedDebuff
+		end
+		local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
+		if humanoid and humanoid.WalkSpeed ~= newWalkSpeed then
+			humanoid.WalkSpeed = newWalkSpeed
 		end
 		if
 			selectors.isPlayerLoaded(oldState, player.Name)
