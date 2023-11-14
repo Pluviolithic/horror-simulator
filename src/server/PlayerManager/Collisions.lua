@@ -10,8 +10,6 @@ end
 
 local function disablePlayerCollisions(player: Player)
 	player.CharacterAdded:Connect(disableCharacterCollisions)
-	player.CharacterAppearanceLoaded:Wait()
-	player:LoadCharacter()
 end
 
 Players.PlayerAdded:Connect(disablePlayerCollisions)
