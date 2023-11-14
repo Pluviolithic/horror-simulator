@@ -196,6 +196,10 @@ local function handleEnemy(enemy)
 				end
 			end
 
+			if not selectors.isPlayerLoaded(store:getState(), player.Name) then
+				return
+			end
+
 			local weaponName: string = selectors.getEquippedWeapon(store:getState(), player.Name)
 			local wepaon: Accessory? = if player.Character
 				then player.Character:FindFirstChild(weaponName) :: Accessory
@@ -232,7 +236,13 @@ local function handleEnemy(enemy)
 			end)
 		)
 
-		humanoid.MoveToFinished:Wait()
+		--humanoid.MoveToFinished:Wait()
+		--task.wait(player:DistanceFromCharacter(rootPart.Position) / humanoid.WalkSpeed)
+		repeat
+			task.wait(0.1)
+		until player:DistanceFromCharacter(rootPart.Position) <= fightRange + 5
+			or cleanedUp
+			or not selectors.isPlayerLoaded(store:getState(), player.Name)
 
 		if cleanedUp or (player:DistanceFromCharacter(rootPart.Position) > fightRange + 5) then
 			return

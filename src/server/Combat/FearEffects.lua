@@ -50,7 +50,6 @@ store.changed:connect(function(newState, oldState)
 			task.spawn(trackPlayerScaredStatus, player)
 			newWalkSpeed += modifiedDebuff
 		elseif isScared(player.Name, oldState) then
-			store:dispatch(actions.incrementPlayerStat(player.Name, "WalkSpeed", 4))
 			newWalkSpeed -= modifiedDebuff
 		end
 		local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
