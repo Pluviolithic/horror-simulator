@@ -16,6 +16,11 @@ local Remotes = Net.CreateDefinitions {
 		},
 		Net.Middleware.TypeChecking(t.string),
 	},
+	UnequipWeapon = Net.Definitions.ServerFunction {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+	},
 	GetGlobalState = Net.Definitions.ServerFunction {
 		Net.Middleware.RateLimit {
 			MaxRequestsPerMinute = 60,

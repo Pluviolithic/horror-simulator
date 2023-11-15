@@ -28,6 +28,11 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].OwnedWeapons[action.weaponName] = true
 		end)
 	end,
+	unequipWeapon = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].EquippedWeapon = "Fists"
+		end)
+	end,
 	equipWeapon = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName].EquippedWeapon = action.weaponName

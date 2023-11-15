@@ -52,4 +52,10 @@ Remotes.Server:Get("EquipWeapon"):SetCallback(function(player: Player, weaponNam
 	return 0
 end)
 
+Remotes.Server:Get("UnequipWeapon"):SetCallback(function(player: Player)
+	store:dispatch(actions.unequipWeapon(player.Name))
+
+	return 0
+end)
+
 return 0

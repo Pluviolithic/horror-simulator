@@ -200,7 +200,7 @@ local function handleEnemy(enemy)
 			end
 
 			local weaponName = selectors.getEquippedWeapon(store:getState(), player.Name)
-			local wepaon = if player.Character then player.Character:FindFirstChild(weaponName) :: Accessory else nil
+			local wepaon = if player.Character then player.Character:FindFirstChild(weaponName) else nil
 			if wepaon then
 				wepaon:Destroy()
 			end
@@ -245,7 +245,7 @@ local function handleEnemy(enemy)
 
 		-- rotate the player to face the enemy
 		local enemyDirection = rootPart.Position * Vector3.new(1, 0, 1)
-		local playerRootPart = player.Character and player.Character:FindFirstChild(rootPart)
+		local playerRootPart = player.Character and player.Character:FindFirstChild "HumanoidRootPart"
 		local playerPosition = if playerRootPart then playerRootPart.Position else Vector3.new(0, 0, 0)
 
 		if player.Character then
@@ -254,6 +254,7 @@ local function handleEnemy(enemy)
 			)
 		end
 
+		store:dispatch(actions.combatBegan(player.Name))
 		-- attach currently equipped weapon to player's hand
 		local weaponName = selectors.getEquippedWeapon(store:getState(), player.Name)
 		if weaponName ~= "Fists" then

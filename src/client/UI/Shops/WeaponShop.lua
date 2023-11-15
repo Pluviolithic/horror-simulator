@@ -93,13 +93,17 @@ function WeaponShop:_initialize(): ()
 			if selectors.getOwnedWeapons(store:getState(), player.Name)[button.Name] then
 				focusedDisplay.GreenButton.Visible = true
 				if selectors.getEquippedWeapon(store:getState(), player.Name) == button.Name then
-					focusedDisplay.GreenButton.Text.Text = "Equipped"
-					return
+					focusedDisplay.GreenButton.Text.Text = "Unequip"
+				else
+					focusedDisplay.GreenButton.Text.Text = "Equip"
 				end
 
-				focusedDisplay.GreenButton.Text.Text = "Equip"
 				self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
-					Remotes.Client:Get("EquipWeapon"):CallServerAsync(button.Name)
+					if focusedDisplay.GreenButton.Text.Text == "Unequip" then
+						Remotes.Client:Get("UnequipWeapon"):CallServerAsync()
+					else
+						Remotes.Client:Get("EquipWeapon"):CallServerAsync(button.Name)
+					end
 				end)
 			else
 				if button:FindFirstChild "GamepassText" then
