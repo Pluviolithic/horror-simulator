@@ -13,3 +13,6 @@ sourcemap.json
 
 # Exports
 _Export/
+
+# VSCode stuff
+.vscode/
