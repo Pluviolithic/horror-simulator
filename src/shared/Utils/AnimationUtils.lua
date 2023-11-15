@@ -32,9 +32,17 @@ animationUtilities = {
 		return currentIndex, animationInstances[currentIndex]:Clone()
 	end,
 	getPlayerAttackSpeed = function(player)
-		return if selectors.hasGamepass(store:getState(), player.Name, doubleAttackSpeedID)
-		then playerAttackSpeed / 2
-		else playerAttackSpeed
+		local multiplier = 1
+		if selectors.hasGamepass(store:getState(), player.Name, doubleAttackSpeedID) then
+			multiplier /= 2
+		end
+		if
+			selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+			== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+		then
+			multiplier *= 2
+		end
+		return playerAttackSpeed * multiplier
 	end,
 }
 

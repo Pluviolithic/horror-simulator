@@ -15,16 +15,18 @@ return function(player, janitor)
 		combatAnimations[selectors.getEquippedWeapon(store:getState(), player.Name)]:GetChildren()
 	)
 
-	while runAnimations do
-		currentIndex, animationTrack =
-			animationUtilities.getNextAnimationTrackAndIndex(animationInstances, currentIndex)
-		animationTrack.Priority = Enum.AnimationPriority.Action
+	task.spawn(function()
+		while runAnimations do
+			currentIndex, animationTrack =
+				animationUtilities.getNextAnimationTrackAndIndex(animationInstances, currentIndex)
+			animationTrack.Priority = Enum.AnimationPriority.Action
 
-		animationTrack:Play()
-		animationTrack.Stopped:Wait()
-		animationTrack:Destroy()
-		task.wait(animationUtilities.getPlayerAttackSpeed(player))
-	end
+			animationTrack:Play()
+			animationTrack.Stopped:Wait()
+			animationTrack:Destroy()
+			task.wait(animationUtilities.getPlayerAttackSpeed(player))
+		end
+	end)
 
 	janitor:Add(function()
 		runAnimations = false

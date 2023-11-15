@@ -14,16 +14,18 @@ return function(enemy, janitor)
 		animationUtilities.filterAndSortAnimationInstances(enemy.Configuration.AttackAnims:GetChildren())
 	local currentIndex, animationTrack = 0, nil
 
-	while runAnimations do
-		currentIndex, animationTrack =
-			animationUtilities.getNextAnimationTrackAndIndex(animationInstances, currentIndex)
-		animationTrack.Priority = Enum.AnimationPriority.Action
+	task.spawn(function()
+		while runAnimations do
+			currentIndex, animationTrack =
+				animationUtilities.getNextAnimationTrackAndIndex(animationInstances, currentIndex)
+			animationTrack.Priority = Enum.AnimationPriority.Action
 
-		animationTrack:Play()
-		animationTrack.Stopped:Wait()
-		animationTrack:Destroy()
-		task.wait(attackDelay)
-	end
+			animationTrack:Play()
+			animationTrack.Stopped:Wait()
+			animationTrack:Destroy()
+			task.wait(attackDelay)
+		end
+	end)
 
 	janitor:Add(function()
 		runAnimations = false
