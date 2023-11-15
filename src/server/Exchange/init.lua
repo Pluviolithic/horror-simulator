@@ -31,14 +31,14 @@ local function getSortedAnimationInstances(animationInstances)
 end
 
 local function handlePunchingBag(bag: any)
-	local prompt: ProximityPrompt = bag.HumanoidLockPart.Prompt
+	local prompt = bag.HumanoidLockPart.Prompt
 	local colorParts = bag:FindFirstChild("Color"):GetChildren()
-	local teleportPart: BasePart = bag.TPPart
+	local teleportPart = bag.TPPart
 	local multiplier = bag.Multiplier.Value
-	local inUse: boolean = false
+	local inUse = false
 
 	prompt.Triggered:Connect(function(player: Player)
-		local cancelled: boolean = false
+		local cancelled = false
 
 		if
 			inUse
@@ -52,7 +52,7 @@ local function handlePunchingBag(bag: any)
 			return
 		end
 
-		local humanoid: any = if player.Character then player.Character:FindFirstChildOfClass "Humanoid" else nil
+		local humanoid = if player.Character then player.Character:FindFirstChildOfClass "Humanoid" else nil
 		if not humanoid then
 			return
 		end

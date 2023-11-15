@@ -4,8 +4,8 @@ local HealthBar = {}
 HealthBar.__index = HealthBar
 
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
-local robloxHealthGreen: Color3 = Color3.fromRGB(0, 255, 17)
-local robloxHealthRed: Color3 = Color3.fromRGB(255, 0, 0)
+local robloxHealthGreen = Color3.fromRGB(0, 255, 17)
+local robloxHealthRed = Color3.fromRGB(255, 0, 0)
 
 function HealthBar.new(bar: Frame)
 	return setmetatable({
@@ -45,7 +45,7 @@ function HealthBar:connect(humanoid: any)
 		end)
 		self:update(humanoid.Health, humanoid.MaxHealth)
 	else
-		local humanoidInstance: Humanoid? = humanoid:FindFirstChildOfClass "Humanoid"
+		local humanoidInstance = humanoid:FindFirstChildOfClass "Humanoid"
 
 		if not humanoidInstance then
 			warn "HealthBar:connect() - NPC does not have a humanoid instance"
@@ -55,7 +55,7 @@ function HealthBar:connect(humanoid: any)
 			return
 		end
 
-		local healthValue: NumberValue = humanoid.Configuration.FearHealth
+		local healthValue = humanoid.Configuration.FearHealth
 		local maxHealth = healthValue.Value
 		self._healthBarConnection = healthValue:GetPropertyChangedSignal("Value"):Connect(function()
 			self:update(healthValue.Value, maxHealth)

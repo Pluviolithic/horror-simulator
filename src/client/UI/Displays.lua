@@ -31,7 +31,7 @@ local function updateDisplays(displays)
 end
 
 Promise.new(function(resolve)
-	local interfaces: { [string]: GuiObject } = {
+	local interfaces = {
 		Rank = player.PlayerGui:WaitForChild "Rank",
 		MainUI = player.PlayerGui:WaitForChild "MainUI",
 		WeaponShop = player.PlayerGui:WaitForChild "WeaponShop",

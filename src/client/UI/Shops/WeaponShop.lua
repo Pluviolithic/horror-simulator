@@ -96,7 +96,7 @@ function WeaponShop:_initialize(): ()
 					focusedDisplay.GreenButton.Visible = true
 
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
-						local id: number = gamepassIDs.VIP.Value
+						local id = gamepassIDs.VIP.Value
 						if button.Name == "Scythe" then
 							id = gamepassIDs.Scythe.Value
 						end
@@ -143,7 +143,7 @@ function WeaponShop:ClearFocusedDisplay()
 end
 
 function WeaponShop:Refresh(): ()
-	local restAreLocked: boolean = false
+	local restAreLocked = false
 
 	self:ClearFocusedDisplay()
 

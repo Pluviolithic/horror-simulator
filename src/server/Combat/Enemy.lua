@@ -10,7 +10,6 @@ local gemRewardPercentage = 0.3
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
---local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local bossRespawnRate = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
@@ -42,35 +41,35 @@ local function getPlayerAttackSpeed(player)
 end
 
 local function handleEnemy(enemy)
-	local clickDetector: ClickDetector = enemy.Hitbox.ClickDetector
-	local goalPosition: Vector3 = enemy.Hitbox.Position
+	local clickDetector = enemy.Hitbox.ClickDetector
+	local goalPosition = enemy.Hitbox.Position
 	local enemyHumanoid = enemy.Humanoid
-	local maxHealth: number = enemy.Configuration.FearHealth.Value
+	local maxHealth = enemy.Configuration.FearHealth.Value
 
 	local NPCUI = enemy:FindFirstChild("NPCUI", true)
-	local healthValue: NumberValue = enemy.Configuration.FearHealth
-	local damageValue: NumberValue = enemy.Configuration.Damage
-	local fightRange: number = enemy.Configuration.FightRange.Value
-	local gemAmountToDrop: number = enemy.Configuration.Gems.Value
-	local idleAnimationInstance: Animation = if enemy.Configuration:FindFirstChild "IdleAnim"
+	local healthValue = enemy.Configuration.FearHealth
+	local damageValue = enemy.Configuration.Damage
+	local fightRange = enemy.Configuration.FightRange.Value
+	local gemAmountToDrop = enemy.Configuration.Gems.Value
+	local idleAnimationInstance = if enemy.Configuration:FindFirstChild "IdleAnim"
 		then enemy.Configuration.IdleAnim.Anim
 		else nil
 
-	local runEnemyAnimations: boolean = false
+	local runEnemyAnimations = false
 	local attackAnimations = getSortedAnimationInstances(enemy.Configuration.AttackAnims:GetChildren())
-	local currentAttackAnimation: Animation = attackAnimations[math.random(#attackAnimations)]:Clone()
-	local attackTrack: AnimationTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
+	local currentAttackAnimation = attackAnimations[math.random(#attackAnimations)]:Clone()
+	local attackTrack = enemyHumanoid:LoadAnimation(currentAttackAnimation)
 
-	local debounceTable: { boolean } = {}
-	local engagedPlayers: { Player } = {}
-	local damageDealtByPlayer: { [Player]: number } = {}
+	local debounceTable = {}
+	local engagedPlayers = {}
+	local damageDealtByPlayer = {}
 
-	local targetPlayer: Player = nil
-	local resetBegan: boolean = false
-	local totalDamageDealt: number = 0
-	local enemyClone: Model = enemy:Clone()
-	local isBoss: boolean = CollectionService:HasTag(enemy, "Boss")
-	local respawnRate: number = if isBoss then bossRespawnRate else enemyRespawnRate
+	local targetPlayer = nil
+	local resetBegan = false
+	local totalDamageDealt = 0
+	local enemyClone = enemy:Clone()
+	local isBoss = CollectionService:HasTag(enemy, "Boss")
+	local respawnRate = if isBoss then bossRespawnRate else enemyRespawnRate
 	local rootPart = if enemyHumanoid.RootPart then enemyHumanoid.RootPart else enemy:FindFirstChild "RootPart"
 
 	if not rootPart then
@@ -135,8 +134,8 @@ local function handleEnemy(enemy)
 					if not engagedPlayer.Character or not engagedPlayer.Character:FindFirstChildOfClass "Humanoid" then
 						continue
 					end
-					local humanoidRootPart: BasePart = engagedPlayer.Character.HumanoidRootPart
-					local lookAt: Vector3 = humanoidRootPart.Position * Vector3.new(1, 0, 1)
+					local humanoidRootPart = engagedPlayer.Character.HumanoidRootPart
+					local lookAt = humanoidRootPart.Position * Vector3.new(1, 0, 1)
 					rootPart.CFrame =
 						CFrame.lookAt(rootPart.Position, lookAt + rootPart.Position.Y * Vector3.new(0, 1, 0))
 					targetPlayer = engagedPlayer
@@ -148,7 +147,7 @@ local function handleEnemy(enemy)
 
 	-- set up idle animations
 	if idleAnimationInstance then
-		local idleTrack: AnimationTrack = enemyHumanoid:LoadAnimation(idleAnimationInstance)
+		local idleTrack = enemyHumanoid:LoadAnimation(idleAnimationInstance)
 		idleTrack.Priority = Enum.AnimationPriority.Idle
 		idleTrack:Play()
 	end
@@ -174,8 +173,8 @@ local function handleEnemy(enemy)
 		end
 
 		local connections = {}
-		local cleanedUp: boolean = false
-		local runAnimations: boolean = true
+		local cleanedUp = false
+		local runAnimations = true
 
 		local currentAnimation, currentTrack = nil, nil
 		local animationInstances = getSortedAnimationInstances(
@@ -200,10 +199,8 @@ local function handleEnemy(enemy)
 				return
 			end
 
-			local weaponName: string = selectors.getEquippedWeapon(store:getState(), player.Name)
-			local wepaon: Accessory? = if player.Character
-				then player.Character:FindFirstChild(weaponName) :: Accessory
-				else nil
+			local weaponName = selectors.getEquippedWeapon(store:getState(), player.Name)
+			local wepaon = if player.Character then player.Character:FindFirstChild(weaponName) :: Accessory else nil
 			if wepaon then
 				wepaon:Destroy()
 			end
@@ -236,8 +233,6 @@ local function handleEnemy(enemy)
 			end)
 		)
 
-		--humanoid.MoveToFinished:Wait()
-		--task.wait(player:DistanceFromCharacter(rootPart.Position) / humanoid.WalkSpeed)
 		repeat
 			task.wait(0.1)
 		until player:DistanceFromCharacter(rootPart.Position) <= fightRange + 5
@@ -249,16 +244,20 @@ local function handleEnemy(enemy)
 		end
 
 		-- rotate the player to face the enemy
-		local enemyDirection: Vector3 = rootPart.Position * Vector3.new(1, 0, 1)
-		local playerPosition: Vector3 = player.Character.HumanoidRootPart.Position
-		player.Character:PivotTo(
-			CFrame.lookAt(playerPosition, enemyDirection + playerPosition.Y * Vector3.new(0, 1, 0))
-		)
+		local enemyDirection = rootPart.Position * Vector3.new(1, 0, 1)
+		local playerRootPart = player.Character and player.Character:FindFirstChild(rootPart)
+		local playerPosition = if playerRootPart then playerRootPart.Position else Vector3.new(0, 0, 0)
+
+		if player.Character then
+			player.Character:PivotTo(
+				CFrame.lookAt(playerPosition, enemyDirection + playerPosition.Y * Vector3.new(0, 1, 0))
+			)
+		end
 
 		-- attach currently equipped weapon to player's hand
-		local weaponName: string = selectors.getEquippedWeapon(store:getState(), player.Name)
+		local weaponName = selectors.getEquippedWeapon(store:getState(), player.Name)
 		if weaponName ~= "Fists" then
-			local weaponAccessory: Accessory = weapons[weaponName]:Clone()
+			local weaponAccessory = weapons[weaponName]:Clone()
 			humanoid:AddAccessory(weaponAccessory)
 		end
 
@@ -286,7 +285,7 @@ local function handleEnemy(enemy)
 		if #engagedPlayers == 1 then
 			-- rotate enemy to face player if not boss and it is not already facing a player
 			if not isBoss then
-				local playerDirection: Vector3 = playerPosition * Vector3.new(1, 0, 1)
+				local playerDirection = playerPosition * Vector3.new(1, 0, 1)
 				rootPart.CFrame =
 					CFrame.lookAt(rootPart.Position, playerDirection + rootPart.Position.Y * Vector3.new(0, 1, 0))
 			end
@@ -314,7 +313,7 @@ local function handleEnemy(enemy)
 					~= selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 				or counter % 2 == 0
 			then
-				local damageToDeal: number = math.clamp(
+				local damageToDeal = math.clamp(
 					selectors.getStat(store:getState(), player.Name, "Strength") * damageMultiplier,
 					0,
 					maxHealth - totalDamageDealt

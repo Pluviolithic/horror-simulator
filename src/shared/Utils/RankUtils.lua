@@ -10,7 +10,7 @@ end
 
 return {
 	getRankFromStrength = function(strength: number): number
-		local userRank: number = 1
+		local userRank = 1
 		for rank, requirement in strengthRanks do
 			if strength >= requirement then
 				userRank = rank

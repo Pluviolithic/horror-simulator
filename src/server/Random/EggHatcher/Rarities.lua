@@ -1,5 +1,5 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
-local rarities: { [string]: { [string]: { [string]: number | string } } } = {}
+local rarities = {}
 
 for _, area in ReplicatedStorage.Pets:GetChildren() do
 	rarities[area.Name] = {}

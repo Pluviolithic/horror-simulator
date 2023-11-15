@@ -1,4 +1,4 @@
-local Table: { [string]: (...any) -> any } = {}
+local Table = {}
 
 function Table.ShallowIsEqual(a, b): boolean
 	if a == b then

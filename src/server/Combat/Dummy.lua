@@ -31,15 +31,15 @@ local function getPlayerAttackSpeed(player)
 end
 
 local function handleDummy(dummy)
-	local clickDetector: ClickDetector = dummy.Hitbox.ClickDetector
-	local goalPosition: Vector3 = dummy.Hitbox.Position
-	local fear: number = dummy.Configuration.Fear.Value
+	local clickDetector = dummy.Hitbox.ClickDetector
+	local goalPosition = dummy.Hitbox.Position
+	local fear = dummy.Configuration.Fear.Value
 	local NPCUI = dummy:FindFirstChild("NPCUI", true)
-	local fightRange: number = dummy.Configuration.FightRange.Value
+	local fightRange = dummy.Configuration.FightRange.Value
 
 	NPCUI:FindFirstChild("NPCName", true).Text = "Dummy"
 
-	local debounceTable: { boolean } = {}
+	local debounceTable = {}
 
 	clickDetector.MouseClick:Connect(function(player: Player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
@@ -60,7 +60,7 @@ local function handleDummy(dummy)
 
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
-		local failed: boolean = false
+		local failed = false
 		local connection = nil
 		connection = store.changed:connect(function(newState)
 			if selectors.getCurrentTarget(newState, player.Name) ~= dummy then
@@ -83,7 +83,7 @@ local function handleDummy(dummy)
 
 		local currentAnimation, currentTrack = nil, nil
 		local animationInstances = getSortedAnimationInstances(animations.Fists:GetChildren())
-		local runAnimations: boolean = true
+		local runAnimations = true
 
 		local currentIndex, maxIndex = 0, #animationInstances
 		task.spawn(function()

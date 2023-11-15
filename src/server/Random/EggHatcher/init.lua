@@ -127,7 +127,7 @@ Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: numb
 		return nil
 	end
 
-	local results: { string } = {}
+	local results = {}
 	for i = 1, 3 do
 		results[i] = getWeightedRandom(player, rarities[areaName])
 	end

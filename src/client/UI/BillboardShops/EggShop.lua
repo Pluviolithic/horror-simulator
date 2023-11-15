@@ -22,11 +22,11 @@ local tripleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xLuck"]
 local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
 -- eventually add most of these to a config folder
-local hatchTime: number = 3
-local hatching: boolean = false
-local hatchDisplayTime: number = 4
-local maxActivationDistance: number = 15
-local movementConnection: RBXScriptConnection = nil
+local hatchTime = 3
+local hatching = false
+local hatchDisplayTime = 4
+local maxActivationDistance = 15
+local movementConnection = nil
 
 local autoLastEnabled = -1
 local autoLastDisabled = 0

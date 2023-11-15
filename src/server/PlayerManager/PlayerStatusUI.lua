@@ -58,7 +58,7 @@ function PlayerStatusUI:_applyUI(character: Model)
 end
 
 function PlayerStatusUI:enable()
-	local character: Model = self._player.Character
+	local character = self._player.Character
 	if character then
 		self:_applyUI(character)
 	end
