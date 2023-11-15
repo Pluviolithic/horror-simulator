@@ -174,7 +174,7 @@ local function handleEnemy(enemy)
 
 	clickDetector.MouseClick:Connect(function(player: Player)
 		local humanoid = if player.Character then player.Character:FindFirstChildOfClass "Humanoid" else nil
-		if debounceTable[player.UserId] or not humanoid then
+		if debounceTable[player.UserId] or not humanoid or (os.time() - lastInCombat) < 1 then
 			return
 		end
 
