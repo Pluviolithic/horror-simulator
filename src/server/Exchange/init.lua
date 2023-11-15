@@ -113,6 +113,7 @@ local function handlePunchingBag(bag: any)
 				"RequiredFear"
 			)
 			and not cancelled
+			and player:DistanceFromCharacter(bag.HumanoidLockPart.Position) <= 10
 		do
 			store:dispatch(
 				actions.incrementPlayerStat(

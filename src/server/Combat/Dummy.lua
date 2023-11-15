@@ -74,10 +74,14 @@ local function handleDummy(dummy)
 			failed = true
 		end)
 
-		humanoid.MoveToFinished:Wait()
+		repeat
+			task.wait(0.1)
+		until player:DistanceFromCharacter(goalPosition) <= fightRange + 5
+			or failed
+			or not selectors.isPlayerLoaded(store:getState(), player.Name)
 
 		connection:disconnect()
-		if failed then
+		if failed or (player:DistanceFromCharacter(goalPosition) > fightRange + 5) then
 			return
 		end
 
@@ -92,6 +96,7 @@ local function handleDummy(dummy)
 				and humanoid:IsDescendantOf(game)
 				and selectors.isPlayerLoaded(store:getState(), player.Name)
 				and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
+				and player:DistanceFromCharacter(goalPosition) <= fightRange + 5
 			do
 				currentIndex = (currentIndex % maxIndex) + 1
 				currentAnimation = animationInstances[currentIndex]:Clone()
@@ -127,6 +132,7 @@ local function handleDummy(dummy)
 			and humanoid:IsDescendantOf(game)
 			and selectors.isPlayerLoaded(store:getState(), player.Name)
 			and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
+			and player:DistanceFromCharacter(goalPosition) <= fightRange + 5
 		do
 			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear, dummy.Name))
 			if

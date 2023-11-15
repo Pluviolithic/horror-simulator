@@ -64,6 +64,7 @@ local function handleEnemy(enemy)
 	local engagedPlayers = {}
 	local damageDealtByPlayer = {}
 
+	local lastInCombat = -1
 	local targetPlayer = nil
 	local resetBegan = false
 	local totalDamageDealt = 0
@@ -82,12 +83,32 @@ local function handleEnemy(enemy)
 	healthValue.Value = maxHealth
 	NPCUI.Enabled = true
 
+	task.spawn(function()
+		while enemy:IsDescendantOf(game) do
+			if os.time() - lastInCombat < 5 then
+				task.wait(1)
+				continue
+			end
+			local foundPlayerInRange = false
+			for _, player in Players:GetPlayers() do
+				if player:DistanceFromCharacter(goalPosition) <= fightRange + 5 then
+					foundPlayerInRange = true
+					break
+				end
+			end
+			if not foundPlayerInRange then
+				totalDamageDealt = 0
+				healthValue.Value = maxHealth
+				table.clear(damageDealtByPlayer)
+			end
+			task.wait(5)
+		end
+	end)
+
 	local function startEnemyAnimations(): ()
 		local t = if isBoss then bossAttackSpeed else enemyAttackSpeed
 		runEnemyAnimations = true
 		repeat
-			task.wait(t)
-
 			attackTrack.Priority = Enum.AnimationPriority.Action
 			attackTrack:Play()
 			attackTrack.Stopped:Wait()
@@ -107,6 +128,7 @@ local function handleEnemy(enemy)
 					store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", fearMeterAddendum))
 				end
 			end
+			task.wait(t)
 		until not runEnemyAnimations
 	end
 
@@ -124,9 +146,7 @@ local function handleEnemy(enemy)
 		table.remove(engagedPlayers, playerIndex)
 
 		if #engagedPlayers == 0 then
-			totalDamageDealt = 0
-			healthValue.Value = maxHealth
-			table.clear(damageDealtByPlayer)
+			lastInCombat = os.time()
 			endEnemyAnimations()
 		elseif targetPlayer == player then
 			if not isBoss then
@@ -308,6 +328,7 @@ local function handleEnemy(enemy)
 			and humanoid:IsDescendantOf(game)
 			and selectors.isPlayerLoaded(store:getState(), player.Name)
 			and selectors.getCurrentTarget(store:getState(), player.Name) == enemy
+			and player:DistanceFromCharacter(rootPart.Position) <= fightRange + 10
 		do
 			if
 				selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
