@@ -18,6 +18,7 @@ local freeTeleportersGamepassID = ReplicatedStorage.Config.GamepassData.IDs.Free
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local player = Players.LocalPlayer
 
+local mainUI = player.PlayerGui:WaitForChild "MainUI"
 local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport")
 
 local function getAreaTeleporter(areaName: string): Instance?
@@ -68,6 +69,33 @@ function TeleportUI:_initialize()
 
 	self._ui.Ad.Activated:Connect(function()
 		MarketplaceService:PromptGamePassPurchase(player, freeTeleportersGamepassID)
+	end)
+
+	mainUI.AFK.Activated:Connect(function()
+		local primarySoundArea = selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
+		local purchasedTeleporters = selectors.getPurchasedTeleporters(store:getState(), player.Name)
+		local goal, targetAreaName = nil, nil
+
+		if areaRequirements["Howling Woods"].Value <= selectors.getStat(store:getState(), player.Name, "Strength") then
+			targetAreaName = "Howling Woods"
+			goal = workspace.Teleports.AFK2TP
+		else
+			targetAreaName = "Clown Town"
+			goal = workspace.Teleports.AFK1TP
+		end
+
+		if purchasedTeleporters[targetAreaName] or primarySoundArea == targetAreaName then
+			player.Character:PivotTo(
+				CFrame.fromMatrix(
+					goal.Position + goal.CFrame.LookVector * 5 + goal.CFrame.UpVector * 5,
+					goal.CFrame.RightVector,
+					goal.CFrame.UpVector
+				)
+			)
+			petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
+		else
+			self:setEnabled(true)
+		end
 	end)
 
 	local confirmationJanitor = nil
