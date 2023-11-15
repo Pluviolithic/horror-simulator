@@ -8,8 +8,10 @@ local player = Players.LocalPlayer
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Table = require(ReplicatedStorage.Common.Utils.Table)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
+local teleportUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportUI)
 
 local weapons = ReplicatedStorage.Weapons
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
@@ -38,7 +40,22 @@ function WeaponShop:_initialize(): ()
 	end)
 
 	mainUI.WeaponShop.Activated:Connect(function()
-		self:setEnabled(not self._isOpen)
+		local primarySoundArea = selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
+		local purchasedTeleporters = selectors.getPurchasedTeleporters(store:getState(), player.Name)
+
+		if purchasedTeleporters["Clown Town"] or primarySoundArea == "Clown Town" then
+			local goal = workspace.Teleports.WeaponShopTP
+			player.Character:PivotTo(
+				CFrame.fromMatrix(
+					goal.Position + goal.CFrame.LookVector * 5 + goal.CFrame.UpVector * 5,
+					goal.CFrame.RightVector,
+					goal.CFrame.UpVector
+				)
+			)
+			petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
+		else
+			teleportUI:setEnabled(true)
+		end
 	end)
 
 	for _, button in WeaponShop._itemButtons do
