@@ -6,7 +6,12 @@ local enemyAttackSpeed = ReplicatedStorage.Config.Combat.EnemyAttackSpeed.Value
 
 local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils)
 
-return function(enemy, janitor)
+return function(enemy, info, janitor)
+	if info.Active then
+		return
+	end
+	info.Active = true
+
 	local attackDelay = if CollectionService:HasTag(enemy, "Boss") then bossAttackSpeed else enemyAttackSpeed
 	local runAnimations = true
 

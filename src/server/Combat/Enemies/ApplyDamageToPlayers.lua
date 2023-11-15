@@ -9,7 +9,12 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-return function(enemy, engagedPlayers, janitor)
+return function(enemy, engagedPlayers, info, janitor)
+	if info.Active then
+		return
+	end
+	info.Active = true
+
 	local attackDelay = if CollectionService:HasTag(enemy, "Boss") then bossAttackSpeed else enemyAttackSpeed
 	local damagePlayers = true
 

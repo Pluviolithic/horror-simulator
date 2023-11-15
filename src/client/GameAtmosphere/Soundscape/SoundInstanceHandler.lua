@@ -46,7 +46,11 @@ for _, playlistFolder in playlists:GetChildren() do
 				volumeKnobs.on[playlistFolder.Name] = createKnob(nextAudioInstance, true)
 				volumeKnobs.off[playlistFolder.Name] = createKnob(nextAudioInstance, false)
 
-				if selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion ~= playlistFolder.Name then
+				if
+					not selectors.isPlayerLoaded(store:getState(), player.Name)
+					or selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
+						~= playlistFolder.Name
+				then
 					nextAudioInstance.Volume = 0
 				end
 

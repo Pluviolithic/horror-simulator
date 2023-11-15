@@ -1,5 +1,4 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
-local CollectionService = game:GetService "CollectionService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local store = require(ServerScriptService.Server.State.Store)
@@ -22,6 +21,14 @@ end
 return function(player, enemy, info, janitor)
 	local weaponName = selectors.getEquippedWeapon(store:getState(), player.Name)
 	local damageMultiplier = if weaponName == "Fists" then 1 else weapons[weaponName].Damage.Value
+
+	store:dispatch(actions.combatBegan(player.Name))
+
+	if weaponName ~= "Fists" then
+		local weaponAccessory = weapons[weaponName]:Clone()
+		player.Character.Humanoid:AddAccessory(weaponAccessory)
+	end
+
 	task.spawn(function()
 		while canAttack(player, enemy, info) do
 			local damageToDeal = math.clamp(
@@ -34,5 +41,7 @@ return function(player, enemy, info, janitor)
 			task.wait(animationUtilities.getPlayerAttackSpeed(player))
 		end
 	end)
-	janitor:Add(function() end, true)
+	janitor:Add(function()
+		info.EngagedPlayers[player] = nil
+	end, true)
 end
