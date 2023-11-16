@@ -24,9 +24,13 @@ store.changed:connect(function(newState, oldState)
 
 	-- verify whether this actually does anything
 	if
-		Sift.Array.equals(
-			Sift.Dictionary.keys(oldSoundRegions.OccupiedSoundRegions),
-			Sift.Dictionary.keys(newSoundRegions.OccupiedSoundRegions)
+		not newSoundRegions
+		or (
+			oldSoundRegions
+			and Sift.Array.equals(
+				Sift.Dictionary.keys(oldSoundRegions.OccupiedSoundRegions),
+				Sift.Dictionary.keys(newSoundRegions.OccupiedSoundRegions)
+			)
 		)
 	then
 		return

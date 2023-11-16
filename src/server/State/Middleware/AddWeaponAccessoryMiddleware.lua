@@ -24,6 +24,33 @@ local function findFirstChildWithTag(parent: Instance?, tag: string, recursive: 
 	return nil
 end
 
+local function modifyAccessories(player, action, equippedWeaponAccessory)
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild "Humanoid"
+	if action.type == "combatBegan" or action.type == "unequipWeapon" then
+		local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
+		if oldEquippedWeaponAccessory then
+			oldEquippedWeaponAccessory:Destroy()
+		end
+	elseif action.type == "switchPlayerEnemy" then
+		if not findFirstChildWithTag(player.Character, "WeaponAccessory") then
+			humanoid:AddAccessory(equippedWeaponAccessory:Clone())
+		end
+	elseif action.type == "equipWeapon" then
+		local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
+		if oldEquippedWeaponAccessory then
+			oldEquippedWeaponAccessory:Destroy()
+		end
+		if equippedWeaponAccessory then
+			humanoid:AddAccessory(equippedWeaponAccessory:Clone())
+		end
+	elseif action.type == "addPlayer" then
+		if action.profileData.WeaponData.EquippedWeapon ~= "Fists" then
+			humanoid:AddAccessory(equippedWeaponAccessory:Clone())
+		end
+	end
+end
+
 return function(nextDispatch, store)
 	return function(action)
 		if
@@ -36,7 +63,6 @@ return function(nextDispatch, store)
 		end
 
 		local player = Players[action.playerName]
-		local humanoid = player.Character and player.Character:FindFirstChild "Humanoid"
 		local equippedWeapon = "Fists"
 
 		if action.profileData then
@@ -58,28 +84,7 @@ return function(nextDispatch, store)
 			return
 		end
 
-		if action.type == "combatBegan" or action.type == "unequipWeapon" then
-			local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
-			if oldEquippedWeaponAccessory then
-				oldEquippedWeaponAccessory:Destroy()
-			end
-		elseif action.type == "switchPlayerEnemy" then
-			if not findFirstChildWithTag(player.Character, "WeaponAccessory") then
-				humanoid:AddAccessory(equippedWeaponAccessory:Clone())
-			end
-		elseif action.type == "equipWeapon" then
-			local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
-			if oldEquippedWeaponAccessory then
-				oldEquippedWeaponAccessory:Destroy()
-			end
-			if equippedWeaponAccessory then
-				humanoid:AddAccessory(equippedWeaponAccessory:Clone())
-			end
-		elseif action.type == "addPlayer" then
-			if action.profileData.WeaponData.EquippedWeapon ~= "Fists" then
-				humanoid:AddAccessory(equippedWeaponAccessory:Clone())
-			end
-		end
+		task.spawn(modifyAccessories, player, action, equippedWeaponAccessory)
 		nextDispatch(action)
 	end
 end
