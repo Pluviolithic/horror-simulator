@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local RunService = game:GetService "RunService"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
@@ -162,7 +163,10 @@ local function handleEnemy(enemy)
 		end))
 		playerJanitor:Add(function()
 			local playerIndex = table.find(info.EngagedPlayers, player)
-			if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
+			if
+				selectors.isPlayerLoaded(store:getState(), player.Name)
+				and selectors.getCurrentTarget(store:getState(), player.Name) == enemy
+			then
 				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			end
 			if playerIndex then
@@ -176,31 +180,39 @@ local function handleEnemy(enemy)
 			end
 		end, true)
 
-		repeat
-			task.wait(0.1)
-		until player:DistanceFromCharacter(rootPart.Position) <= fightRange + 1
-			or not Janitor.Is(playerJanitor)
-			or not selectors.isPlayerLoaded(store:getState(), player.Name)
+		local runServiceJanitor = Janitor.new()
+		runServiceJanitor:Add(RunService.Stepped:Connect(function()
+			local oldPosition = player.Character.Humanoid.RootPart.Position
+			task.wait(0.05)
+			if not Janitor.Is(playerJanitor) then
+				runServiceJanitor:Destroy()
+				return
+			elseif not Janitor.Is(runServiceJanitor) then
+				return
+			end
+			if
+				player.Character.Humanoid.RootPart.Position == oldPosition
+				and player:DistanceFromCharacter(rootPart.Position) <= fightRange + 5
+			then
+				runServiceJanitor:Destroy()
+				if not Janitor.Is(playerJanitor) then
+					return
+				end
 
-		if
-			not Janitor.Is(playerJanitor)
-			or (player:DistanceFromCharacter(rootPart.Position) > fightRange + 10)
-			or not selectors.isPlayerLoaded(store:getState(), player.Name)
-		then
-			return
-		end
+				orientPlayer(player, rootPart)
+				table.insert(info.EngagedPlayers, player)
 
-		orientPlayer(player, rootPart)
-		table.insert(info.EngagedPlayers, player)
+				if #info.EngagedPlayers == 1 and not isBoss then
+					orientEnemy(rootPart, player.Character.HumanoidRootPart.Position)
+				end
 
-		if #info.EngagedPlayers == 1 and not isBoss then
-			orientEnemy(rootPart, player.Character.HumanoidRootPart.Position)
-		end
-
-		applyEnemyAnimations(enemy, info, enemyAnimationJanitor)
-		applyPlayerAnimations(player, playerJanitor)
-		applyDamageToPlayers(enemy, info, enemyAnimationJanitor)
-		applyDamageToEnemy(player, enemy, info, playerJanitor)
+				applyEnemyAnimations(enemy, info, enemyAnimationJanitor)
+				applyPlayerAnimations(player, playerJanitor)
+				applyDamageToPlayers(enemy, info, enemyAnimationJanitor)
+				applyDamageToEnemy(player, enemy, info, playerJanitor)
+			end
+		end))
+		playerJanitor:Add(runServiceJanitor)
 	end)
 end
 

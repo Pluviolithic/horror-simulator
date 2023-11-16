@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -19,7 +20,7 @@ local function canAttack(player, enemy, info)
 	return info.HealthValue.Value > 0
 		and selectors.isPlayerLoaded(store:getState(), player.Name)
 		and selectors.getCurrentTarget(store:getState(), player.Name) == enemy
-		and player:DistanceFromCharacter(rootPart.Position) <= fightRange + 10
+		and player:DistanceFromCharacter(rootPart.Position) <= fightRange + 5
 end
 
 return function(player, enemy, info, janitor)
@@ -45,9 +46,12 @@ return function(player, enemy, info, janitor)
 			info.HealthValue.Value -= damageToDeal
 			task.wait(animationUtilities.getPlayerAttackSpeed(player))
 		end
+		if not enemy:FindFirstChild "Humanoid" then
+			return
+		end
 		local rootPart = if enemy.Humanoid.RootPart then enemy.Humanoid.RootPart else enemy:FindFirstChild "RootPart"
 		local fightRange = enemy.Configuration.FightRange.Value
-		if player:DistanceFromCharacter(rootPart.Position) > fightRange + 10 then
+		if player:DistanceFromCharacter(rootPart.Position) > fightRange + 10 and Janitor.Is(janitor) then
 			janitor:Destroy()
 		end
 	end)

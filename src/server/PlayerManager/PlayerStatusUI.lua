@@ -36,7 +36,7 @@ function PlayerStatusUI:_updateUIFields(state)
 		== selectors.getStat(state, self._player.Name, "MaxFearMeter")
 
 	if selectors.hasGamepass(state, self._player.Name, "VIP") then
-		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 182, 12)
+		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 193, 7)
 	else
 		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 255, 255)
 	end
