@@ -45,5 +45,10 @@ return function(player, enemy, info, janitor)
 			info.HealthValue.Value -= damageToDeal
 			task.wait(animationUtilities.getPlayerAttackSpeed(player))
 		end
+		local rootPart = if enemy.Humanoid.RootPart then enemy.Humanoid.RootPart else enemy:FindFirstChild "RootPart"
+		local fightRange = enemy.Configuration.FightRange.Value
+		if player:DistanceFromCharacter(rootPart.Position) > fightRange + 10 then
+			janitor:Destroy()
+		end
 	end)
 end
