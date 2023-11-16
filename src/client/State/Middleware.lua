@@ -32,6 +32,7 @@ local function updateIdleAnimationMiddleware(nextDispatch, store)
 				then
 					player.Character.Animate.idle.Animation1.AnimationId =
 						ReplicatedStorage.CombatAnimations[equippedWeapon].Idle.AnimationId
+					player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 				else
 					player.Character.Animate.idle.Animation1.AnimationId =
 						ReplicatedStorage.CombatAnimations.Fists.Idle.AnimationId
@@ -46,6 +47,7 @@ local function updateIdleAnimationMiddleware(nextDispatch, store)
 					end
 				end
 				player.Character.Animate.idle.Animation1.AnimationId = originalAnimationId
+				player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 			end
 		end
 		nextDispatch(action)

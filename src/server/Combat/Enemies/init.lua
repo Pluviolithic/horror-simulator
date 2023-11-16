@@ -148,7 +148,10 @@ local function handleEnemy(enemy)
 
 		playerJanitor:Add(
 			store.changed:connect(function(newState)
-				if selectors.getCurrentTarget(newState, player.Name) ~= enemy then
+				if
+					not selectors.isPlayerLoaded(newState, player.Name)
+					or selectors.getCurrentTarget(newState, player.Name) ~= enemy
+				then
 					playerJanitor:Destroy()
 				end
 			end),
@@ -175,7 +178,7 @@ local function handleEnemy(enemy)
 
 		repeat
 			task.wait(0.1)
-		until player:DistanceFromCharacter(rootPart.Position) <= fightRange + 5
+		until player:DistanceFromCharacter(rootPart.Position) <= fightRange + 1
 			or not Janitor.Is(playerJanitor)
 			or not selectors.isPlayerLoaded(store:getState(), player.Name)
 
