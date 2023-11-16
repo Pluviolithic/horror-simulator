@@ -9,13 +9,17 @@ local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils
 local weapons = ReplicatedStorage.Weapons
 
 local function canAttack(player, enemy, info)
+	if not enemy:IsDescendantOf(game) then
+		return false
+	end
+
+	local rootPart = if enemy.Humanoid.RootPart then enemy.Humanoid.RootPart else enemy:FindFirstChild "RootPart"
 	local fightRange = enemy.Configuration.FightRange.Value
-	local enemyRootPosition = enemy.RootPart.Position
 
 	return info.HealthValue.Value > 0
 		and selectors.isPlayerLoaded(store:getState(), player.Name)
 		and selectors.getCurrentTarget(store:getState(), player.Name) == enemy
-		and player:DistanceFromCharacter(enemyRootPosition) <= fightRange + 10
+		and player:DistanceFromCharacter(rootPart.Position) <= fightRange + 10
 end
 
 return function(player, enemy, info, janitor)
@@ -27,6 +31,7 @@ return function(player, enemy, info, janitor)
 	if weaponName ~= "Fists" then
 		local weaponAccessory = weapons[weaponName]:Clone()
 		player.Character.Humanoid:AddAccessory(weaponAccessory)
+		janitor:Add(weaponAccessory)
 	end
 
 	task.spawn(function()
@@ -41,7 +46,4 @@ return function(player, enemy, info, janitor)
 			task.wait(animationUtilities.getPlayerAttackSpeed(player))
 		end
 	end)
-	janitor:Add(function()
-		info.EngagedPlayers[player] = nil
-	end, true)
 end

@@ -9,18 +9,18 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
-return function(enemy, engagedPlayers, info, janitor)
-	if info.Active then
+return function(enemy, info, janitor)
+	if info.DamageActive then
 		return
 	end
-	info.Active = true
+	info.DamageActive = true
 
 	local attackDelay = if CollectionService:HasTag(enemy, "Boss") then bossAttackSpeed else enemyAttackSpeed
 	local damagePlayers = true
 
 	task.spawn(function()
 		while damagePlayers do
-			for _, player in engagedPlayers do
+			for _, player in info.EngagedPlayers do
 				local fearMeterGoal = math.min(
 					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
 						+ enemy.Configuration.Damage.Value,
@@ -38,6 +38,7 @@ return function(enemy, engagedPlayers, info, janitor)
 	end)
 
 	janitor:Add(function()
+		info.DamageActive = nil
 		damagePlayers = false
 	end, true)
 end

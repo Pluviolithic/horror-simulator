@@ -10,15 +10,15 @@ local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils
 return function(player, janitor)
 	local runAnimations = true
 
-	local currentIndex, animationTrack = 0, nil
+	local currentIndex, animationTrack, animation = 0, nil, nil
 	local animationInstances = animationUtilities.filterAndSortAnimationInstances(
 		combatAnimations[selectors.getEquippedWeapon(store:getState(), player.Name)]:GetChildren()
 	)
 
 	task.spawn(function()
 		while runAnimations do
-			currentIndex, animationTrack =
-				animationUtilities.getNextAnimationTrackAndIndex(animationInstances, currentIndex)
+			currentIndex, animation = animationUtilities.getNextIndexAndAnimationTrack(animationInstances, currentIndex)
+			animationTrack = player.Character.Humanoid:LoadAnimation(animation)
 			animationTrack.Priority = Enum.AnimationPriority.Action
 
 			animationTrack:Play()

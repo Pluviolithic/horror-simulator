@@ -45,27 +45,62 @@ end
 
 local function handleEnemy(enemy)
 	local info = {
-		Active = false,
 		HealthValue = enemy.Configuration.FearHealth,
 		MaxHealth = enemy.Configuration.FearHealth.Value,
 		DamageDealtByPlayer = {},
 		EngagedPlayers = {},
+		Janitors = {},
 	}
 
 	local isBoss = CollectionService:HasTag(enemy, "Boss")
 	local fightRange = enemy.Configuration.FightRange.Value
 	local respawnRate = if isBoss then bossRespawnRate else enemyRespawnRate
 	local rootPart = if enemy.Humanoid.RootPart then enemy.Humanoid.RootPart else enemy:FindFirstChild "RootPart"
+	local idleAnimationInstance = if enemy.Configuration:FindFirstChild "IdleAnim"
+		then enemy.Configuration.IdleAnim.Anim
+		else nil
 
 	local debounces = {}
+	local lastInCombat = -1
 	local enemyClone = enemy:Clone()
 	local enemyJanitor = Janitor.new()
+	local enemyAnimationJanitor = Janitor.new()
+
+	if idleAnimationInstance then
+		local idleTrack = enemy.Humanoid:LoadAnimation(idleAnimationInstance)
+		idleTrack.Priority = Enum.AnimationPriority.Idle
+		idleTrack:Play()
+	end
+
+	task.spawn(function()
+		while enemy:IsDescendantOf(game) do
+			if os.time() - lastInCombat < 5 or #info.EngagedPlayers > 0 then
+				task.wait(1)
+				continue
+			end
+			local foundPlayerInRange = false
+			for _, player in Players:GetPlayers() do
+				if player:DistanceFromCharacter(rootPart.Position) <= fightRange + 5 then
+					foundPlayerInRange = true
+					break
+				end
+			end
+			if not foundPlayerInRange then
+				info.HealthValue.Value = info.MaxHealth
+				table.clear(info.DamageDealtByPlayer)
+			end
+			task.wait(5)
+		end
+	end)
 
 	enemyJanitor:Add(enemy)
-	enemyJanitor:Add(info.HealthValue.Value:GetPropertyChangedSignal("Value"):Connect(function()
-		if info.HealthValue <= 0 then
-			enemyJanitor:Destroy()
+	enemyJanitor:Add(enemyAnimationJanitor)
+	enemyJanitor:Add(info.HealthValue:GetPropertyChangedSignal("Value"):Connect(function()
+		if info.HealthValue.Value <= 0 then
 			for player, damage in info.DamageDealtByPlayer do
+				if Janitor.Is(info.Janitors[player]) then
+					info.Janitors[player]:Destroy()
+				end
 				if not Players:FindFirstChild(player.Name) then
 					continue
 				end
@@ -80,6 +115,7 @@ local function handleEnemy(enemy)
 					)
 				end
 			end
+			enemyJanitor:Destroy()
 			task.wait(respawnRate)
 			enemyClone.Parent = workspace
 		end
@@ -105,13 +141,37 @@ local function handleEnemy(enemy)
 		end
 
 		local playerJanitor = Janitor.new()
+		info.Janitors[player] = playerJanitor
 		store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
 
-		playerJanitor:Add(store.changed:connect(function(newState)
-			if selectors.getCurrentTarget(newState, player.Name) ~= enemy then
-				playerJanitor:Destroy()
+		humanoid:MoveTo(enemy.Hitbox.Position + (humanoid.RootPart.Position - enemy.Hitbox.Position).Unit * fightRange)
+
+		playerJanitor:Add(
+			store.changed:connect(function(newState)
+				if selectors.getCurrentTarget(newState, player.Name) ~= enemy then
+					playerJanitor:Destroy()
+				end
+			end),
+			"disconnect"
+		)
+		playerJanitor:Add(humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+			playerJanitor:Destroy()
+		end))
+		playerJanitor:Add(function()
+			local playerIndex = table.find(info.EngagedPlayers, player)
+			if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
+				store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			end
-		end, "disconnect"))
+			if playerIndex then
+				table.remove(info.EngagedPlayers, playerIndex)
+			end
+			if #info.EngagedPlayers == 1 and not isBoss then
+				orientEnemy(rootPart, info.EngagedPlayers[1].Character.HumanoidRootPart.Position)
+			elseif #info.EngagedPlayers == 0 then
+				lastInCombat = os.time()
+				enemyAnimationJanitor:Cleanup()
+			end
+		end, true)
 
 		repeat
 			task.wait(0.1)
@@ -134,16 +194,9 @@ local function handleEnemy(enemy)
 			orientEnemy(rootPart, player.Character.HumanoidRootPart.Position)
 		end
 
-		playerJanitor:Add(function()
-			table.remove(info.EngagedPlayers, table.find(info.EngagedPlayers, player))
-			if #info.EngagedPlayers == 1 and not isBoss then
-				orientEnemy(rootPart, player.Character.HumanoidRootPart.Position)
-			end
-		end, true)
-
-		applyEnemyAnimations(enemy, info, enemyJanitor)
+		applyEnemyAnimations(enemy, info, enemyAnimationJanitor)
 		applyPlayerAnimations(player, playerJanitor)
-		applyDamageToPlayers(enemy, info, enemyJanitor)
+		applyDamageToPlayers(enemy, info, enemyAnimationJanitor)
 		applyDamageToEnemy(player, enemy, info, playerJanitor)
 	end)
 end
