@@ -1,5 +1,6 @@
 local Players = game:GetService "Players"
 local RunService = game:GetService "RunService"
+local TweenService = game:GetService "TweenService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local UserInputService = game:GetService "UserInputService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
@@ -15,7 +16,6 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["AutoHatch"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xHatch"].Value
-local fasterHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["FasterHatch"].Value
 local doubleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["2xLuck"].Value
 local tripleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xLuck"].Value
 
@@ -48,8 +48,82 @@ local luckBoostedRarities = {
 	Legendary = true,
 }
 
+local tweens = {
+	darkBackgroundOnTween = TweenService:Create(hatchingUI.DarkScreen, TweenInfo.new(0.5), {
+		BackgroundTransparency = 0.75,
+	}),
+	darkBackgroundOffTween = TweenService:Create(hatchingUI.DarkScreen, TweenInfo.new(0.5), {
+		BackgroundTransparency = 1,
+	}),
+	whiteScreenFlashTween = TweenService:Create(
+		hatchingUI.Flash,
+		TweenInfo.new(0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.In, 1, true, 0),
+		{
+			BackgroundTransparency = 0,
+		}
+	),
+}
+
+local function createEggShakeTween(egg: GuiObject, rotation): Tween
+	return TweenService:Create(egg, TweenInfo.new(0.1), {
+		Rotation = rotation,
+	})
+end
+
+tweens.Pet = {
+	On = createEggShakeTween(hatchingUI.Single.Pet, 20),
+	Off = createEggShakeTween(hatchingUI.Single.Pet, -10),
+}
+
+for i = 1, 3 do
+	tweens["Pet" .. i] = {
+		On = createEggShakeTween(hatchingUI.Triple["Pet" .. i], 20),
+		Off = createEggShakeTween(hatchingUI.Triple["Pet" .. i], -10),
+	}
+end
+
+local function loopOnOffTweens(name)
+	hatchingUI:FindFirstChild(name, true).Visible = true
+	tweens[name].On:Play()
+	return {
+		tweens[name].On.Completed:Connect(function()
+			tweens[name].Off:Play()
+		end),
+		tweens[name].Off.Completed:Connect(function()
+			tweens[name].On:Play()
+		end),
+	}
+end
+
+local function disableAllShakes()
+	tweens.Pet.On:Cancel()
+	tweens.Pet.Off:Cancel()
+	for i = 1, 3 do
+		tweens["Pet" .. i].On:Cancel()
+		tweens["Pet" .. i].Off:Cancel()
+	end
+end
+
+local function displayAreaSubUI(ui)
+	local currentPrimaryRegion = selectors.getAudioData(store:getState(), player.Name).PrimaryAudioRegion
+	for _, subUI in ui:GetChildren() do
+		if subUI.Name ~= currentPrimaryRegion and not subUI.Name:match "Pet" then
+			subUI.Visible = false
+		end
+	end
+end
+
 local function configureHatchUI(detailedResults: { any }, single: boolean): ()
-	task.wait(hatchTime)
+	-- if selectors.hasGamepass(store:getState(), player.Name, "FasterHatch") then
+	-- 	task.wait(hatchTime / 2)
+	-- else
+	-- 	task.wait(hatchTime)
+	-- end
+
+	displayAreaSubUI(hatchingUI.Single)
+	displayAreaSubUI(hatchingUI.Triple)
+
+	tweens.darkBackgroundOnTween:Play()
 
 	if single then
 		local pet = detailedResults[1]
@@ -62,7 +136,15 @@ local function configureHatchUI(detailedResults: { any }, single: boolean): ()
 		hatchingUI.Triple.Visible = false
 
 		hatchingUI.Enabled = true
+
+		task.wait(0.5)
+		local connections = loopOnOffTweens "Pet"
 		task.wait(hatchDisplayTime)
+		for _, connection in connections do
+			connection:Disconnect()
+		end
+		disableAllShakes()
+
 		hatchingUI.Enabled = false
 		hatching = false
 		return
@@ -358,25 +440,6 @@ playerStatePromise:andThen(function()
 			updateFoundsDisplay(selectors.getFoundPets(newState, player.Name))
 		end)
 	end)
-end)
-
-MarketplaceService.PromptGamePassPurchaseFinished:Connect(
-	function(purchasingPlayer: Player, gamePassID: number, purchased: boolean)
-		if purchasingPlayer ~= player then
-			return
-		end
-		if gamePassID == fasterHatchGamepassID and purchased then
-			hatchTime = 1.5
-		end
-	end
-)
-
-task.spawn(function()
-	local success, err =
-		pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, fasterHatchGamepassID)
-	if success and err then
-		hatchTime = 1.5
-	end
 end)
 
 return 0
