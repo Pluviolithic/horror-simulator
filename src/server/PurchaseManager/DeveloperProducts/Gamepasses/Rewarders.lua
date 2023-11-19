@@ -57,7 +57,10 @@ return {
 		)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "MaxFearMeterMultiplier", 2))
 	end,
+	[IDs["3xHatch"].Value] = true,
 	[IDs["2xSpeed"].Value] = true,
+	[IDs["AutoHatch"].Value] = true,
+	[IDs["FasterHatch"].Value] = true,
 	[IDs["2xAttackSpeed"].Value] = true,
 	[IDs["3xWorkoutSpeed"].Value] = true,
 	[IDs.FreeTeleporters.Value] = true,

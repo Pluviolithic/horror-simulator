@@ -184,7 +184,7 @@ local function handleEnemy(enemy)
 		runServiceJanitor:Add(RunService.Stepped:Connect(function()
 			local oldPosition = player.Character.Humanoid.RootPart.Position
 			task.wait(0.05)
-			if not Janitor.Is(playerJanitor) then
+			if not Janitor.Is(playerJanitor) and Janitor.Is(runServiceJanitor) then
 				runServiceJanitor:Destroy()
 				return
 			elseif not Janitor.Is(runServiceJanitor) then

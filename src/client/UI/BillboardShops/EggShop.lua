@@ -73,6 +73,30 @@ local function createEggShakeTween(egg: GuiObject, rotation): Tween
 	})
 end
 
+local function enableAndSpinRarityBackground(petUI: GuiObject, rarity: string)
+	for _, rarityBackground in petUI:GetChildren() do
+		if not rarityBackground.Name:match "Background" then
+			continue
+		end
+
+		if not rarityBackground.Name:match(rarity) then
+			rarityBackground.Visible = false
+		else
+			rarityBackground.Rotation = 0
+			rarityBackground.Visible = true
+			local tween = TweenService:Create(
+				rarityBackground,
+				TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, false, 0),
+				{
+					Rotation = 360,
+				}
+			)
+			hatchingTweensJanitor:Add(tween)
+			tween:Play()
+		end
+	end
+end
+
 local function displayAreaSubUI(ui, areaName)
 	for _, subUI in ui:GetChildren() do
 		if subUI.Name ~= areaName then
@@ -104,9 +128,12 @@ local function createSizeTween(constraint: UISizeConstraint): Tween
 	})
 end
 
-local function configureHatchUI(asyncResults, single: boolean): typeof(Promise.new())
+local function configureHatchUI(asyncResults, single: boolean, areaName: string): typeof(Promise.new())
 	return Promise.new(function(resolve)
 		local currentPrimaryRegion = selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
+		local modifiedHatchDisplayTime = if selectors.hasGamepass(store:getState(), player.Name, "FasterHatch")
+			then hatchDisplayTime / 2
+			else hatchDisplayTime
 
 		hatchingUI.Enabled = true
 
@@ -126,12 +153,10 @@ local function configureHatchUI(asyncResults, single: boolean): typeof(Promise.n
 			hatchingUI.Single.Visible = false
 		end
 
-		print(uiToShow)
-
 		task.wait(0.5)
 		uiToShow[currentPrimaryRegion].Visible = true
 		createAndStartShakes(uiToShow[currentPrimaryRegion]:GetChildren())
-		task.wait(hatchDisplayTime)
+		task.wait(modifiedHatchDisplayTime)
 		hatchingTweensJanitor:Cleanup()
 
 		for _, eggImage in uiToShow[currentPrimaryRegion]:GetChildren() do
@@ -144,7 +169,17 @@ local function configureHatchUI(asyncResults, single: boolean): typeof(Promise.n
 
 		local oldMinSize = uiToShow["Pet" .. 1].UISizeConstraint.MinSize
 		asyncResults:andThen(function(results)
-			for i, pet in results do
+			if not results then
+				resolve(true)
+				return
+			end
+			local detailedResults = {}
+
+			for _, petName in results do
+				table.insert(detailedResults, ReplicatedStorage.Pets[areaName][petName])
+			end
+
+			for i, pet in detailedResults do
 				uiToShow["Pet" .. i].PetImage.Image = pet.ImageID.Value
 				uiToShow["Pet" .. i].PetName.Text = pet.Name
 				uiToShow["Pet" .. i].Rarity.Text = pet.RarityName.Value
@@ -154,15 +189,16 @@ local function configureHatchUI(asyncResults, single: boolean): typeof(Promise.n
 
 				local sizeTween = createSizeTween(uiToShow["Pet" .. i].UISizeConstraint)
 				sizeTween:Play()
+				enableAndSpinRarityBackground(uiToShow["Pet" .. i], pet.RarityName.Value)
 				hatchingTweensJanitor:Add(sizeTween)
 			end
 
-			task.wait(hatchDisplayTime)
+			task.wait(modifiedHatchDisplayTime)
 
 			hatchingTweensJanitor:Cleanup()
 			hatchingUI.Enabled = false
 
-			for i in results do
+			for i in detailedResults do
 				uiToShow["Pet" .. i].UISizeConstraint.MinSize = oldMinSize
 			end
 
@@ -171,13 +207,17 @@ local function configureHatchUI(asyncResults, single: boolean): typeof(Promise.n
 	end)
 end
 
-function displayPurchaseResults(asyncResults: { string }?, areaName: string, count: number, auto: boolean): ()
+function displayPurchaseResults(asyncResults, areaName: string, count: number, auto: boolean): ()
 	if not asyncResults then
 		warn "Failed to purchase eggs"
 		return
 	end
 
-	configureHatchUI(asyncResults, count == 1):andThen(function()
+	configureHatchUI(asyncResults, count == 1, areaName):andThen(function(failed: boolean?)
+		if failed then
+			hatching = false
+			return
+		end
 		if auto and autoLastEnabled > autoLastDisabled then
 			local eggGemPrice = eggGemPricesConfig[areaName].Value
 			if
@@ -250,17 +290,23 @@ local function handleShop(shop): ()
 		end
 
 		if count == 3 and not selectors.hasGamepass(store:getState(), player.Name, "3xHatch") then
-			if count == 3 then
-				MarketplaceService:PromptGamePassPurchase(player, tripleHatchGamepassID)
-				hatching = false
-				return
-			end
+			MarketplaceService:PromptGamePassPurchase(player, tripleHatchGamepassID)
+			hatching = false
+			return
 		end
 
 		if auto and not selectors.hasGamepass(store:getState(), player.Name, "AutoHatch") then
 			MarketplaceService:PromptGamePassPurchase(player, autoHatchGamepassID)
 			hatching = false
 			return
+		end
+
+		if auto then
+			if selectors.hasGamepass(store:getState(), player.Name, "3xHatch") then
+				count = 3
+			else
+				count = 1
+			end
 		end
 
 		local t = 0
