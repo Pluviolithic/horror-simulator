@@ -37,13 +37,17 @@ return {
 			}
 		end
 	),
-	lockPlayerPets = makeActionCreator("lockPlayerPets", function(playerName: string, petNames: { [string]: number })
-		return {
-			playerName = playerName,
-			petsToLock = petNames,
-			shouldSave = true,
-		}
-	end),
+	lockPlayerPets = makeActionCreator(
+		"lockPlayerPets",
+		function(playerName: string, petNames: { [string]: number }, fromEquip: boolean)
+			return {
+				playerName = playerName,
+				petsToLock = petNames,
+				fromEquip = fromEquip,
+				shouldSave = true,
+			}
+		end
+	),
 	unlockPlayerPets = makeActionCreator(
 		"unlockPlayerPets",
 		function(playerName: string, petNames: { [string]: number }, force: boolean)

@@ -31,7 +31,7 @@ local function evolvePet(player, petName)
 				)
 			)
 		end
-		store:dispatch(actions.unlockPlayerPets(player.Name, { [petName] = countToUnlock }))
+		store:dispatch(actions.unlockPlayerPets(player.Name, { [petName] = countToUnlock }, true))
 	end
 
 	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = 5 }, true))
@@ -58,7 +58,7 @@ Remotes.Server:Get("EquipPet"):Connect(function(player: Player, petName: string,
 
 	store:dispatch(actions.equipPlayerPets(player.Name, { [petName] = 1 }))
 	if not locked then
-		store:dispatch(actions.lockPlayerPets(player.Name, { [petName] = 1 }))
+		store:dispatch(actions.lockPlayerPets(player.Name, { [petName] = 1 }, true))
 	end
 
 	return 0
@@ -91,7 +91,7 @@ Remotes.Server:Get("LockPet"):Connect(function(player: Player, petName: string)
 		return 1
 	end
 
-	store:dispatch(actions.lockPlayerPets(player.Name, { [petName] = 1 }))
+	store:dispatch(actions.lockPlayerPets(player.Name, { [petName] = 1 }, true))
 
 	return 0
 end)
@@ -164,7 +164,7 @@ Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
 	store:dispatch(actions.unlockPlayerPets(player.Name, equippedPets))
 	store:dispatch(actions.unequipPlayerPets(player.Name, equippedPets))
 	store:dispatch(actions.equipPlayerPets(player.Name, bestPetsDict))
-	store:dispatch(actions.lockPlayerPets(player.Name, bestPetsDict))
+	store:dispatch(actions.lockPlayerPets(player.Name, bestPetsDict, true))
 
 	return 0
 end)

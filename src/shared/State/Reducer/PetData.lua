@@ -64,6 +64,9 @@ return Rodux.createReducer({}, {
 	lockPlayerPets = function(state, action)
 		return produce(state, function(draft)
 			for petName, quantity in action.petsToLock do
+				if petUtils.getPet(petName):FindFirstChild "PermaLock" and action.fromEquip then
+					continue
+				end
 				draft[action.playerName].LockedPets[petName] = (draft[action.playerName].LockedPets[petName] or 0)
 					+ quantity
 			end
