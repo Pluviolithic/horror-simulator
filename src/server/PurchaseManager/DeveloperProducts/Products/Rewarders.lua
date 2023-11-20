@@ -54,6 +54,7 @@ local productRewarders = {
 for _, pack in packs.Fear:GetChildren() do
 	productRewarders[pack.Value] = function(player: Player)
 		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
+		areaName = areaName:gsub(" ", "_")
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", pack:GetAttribute(areaName), "Pack", true))
 	end
 end
@@ -61,6 +62,7 @@ end
 for _, pack in packs.Gems:GetChildren() do
 	productRewarders[pack.Value] = function(player: Player)
 		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
+		areaName = areaName:gsub(" ", "_")
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", pack:GetAttribute(areaName), "Pack", true))
 	end
 end

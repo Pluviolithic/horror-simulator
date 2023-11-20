@@ -24,8 +24,9 @@ local petProductIDs = ReplicatedStorage.Config.DevProductData.IDs
 local packProductIDs = ReplicatedStorage.Config.DevProductData.Packs
 
 local function shouldRefresh(newState, oldState): boolean
-	return rankUtils.getBestUnlockedArea(selectors.getStat(newState, player.Name, "Strength"))
-		~= rankUtils.getBestUnlockedArea(selectors.getStat(oldState, player.Name, "Strength"))
+	return not selectors.isPlayerLoaded(oldState, player.Name)
+		or rankUtils.getBestUnlockedArea(selectors.getStat(newState, player.Name, "Strength"))
+			~= rankUtils.getBestUnlockedArea(selectors.getStat(oldState, player.Name, "Strength"))
 end
 
 function RobuxShop:_closeFramesWithExclude(exclude)
