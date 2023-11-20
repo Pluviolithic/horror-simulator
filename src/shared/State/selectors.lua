@@ -78,4 +78,13 @@ return {
 	getAudioData = function(state, playerName)
 		return state.AudioData[playerName]
 	end,
+	getTempSettings = function(state, playerName)
+		return state.TempSettings[playerName]
+	end,
+	getSavedSettings = function(state, playerName)
+		return state.SavedSettings[playerName]
+	end,
+	getSetting = function(state, playerName, setting)
+		return state.SavedSettings[playerName][setting] or state.TempSettings[playerName][setting]
+	end,
 }

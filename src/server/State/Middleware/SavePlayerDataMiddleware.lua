@@ -13,6 +13,7 @@ local function getFilteredState(playerName, state)
 		WeaponData = selectors.getWeaponData(state, playerName),
 		PurchaseData = selectors.getPurchaseData(state, playerName),
 		MissionData = selectors.getMissionData(state, playerName),
+		SavedSettings = selectors.getSavedSettings(state, playerName),
 		--MultiplierData = selectors.getMultiplierData(state, playerName),
 	}
 	for field, entry in filteredState do

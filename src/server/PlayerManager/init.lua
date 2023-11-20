@@ -95,5 +95,6 @@ end)
 
 require(script.GlobalLeaderboards)
 require(script.SoftShutdown)
+require(script.Settings)
 
 return 0

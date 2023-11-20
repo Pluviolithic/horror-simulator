@@ -75,4 +75,10 @@ return {
 			ViewedRewardPopup = false,
 		},
 	},
+
+	SavedSettings = {
+		VIPChatTag = false,
+		VIPNameTag = false,
+		JumpscareCooldown = true,
+	},
 }

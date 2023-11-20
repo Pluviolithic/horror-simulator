@@ -86,4 +86,19 @@ return {
 		OccupiedSoundRegions = {},
 		BackgroundTracks = {},
 	},
+
+	SavedSettings = {
+		VIPChatTag = false,
+		VIPNameTag = false,
+		JumpscareCooldown = true,
+	},
+
+	TempSettings = {
+		BackgroundMusic = true,
+		["2xSpeed"] = false,
+		BrightMode = false,
+		ShowMyPets = true,
+		ShowOtherPets = true,
+		Jumpscares = true,
+	},
 }

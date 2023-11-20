@@ -109,6 +109,12 @@ local Remotes = Net.CreateDefinitions {
 			MaxRequestsPerMinute = 60,
 		},
 	},
+	SwitchSetting = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+		Net.Middleware.TypeChecking(t.string),
+	},
 
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
 	SetControlsEnabled = Net.Definitions.ServerToClientEvent(),
