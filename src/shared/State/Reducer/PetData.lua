@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local Immut = require(ReplicatedStorage.Common.lib.Immut)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
 local produce = Immut.produce
@@ -71,6 +72,9 @@ return Rodux.createReducer({}, {
 	unlockPlayerPets = function(state, action)
 		return produce(state, function(draft)
 			for petName, quantity in action.petsToUnlock do
+				if petUtils.getPet(petName):FindFirstChild "PermaLock" and not action.force then
+					continue
+				end
 				draft[action.playerName].LockedPets[petName] -= quantity
 				if draft[action.playerName].LockedPets[petName] < 1 then
 					draft[action.playerName].LockedPets[petName] = nil

@@ -136,7 +136,10 @@ function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, lock
 		petTemplate.Lock.Visible = true
 		destructor:Add(
 			petTemplate.Lock.Activated:Connect(function()
-				if petTemplate.Equipped.Visible then
+				if
+					petTemplate.Equipped.Visible
+					or petUtils.getPet(petTemplate.PetName.Text):FindFirstChild "PermaLock"
+				then
 					return
 				end
 				petTemplate.Lock.Visible = false

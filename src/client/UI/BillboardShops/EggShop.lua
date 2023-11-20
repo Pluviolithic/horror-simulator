@@ -122,8 +122,8 @@ local function createAndStartShakes(eggImages: { GuiObject }): ()
 	end
 end
 
-local function createSizeTween(constraint: UISizeConstraint, size: number): Tween
-	return TweenService:Create(constraint, TweenInfo.new(0.5), {
+local function createSizeTween(constraint: UISizeConstraint, size: number, tweenTime: number): Tween
+	return TweenService:Create(constraint, TweenInfo.new(tweenTime), {
 		MinSize = size,
 	})
 end
@@ -189,7 +189,8 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 
 				local sizeTween = createSizeTween(
 					uiToShow["Pet" .. i].UISizeConstraint,
-					uiToShow["Pet" .. i].UISizeConstraint.MaxSize
+					uiToShow["Pet" .. i].UISizeConstraint.MaxSize,
+					0.5
 				)
 				sizeTween:Play()
 				enableAndSpinRarityBackground(uiToShow["Pet" .. i], pet.RarityName.Value)
@@ -200,7 +201,7 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 
 			local lastSizeTween
 			for i in detailedResults do
-				local sizeTween = createSizeTween(uiToShow["Pet" .. i].UISizeConstraint, oldMinSize)
+				local sizeTween = createSizeTween(uiToShow["Pet" .. i].UISizeConstraint, oldMinSize, 0.25)
 				sizeTween:Play()
 				lastSizeTween = sizeTween
 				hatchingTweensJanitor:Add(sizeTween)
@@ -216,9 +217,6 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 end
 
 function displayPurchaseResults(asyncResults, areaName: string, count: number, auto: boolean): ()
-	print(selectors.getStat(store:getState(), player.Name, "CurrentPetCount"))
-	print(selectors.getStat(store:getState(), player.Name, "MaxPetCount"))
-	print(count)
 	if
 		not asyncResults
 		or (selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count)
@@ -450,7 +448,13 @@ local function updateFoundsDisplay(foundPets): ()
 			continue
 		end
 
-		local petUI = player.PlayerGui:WaitForChild(petAreas[petName] .. "EggUI").Background.Pets[petName]
+		local eggUI = player.PlayerGui:FindFirstChild(petAreas[petName] .. "EggUI")
+
+		if not eggUI then
+			continue
+		end
+
+		local petUI = eggUI.Background.Pets[petName]
 		petUI.PetName.Text = petName
 		petUI.PetImage.ImageColor3 = Color3.fromRGB(255, 255, 255)
 		petUI.PetImage.ImageTransparency = 0

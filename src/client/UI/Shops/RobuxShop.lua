@@ -18,6 +18,8 @@ local mainUI = player.PlayerGui:WaitForChild "MainUI"
 
 RobuxShop.Trigger = "RobuxShop"
 
+local petProductIDs = ReplicatedStorage.Config.DevProductData.IDs
+
 function RobuxShop:_closeFramesWithExclude(exclude)
 	for _, frame in self._ui.Background:GetChildren() do
 		if frame ~= exclude and self._ui:FindFirstChild(frame.Name:match "(%a+)Frame") then
@@ -95,6 +97,15 @@ function RobuxShop:_initialize(): ()
 			buttonDisplay.TouchTap:Connect(function()
 				self._ui.Background.GamepassesFrame.Description.TextLabel.Text = buttonDisplay.DescriptionText.Value
 				self:_countdownDescriptionDisplayTime()
+			end)
+		end
+	end
+
+	for _, buttonDisplay in self._ui.Background.PetsFrame.PetsFrame:GetChildren() do
+		local productIDInstance = petProductIDs:FindFirstChild(buttonDisplay.Name)
+		if productIDInstance then
+			buttonDisplay.Purchase.Activated:Connect(function()
+				MarketplaceService:PromptProductPurchase(player, productIDInstance.Value)
 			end)
 		end
 	end

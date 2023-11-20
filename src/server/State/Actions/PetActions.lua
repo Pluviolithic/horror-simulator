@@ -46,10 +46,11 @@ return {
 	end),
 	unlockPlayerPets = makeActionCreator(
 		"unlockPlayerPets",
-		function(playerName: string, petNames: { [string]: number })
+		function(playerName: string, petNames: { [string]: number }, force: boolean)
 			return {
 				playerName = playerName,
 				petsToUnlock = petNames,
+				force = force,
 				shouldSave = true,
 			}
 		end

@@ -1,5 +1,6 @@
 local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local MarketplaceService = game:GetService "MarketplaceService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
@@ -7,6 +8,8 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
+
+local devProductIDs = ReplicatedStorage.Config.DevProductData.IDs
 
 local function evolvePet(player, petName)
 	local petOwnedCount = selectors.getPetOwnedCount(store:getState(), player.Name, petName)
@@ -31,7 +34,7 @@ local function evolvePet(player, petName)
 		store:dispatch(actions.unlockPlayerPets(player.Name, { [petName] = countToUnlock }))
 	end
 
-	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = 5 }))
+	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = 5 }, true))
 	store:dispatch(actions.givePlayerPets(player.Name, { ["Evolved " .. petName] = 1 }))
 
 	return 0
@@ -191,6 +194,14 @@ Remotes.Server:Get("EvolveAllPets"):Connect(function(player: Player)
 		until returnCode == 1
 	end
 	return 0
+end)
+
+workspace.BuyGoldenDominus.Prompt.Triggered:Connect(function(player)
+	MarketplaceService:PromptProductPurchase(player, devProductIDs["1GoldenDominus"].Value)
+end)
+
+workspace.BuyReaper.Prompt.Triggered:Connect(function(player)
+	MarketplaceService:PromptProductPurchase(player, devProductIDs["1Reaper"].Value)
 end)
 
 store.changed:connect(function(newState, oldState)

@@ -7,6 +7,7 @@ local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 
 local produce = Immut.produce
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local baseRequiredFear = game:GetService("ReplicatedStorage").Config.Workout.RequiredFear.Value
 
 return Rodux.createReducer({}, {
@@ -61,7 +62,10 @@ return Rodux.createReducer({}, {
 	end,
 	givePlayerPets = function(state, action)
 		local addedPetCount = 0
-		for _, quantity in action.petsToGive do
+		for petName, quantity in action.petsToGive do
+			if petUtils.getPet(petName):FindFirstChild "PermaLock" then
+				continue
+			end
 			addedPetCount += quantity
 		end
 		return produce(state, function(draft)
