@@ -122,9 +122,9 @@ local function createAndStartShakes(eggImages: { GuiObject }): ()
 	end
 end
 
-local function createSizeTween(constraint: UISizeConstraint): Tween
+local function createSizeTween(constraint: UISizeConstraint, size: number): Tween
 	return TweenService:Create(constraint, TweenInfo.new(0.5), {
-		MinSize = constraint.MaxSize,
+		MinSize = size,
 	})
 end
 
@@ -132,7 +132,7 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 	return Promise.new(function(resolve)
 		local currentPrimaryRegion = selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
 		local modifiedHatchDisplayTime = if selectors.hasGamepass(store:getState(), player.Name, "FasterHatch")
-			then hatchDisplayTime / 2
+			then hatchDisplayTime / 2.4651
 			else hatchDisplayTime
 
 		hatchingUI.Enabled = true
@@ -187,7 +187,10 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 
 				uiToShow["Pet" .. i].Visible = true
 
-				local sizeTween = createSizeTween(uiToShow["Pet" .. i].UISizeConstraint)
+				local sizeTween = createSizeTween(
+					uiToShow["Pet" .. i].UISizeConstraint,
+					uiToShow["Pet" .. i].UISizeConstraint.MaxSize
+				)
 				sizeTween:Play()
 				enableAndSpinRarityBackground(uiToShow["Pet" .. i], pet.RarityName.Value)
 				hatchingTweensJanitor:Add(sizeTween)
@@ -195,12 +198,17 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 
 			task.wait(modifiedHatchDisplayTime)
 
+			local lastSizeTween
+			for i in detailedResults do
+				local sizeTween = createSizeTween(uiToShow["Pet" .. i].UISizeConstraint, oldMinSize)
+				sizeTween:Play()
+				lastSizeTween = sizeTween
+				hatchingTweensJanitor:Add(sizeTween)
+			end
+
+			lastSizeTween.Completed:Wait()
 			hatchingTweensJanitor:Cleanup()
 			hatchingUI.Enabled = false
-
-			for i in detailedResults do
-				uiToShow["Pet" .. i].UISizeConstraint.MinSize = oldMinSize
-			end
 
 			resolve()
 		end)
@@ -208,7 +216,14 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 end
 
 function displayPurchaseResults(asyncResults, areaName: string, count: number, auto: boolean): ()
-	if not asyncResults then
+	print(selectors.getStat(store:getState(), player.Name, "CurrentPetCount"))
+	print(selectors.getStat(store:getState(), player.Name, "MaxPetCount"))
+	print(count)
+	if
+		not asyncResults
+		or (selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count)
+			> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
+	then
 		warn "Failed to purchase eggs"
 		return
 	end
@@ -263,6 +278,8 @@ local function handleShop(shop): ()
 			else
 				autoLastEnabled = os.time()
 			end
+		elseif autoLastEnabled > autoLastDisabled then
+			autoLastDisabled = os.time()
 		end
 
 		if hatching then
@@ -302,7 +319,11 @@ local function handleShop(shop): ()
 		end
 
 		if auto then
-			if selectors.hasGamepass(store:getState(), player.Name, "3xHatch") then
+			if
+				selectors.hasGamepass(store:getState(), player.Name, "3xHatch")
+				and (selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + 3)
+					<= selectors.getStat(store:getState(), player.Name, "MaxPetCount")
+			then
 				count = 3
 			else
 				count = 1
