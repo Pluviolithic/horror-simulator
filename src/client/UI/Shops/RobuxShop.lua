@@ -1,5 +1,6 @@
 local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
+local UserInputService = game:GetService "UserInputService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
@@ -23,6 +24,20 @@ function RobuxShop:_closeFramesWithExclude(exclude)
 			frame.Visible = false
 		end
 	end
+end
+
+function RobuxShop:_countdownDescriptionDisplayTime()
+	self._lastDescriptionTapped = os.time()
+	if self._countdownActive then
+		return
+	end
+	self._countdownActive = true
+	self._ui.Background.GamepassesFrame.Description.Visible = true
+	while self._lastDescriptionTapped + 10 > os.time() do
+		task.wait(0.25)
+	end
+	self._ui.Background.GamepassesFrame.Description.Visible = false
+	self._countdownActive = false
 end
 
 function RobuxShop:_initialize(): ()
@@ -60,6 +75,26 @@ function RobuxShop:_initialize(): ()
 		if gamepassIDInstance then
 			buttonDisplay.Purchase.Activated:Connect(function()
 				MarketplaceService:PromptGamePassPurchase(player, gamepassIDInstance.Value)
+			end)
+
+			buttonDisplay.MouseEnter:Connect(function()
+				if not UserInputService.MouseEnabled then
+					return
+				end
+				self._ui.Background.GamepassesFrame.Description.TextLabel.Text = buttonDisplay.DescriptionText.Value
+				self._ui.Background.GamepassesFrame.Description.Visible = true
+			end)
+
+			buttonDisplay.MouseLeave:Connect(function()
+				if not UserInputService.MouseEnabled then
+					return
+				end
+				self._ui.Background.GamepassesFrame.Description.Visible = false
+			end)
+
+			buttonDisplay.TouchTap:Connect(function()
+				self._ui.Background.GamepassesFrame.Description.TextLabel.Text = buttonDisplay.DescriptionText.Value
+				self:_countdownDescriptionDisplayTime()
 			end)
 		end
 	end
