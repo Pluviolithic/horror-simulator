@@ -8,9 +8,11 @@ local player = Players.LocalPlayer
 
 --local Remotes = require(ReplicatedStorage.Common.Remotes)
 --local Table = require(ReplicatedStorage.Common.Utils.Table)
---local selectors = require(ReplicatedStorage.Common.State.selectors)
---local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
+local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
+local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local RobuxShop = CentralUI.new(player.PlayerGui:WaitForChild "RobuxShop")
@@ -19,11 +21,35 @@ local mainUI = player.PlayerGui:WaitForChild "MainUI"
 RobuxShop.Trigger = "RobuxShop"
 
 local petProductIDs = ReplicatedStorage.Config.DevProductData.IDs
+local packProductIDs = ReplicatedStorage.Config.DevProductData.Packs
+
+local function shouldRefresh(newState, oldState): boolean
+	return rankUtils.getBestUnlockedArea(selectors.getStat(newState, player.Name, "Strength"))
+		~= rankUtils.getBestUnlockedArea(selectors.getStat(oldState, player.Name, "Strength"))
+end
 
 function RobuxShop:_closeFramesWithExclude(exclude)
 	for _, frame in self._ui.Background:GetChildren() do
 		if frame ~= exclude and self._ui:FindFirstChild(frame.Name:match "(%a+)Frame") then
 			frame.Visible = false
+		end
+	end
+end
+
+function RobuxShop:Refresh()
+	local bestAreaUnlocked = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
+	for _, areaFrame in self._ui.Background.FearFrame:GetChildren() do
+		if areaFrame.Name == bestAreaUnlocked then
+			areaFrame.Visible = true
+		elseif areaFrame.Name ~= "ShopText" then
+			areaFrame.Visible = false
+		end
+	end
+	for _, areaFrame in self._ui.Background.GemsFrame:GetChildren() do
+		if areaFrame.Name == bestAreaUnlocked then
+			areaFrame.Visible = true
+		elseif areaFrame.Name ~= "ShopText" then
+			areaFrame.Visible = false
 		end
 	end
 end
@@ -109,6 +135,39 @@ function RobuxShop:_initialize(): ()
 			end)
 		end
 	end
+
+	for _, areaFrame in self._ui.Background.GemsFrame:GetChildren() do
+		for _, buttonDisplay in areaFrame:GetChildren() do
+			local packIDInstance = packProductIDs.Gems:FindFirstChild(buttonDisplay.Name)
+			if packIDInstance then
+				buttonDisplay.Purchase.Activated:Connect(function()
+					MarketplaceService:PromptProductPurchase(player, packIDInstance.Value)
+				end)
+			end
+		end
+	end
+
+	for _, areaFrame in self._ui.Background.FearFrame:GetChildren() do
+		for _, buttonDisplay in areaFrame:GetChildren() do
+			local packIDInstance = packProductIDs.Fear:FindFirstChild(buttonDisplay.Name)
+			if packIDInstance then
+				buttonDisplay.Purchase.Activated:Connect(function()
+					MarketplaceService:PromptProductPurchase(player, packIDInstance.Value)
+				end)
+			end
+		end
+	end
+
+	playerStatePromise:andThen(function()
+		self:Refresh()
+
+		store.changed:connect(function(newState, oldState)
+			if not shouldRefresh(newState, oldState) then
+				return
+			end
+			self:Refresh()
+		end)
+	end)
 end
 
 task.spawn(RobuxShop._initialize, RobuxShop)

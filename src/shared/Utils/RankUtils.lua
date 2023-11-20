@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
+local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 local strengthRanksFolder = ReplicatedStorage.Config.StrengthRanks
 
 local strengthRanks = {}
@@ -23,5 +24,15 @@ return {
 	end,
 	getRankRequirement = function(rank: number): number
 		return strengthRanks[rank]
+	end,
+	getBestUnlockedArea = function(strength): string
+		local biggestRequirement, bestUnlockedArea = -1, "Clown Town"
+		for _, requirement in areaRequirements:GetChildren() do
+			if requirement.Value <= strength and requirement.Value > biggestRequirement then
+				biggestRequirement = requirement.Value
+				bestUnlockedArea = requirement.Name
+			end
+		end
+		return bestUnlockedArea
 	end,
 }

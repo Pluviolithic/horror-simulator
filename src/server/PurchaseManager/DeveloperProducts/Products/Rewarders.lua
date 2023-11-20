@@ -4,10 +4,12 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 
 local IDs = ReplicatedStorage.Config.DevProductData.IDs
+local packs = ReplicatedStorage.Config.DevProductData.Packs
 
 local function awardPetsToPlayer(player: Player, petsDict: { [string]: number }): ()
 	store:dispatch(actions.givePlayerPets(player.Name, petsDict))
@@ -27,7 +29,7 @@ local function awardPetsToPlayer(player: Player, petsDict: { [string]: number })
 	end
 end
 
-return {
+local productRewarders = {
 	[IDs.MissionSkip.Value] = function(player: Player)
 		local areaName = regionUtils.getPlayerLocationName(player.Name)
 		local currentMissionData = selectors.getMissionData(store:getState(), player.Name)[areaName]
@@ -48,3 +50,19 @@ return {
 		awardPetsToPlayer(player, { Reaper = 3 })
 	end,
 }
+
+for _, pack in packs.Fear:GetChildren() do
+	productRewarders[pack.Value] = function(player: Player)
+		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", pack:GetAttribute(areaName), "Pack", true))
+	end
+end
+
+for _, pack in packs.Gems:GetChildren() do
+	productRewarders[pack.Value] = function(player: Player)
+		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", pack:GetAttribute(areaName), "Pack", true))
+	end
+end
+
+return productRewarders
