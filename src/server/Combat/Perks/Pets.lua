@@ -23,7 +23,7 @@ local function evolvePet(player, petName)
 
 	if unlockedPetCount < 5 then
 		local countToUnlock = 5 - unlockedPetCount
-		if countToUnlock > (petOwnedCount - equippedPets[petName]) then
+		if countToUnlock > (petOwnedCount - (equippedPets[petName] or 0)) then
 			store:dispatch(
 				actions.unequipPlayerPets(
 					player.Name,
@@ -36,6 +36,10 @@ local function evolvePet(player, petName)
 
 	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = 5 }, true))
 	store:dispatch(actions.givePlayerPets(player.Name, { ["Evolved " .. petName] = 1 }))
+
+	if petUtils.getPet(petName):FindFirstChild "PermaLock" then
+		store:dispatch(actions.lockPlayerPets(player.Name, { ["Evolved " .. petName] = 1 }))
+	end
 
 	return 0
 end

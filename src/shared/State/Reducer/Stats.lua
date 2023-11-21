@@ -74,7 +74,10 @@ return Rodux.createReducer({}, {
 	end,
 	deletePlayerPets = function(state, action)
 		local removedPetCount = 0
-		for _, quantity in action.petsToDelete do
+		for petName, quantity in action.petsToDelete do
+			if petUtils.getPet(petName):FindFirstChild "PermaLock" then
+				continue
+			end
 			removedPetCount -= quantity
 		end
 		return produce(state, function(draft)
