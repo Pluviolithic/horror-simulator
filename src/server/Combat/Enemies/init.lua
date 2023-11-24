@@ -109,12 +109,14 @@ local function handleEnemy(enemy)
 				store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", damage, enemy.Name))
 				store:dispatch(actions.incrementPlayerStat(player.Name, "Kills"))
 				store:dispatch(actions.logKilledEnemyType(player.Name, enemy.Name))
-
-				if damage >= info.MaxHealth * 0.3 then
-					store:dispatch(
-						actions.incrementPlayerStat(player.Name, "Gems", enemy.Configuration.Gems.Value, enemy.Name)
+				store:dispatch(
+					actions.incrementPlayerStat(
+						player.Name,
+						"Gems",
+						enemy.Configuration.Gems.Value * damage / info.MaxHealth,
+						enemy.Name
 					)
-				end
+				)
 			end
 			enemyJanitor:Destroy()
 			task.wait(respawnRate)
