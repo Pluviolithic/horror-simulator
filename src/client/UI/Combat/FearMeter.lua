@@ -80,7 +80,7 @@ playerStatePromise:andThen(function()
 		if currentTarget ~= previousTarget and currentTarget then
 			if
 				selectors.getStat(newState, player.Name, "CurrentFearMeter")
-					>= selectors.getStat(newState, player.Name, "MaxFearMeter") * 0.9
+					>= selectors.getStat(newState, player.Name, "MaxFearMeter") * 0.8
 				and selectors.getStat(newState, player.Name, "CurrentFearMeter") ~= selectors.getStat(
 					newState,
 					player.Name,
