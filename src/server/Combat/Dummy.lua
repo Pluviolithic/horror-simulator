@@ -87,9 +87,13 @@ local function handleDummy(dummy)
 
 		local currentAnimation, currentTrack = nil, nil
 		local animationInstances = getSortedAnimationInstances(animations.Fists:GetChildren())
+		local idleAnimation = ReplicatedStorage.CombatAnimations.Fists.Idle
+		local loadedIdleAnimation = humanoid:LoadAnimation(idleAnimation)
 		local runAnimations = true
 
 		local currentIndex, maxIndex = 0, #animationInstances
+
+		loadedIdleAnimation.Priority = Enum.AnimationPriority.Idle
 		task.spawn(function()
 			while
 				runAnimations
@@ -104,6 +108,9 @@ local function handleDummy(dummy)
 				currentTrack:Play()
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
+
+				loadedIdleAnimation:Play()
+
 				if
 					selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
 					== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
@@ -112,7 +119,11 @@ local function handleDummy(dummy)
 				else
 					task.wait(getPlayerAttackSpeed(player))
 				end
+
+				loadedIdleAnimation:Stop()
 			end
+
+			loadedIdleAnimation:Destroy()
 		end)
 
 		task.spawn(function()

@@ -93,6 +93,10 @@ local function handlePunchingBag(bag: any)
 		end)
 
 		local currentIndex, maxIndex = 0, #animationInstances
+		local idleAnimation = ReplicatedStorage.CombatAnimations.Fists.Idle
+		local loadedIdleAnimation = humanoid:LoadAnimation(idleAnimation)
+		loadedIdleAnimation.Priority = Enum.AnimationPriority.Idle
+
 		task.spawn(function()
 			repeat
 				currentIndex = (currentIndex % maxIndex) + 1
@@ -101,8 +105,15 @@ local function handlePunchingBag(bag: any)
 				currentTrack:Play()
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
+
+				loadedIdleAnimation:Play()
+
 				task.wait(workoutSpeed)
+
+				loadedIdleAnimation:Stop()
 			until cancelled
+
+			loadedIdleAnimation:Destroy()
 		end)
 
 		while
