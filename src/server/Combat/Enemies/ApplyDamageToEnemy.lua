@@ -24,6 +24,7 @@ local function canAttack(player, enemy, info)
 end
 
 return function(player, enemy, info, janitor)
+	local enabled = true
 	local weaponName = selectors.getEquippedWeapon(store:getState(), player.Name)
 	local damageMultiplier = if weaponName == "Fists" then 1 else weapons[weaponName].Damage.Value
 
@@ -36,7 +37,7 @@ return function(player, enemy, info, janitor)
 	end
 
 	task.spawn(function()
-		while canAttack(player, enemy, info) do
+		while canAttack(player, enemy, info) and enabled do
 			local damageToDeal = math.clamp(
 				selectors.getStat(store:getState(), player.Name, "Strength") * damageMultiplier,
 				0,
@@ -55,4 +56,8 @@ return function(player, enemy, info, janitor)
 			janitor:Destroy()
 		end
 	end)
+
+	janitor:Add(function()
+		enabled = false
+	end, true)
 end
