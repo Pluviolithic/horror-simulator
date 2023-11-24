@@ -76,6 +76,7 @@ local jumpscareAnimations = {}
 for _, jumpscare in jumpscares:GetChildren() do
 	table.insert(jumpscareAnimations, jumpscare.Enemy.Configuration.Anim)
 end
-ContentProvider:PreloadAsync(jumpscareAnimations)
+
+task.spawn(ContentProvider.PreloadAsync, ContentProvider, jumpscareAnimations)
 
 return 0

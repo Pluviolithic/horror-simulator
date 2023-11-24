@@ -11,9 +11,13 @@ return function(player, janitor)
 	local runAnimations = true
 
 	local currentIndex, animationTrack, animation = 0, nil, nil
+	local idleAnimation = combatAnimations[selectors.getEquippedWeapon(store:getState(), player.Name)].Idle
 	local animationInstances = animationUtilities.filterAndSortAnimationInstances(
 		combatAnimations[selectors.getEquippedWeapon(store:getState(), player.Name)]:GetChildren()
 	)
+
+	local loadedIdleAnimation = player.Character.Humanoid:LoadAnimation(idleAnimation)
+	loadedIdleAnimation.Priority = Enum.AnimationPriority.Idle
 
 	task.spawn(function()
 		while runAnimations do
@@ -24,7 +28,12 @@ return function(player, janitor)
 			animationTrack:Play()
 			animationTrack.Stopped:Wait()
 			animationTrack:Destroy()
+
+			loadedIdleAnimation:Play()
+
 			task.wait(animationUtilities.getPlayerAttackSpeed(player))
+
+			loadedIdleAnimation:Stop()
 		end
 	end)
 
@@ -33,5 +42,10 @@ return function(player, janitor)
 		if animationTrack.IsPlaying then
 			animationTrack:Stop()
 		end
+		if loadedIdleAnimation.IsPlaying then
+			loadedIdleAnimation:Stop()
+		end
+		animationTrack:Destroy()
+		loadedIdleAnimation:Destroy()
 	end, true)
 end
