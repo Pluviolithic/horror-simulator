@@ -226,13 +226,15 @@ function displayPurchaseResults(asyncResults, areaName: string, count: number, a
 		return
 	end
 
-	configureHatchUI(asyncResults, count == 1, areaName):andThen(function(failed: boolean?)
+	local eggGemPrice = eggGemPricesConfig[areaName].Value
+	local canAffordThree = selectors.getStat(store:getState(), player.Name, "Gems") >= eggGemPrice * 3
+
+	configureHatchUI(asyncResults, count == 1 or not canAffordThree, areaName):andThen(function(failed: boolean?)
 		if failed then
 			hatching = false
 			return
 		end
 		if auto and autoLastEnabled > autoLastDisabled then
-			local eggGemPrice = eggGemPricesConfig[areaName].Value
 			if
 				selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count
 					> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
