@@ -192,7 +192,7 @@ function PetInventory:Refresh()
 		and self._ui.Background.Equipped:FindFirstChild "Buy"
 	then
 		self._ui.Background.Equipped.Buy:Destroy()
-		self._ui.Background.Storage.Amount.Position = UDim2.fromScale(0.352, 0.113)
+		self._ui.Background.Equipped.Amount.Position = UDim2.fromScale(0.352, 0.113)
 	end
 
 	-- clear the inventory
