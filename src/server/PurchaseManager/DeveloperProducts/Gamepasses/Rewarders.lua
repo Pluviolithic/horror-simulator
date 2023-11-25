@@ -57,8 +57,13 @@ return {
 		)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "MaxFearMeterMultiplier", 2))
 	end,
+	[IDs["2xSpeed"].Value] = function(player: Player)
+		local humanoid = player.Character and player.Character:FindFirstChild "Humanoid"
+		if humanoid then
+			humanoid.WalkSpeed *= 2
+		end
+	end,
 	[IDs["3xHatch"].Value] = true,
-	[IDs["2xSpeed"].Value] = true,
 	[IDs["AutoHatch"].Value] = true,
 	[IDs["FasterHatch"].Value] = true,
 	[IDs["2xAttackSpeed"].Value] = true,
