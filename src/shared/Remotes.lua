@@ -116,6 +116,7 @@ local Remotes = Net.CreateDefinitions {
 		Net.Middleware.TypeChecking(t.string),
 	},
 
+	LegendaryUnboxed = Net.Definitions.ServerToClientEvent(),
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
 	SetControlsEnabled = Net.Definitions.ServerToClientEvent(),
 	NotifyOfShutdown = Net.Definitions.ServerToClientEvent(),

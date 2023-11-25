@@ -74,6 +74,9 @@ end
 local function awardPetsToPlayer(player: Player, pets: { string }, eggGemPrice): ()
 	local petsDict = {}
 	for _, pet in pets do
+		if petUtils.getPet(pet).RarityName.Value == "Legendary" then
+			Remotes.Server:Get("LegendaryUnboxed"):SendToAllPlayers(player.Name, pet)
+		end
 		petsDict[pet] = (petsDict[pet] or 0) + 1
 	end
 	store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", -eggGemPrice * #pets))
