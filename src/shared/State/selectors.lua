@@ -87,4 +87,13 @@ return {
 	getSetting = function(state, playerName, setting)
 		return state.SavedSettings[playerName][setting] or state.TempSettings[playerName][setting]
 	end,
+	getPurchasedBoosts = function(state, playerName)
+		return state.PurchaseData[playerName].PurchasedBoosts
+	end,
+	getInUseBoosts = function(state, playerName)
+		return state.PurchaseData[playerName].InUseBoosts
+	end,
+	getBoostCount = function(state, playerName, boostName)
+		return state.PurchaseData[playerName].PurchasedBoosts[boostName] or 0
+	end,
 }

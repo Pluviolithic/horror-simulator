@@ -8,6 +8,7 @@ local player = Players.LocalPlayer
 
 --local Remotes = require(ReplicatedStorage.Common.Remotes)
 --local Table = require(ReplicatedStorage.Common.Utils.Table)
+local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
@@ -22,11 +23,17 @@ RobuxShop.Trigger = "RobuxShop"
 
 local petProductIDs = ReplicatedStorage.Config.DevProductData.IDs
 local packProductIDs = ReplicatedStorage.Config.DevProductData.Packs
+local boostProductIDs = ReplicatedStorage.Config.DevProductData.Boosts
 
 local function shouldRefresh(newState, oldState): boolean
 	return not selectors.isPlayerLoaded(oldState, player.Name)
-		or rankUtils.getBestUnlockedArea(selectors.getStat(newState, player.Name, "Strength"))
-			~= rankUtils.getBestUnlockedArea(selectors.getStat(oldState, player.Name, "Strength"))
+		or rankUtils.getBestUnlockedArea(selectors.getStat(newState, player.Name, "Strength")) ~= rankUtils.getBestUnlockedArea(
+			selectors.getStat(oldState, player.Name, "Strength")
+		)
+		or not Sift.Dictionary.equalsDeep(
+			selectors.getPurchasedBoosts(newState, player.Name),
+			selectors.getPurchasedBoosts(oldState, player.Name)
+		)
 end
 
 function RobuxShop:_closeFramesWithExclude(exclude)
@@ -51,6 +58,15 @@ function RobuxShop:Refresh()
 			areaFrame.Visible = true
 		elseif areaFrame.Name ~= "ShopText" then
 			areaFrame.Visible = false
+		end
+	end
+	for _, buttonDisplay in self._ui.Background.BoostsFrame.ScrollingFrame:GetChildren() do
+		for _, useButton in buttonDisplay:GetChildren() do
+			if not useButton.Name:match "Use" then
+				continue
+			end
+			local boostName = buttonDisplay.Name .. useButton.Name:match "(%d*%.?%d+)"
+			useButton.Text = `Use ({selectors.getBoostCount(store:getState(), player.Name, boostName)})`
 		end
 	end
 end
@@ -156,6 +172,20 @@ function RobuxShop:_initialize(): ()
 					MarketplaceService:PromptProductPurchase(player, packIDInstance.Value)
 				end)
 			end
+		end
+	end
+
+	for _, buttonDisplay in self._ui.Background.BoostsFrame.ScrollingFrame:GetChildren() do
+		for _, purchaseButton in buttonDisplay:GetChildren() do
+			if not purchaseButton.Name:match "Purchase" then
+				continue
+			end
+			local boostIDInstance =
+				boostProductIDs:FindFirstChild(buttonDisplay.Name .. purchaseButton.Name:match "(%d*%.?%d+)")
+
+			purchaseButton.Activated:Connect(function()
+				MarketplaceService:PromptProductPurchase(player, boostIDInstance.Value)
+			end)
 		end
 	end
 

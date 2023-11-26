@@ -10,6 +10,7 @@ local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 
 local IDs = ReplicatedStorage.Config.DevProductData.IDs
 local packs = ReplicatedStorage.Config.DevProductData.Packs
+local boosts = ReplicatedStorage.Config.DevProductData.Boosts
 
 local function awardPetsToPlayer(player: Player, petsDict: { [string]: number }): ()
 	store:dispatch(actions.givePlayerPets(player.Name, petsDict))
@@ -64,6 +65,12 @@ for _, pack in packs.Gems:GetChildren() do
 		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
 		areaName = areaName:gsub(" ", "_")
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", pack:GetAttribute(areaName), "Pack", true))
+	end
+end
+
+for _, boost in boosts:GetChildren() do
+	productRewarders[boost.Value] = function(player: Player)
+		store:dispatch(actions.incrementPlayerBoostCount(player.Name, boost.Name))
 	end
 end
 

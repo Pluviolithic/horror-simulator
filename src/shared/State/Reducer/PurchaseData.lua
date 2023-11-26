@@ -35,4 +35,11 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].PurchasedTeleporters[action.areaName] = true
 		end)
 	end,
+	incrementPlayerBoostCount = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].PurchasedBoosts[action.boostName] = (
+				draft[action.playerName].PurchasedBoosts[action.boostName] or 0
+			) + (action.incrementAmount or 1)
+		end)
+	end,
 })

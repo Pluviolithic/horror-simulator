@@ -33,6 +33,8 @@ return {
 	PurchaseData = {
 		AwardedGamepasses = {},
 		PurchasedTeleporters = {},
+		PurchasedBoosts = {},
+		InUseBoosts = {},
 	},
 
 	PetData = {
