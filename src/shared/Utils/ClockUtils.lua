@@ -1,6 +1,6 @@
 return {
 	hasTimeLeft = function(startTime, duration)
-		return (os.time() - startTime) < duration
+		return (os.time() - startTime) <= duration
 	end,
 	getFormattedRemainingTime = function(startTime, duration)
 		local timeLeft = duration - (os.time() - startTime)

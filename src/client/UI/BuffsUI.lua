@@ -13,10 +13,26 @@ local player = Players.LocalPlayer
 local buffTray = player.PlayerGui:WaitForChild "Buffs"
 local productIDs = ReplicatedStorage.Config.DevProductData.IDs
 
+local function isScared(state)
+	if selectors.getActiveBoosts(state, player.Name)["FearlessBoost"] then
+		return false
+	end
+	return selectors.getStat(state, player.Name, "CurrentFearMeter")
+			== selectors.getStat(state, player.Name, "MaxFearMeter")
+		and (os.time() - selectors.getStat(state, player.Name, "LastScaredTimestamp")) < 121
+end
+
 local function updateBuffTray(state)
 	local activeBoosts = selectors.getActiveBoosts(state, player.Name)
 	for _, buffDisplay in buffTray.Frame:GetChildren() do
-		if buffDisplay.Name:match "Buff" then
+		if not buffDisplay.Name:match "Boost" then
+			if buffDisplay:IsA "GuiButton" then
+				buffDisplay.Visible = isScared(state)
+				buffDisplay.Timer.Text = clockUtils.getFormattedRemainingTime(
+					selectors.getStat(state, player.Name, "LastScaredTimestamp"),
+					120
+				)
+			end
 			continue
 		end
 		buffDisplay.Timer.Text = clockUtils.getFormattedRemainingTime(

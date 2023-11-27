@@ -15,10 +15,13 @@ local camera = workspace.CurrentCamera
 local jumpscareGap = 5
 local lastJumpscared = -1
 
-local function isScared(playerName, state)
-	return selectors.getStat(state, playerName, "CurrentFearMeter")
-			== selectors.getStat(state, playerName, "MaxFearMeter")
-		and (os.time() - selectors.getStat(state, playerName, "LastScaredTimestamp")) < 121
+local function isScared(state)
+	if selectors.getActiveBoosts(state, player.Name)["FearlessBoost"] then
+		return false
+	end
+	return selectors.getStat(state, player.Name, "CurrentFearMeter")
+			== selectors.getStat(state, player.Name, "MaxFearMeter")
+		and (os.time() - selectors.getStat(state, player.Name, "LastScaredTimestamp")) < 121
 end
 
 local function jumpscarePlayer(enemyName)
@@ -62,11 +65,7 @@ playerStatePromise:andThen(function()
 		if selectors.getCurrentTarget(newState, player.Name) then
 			lastEnemyFought = selectors.getCurrentTarget(newState, player.Name)
 		end
-		if
-			isScared(player.Name, newState)
-			and not isScared(player.Name, oldState)
-			and (os.time() - lastJumpscared) > jumpscareGap
-		then
+		if isScared(newState) and not isScared(oldState) and (os.time() - lastJumpscared) > jumpscareGap then
 			jumpscarePlayer(lastEnemyFought.Name)
 		end
 	end)
