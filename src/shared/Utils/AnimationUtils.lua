@@ -36,6 +36,9 @@ animationUtilities = {
 		if selectors.hasGamepass(store:getState(), player.Name, doubleAttackSpeedID) then
 			multiplier /= 2
 		end
+		if selectors.getActiveBoosts(store:getState(), player.Name)["DamageBoost"] then
+			multiplier /= 2
+		end
 		if
 			selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
 			== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
