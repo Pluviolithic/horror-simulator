@@ -55,7 +55,14 @@ playerStatePromise:andThen(function()
 	end
 
 	local function revealFearMeter()
-		fearMeter.Fear.Visible = true
+		if selectors.getActiveBoosts(store:getState(), player.Name)["FearlessBoost"] then
+			fearMeter.Fear.Visible = false
+			fearMeter.Fearless.Visible = true
+		else
+			fearMeter.Fear.Visible = true
+			fearMeter.Fearless.Visible = false
+		end
+
 		fearMeter.Icon.Visible = true
 		fearMeter.Image.Visible = true
 		fearMeter.Enable.Visible = false

@@ -12,6 +12,12 @@ local function isScared(playerName, state)
 	if not selectors.isPlayerLoaded(state, playerName) then
 		return false
 	end
+	if selectors.getActiveBoosts(state, playerName)["FearlessBoost"] then
+		if selectors.getStat(state, playerName, "CurrentFearMeter") ~= 0 then
+			store:dispatch(actions.setPlayerStat(playerName, "CurrentFearMeter", 0))
+		end
+		return false
+	end
 	return selectors.getStat(state, playerName, "CurrentFearMeter")
 			== selectors.getStat(state, playerName, "MaxFearMeter")
 		and (os.time() - selectors.getStat(state, playerName, "LastScaredTimestamp")) < 121
