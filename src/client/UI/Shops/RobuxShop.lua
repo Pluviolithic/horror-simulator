@@ -44,6 +44,12 @@ function RobuxShop:_closeFramesWithExclude(exclude)
 	end
 end
 
+function RobuxShop:OpenSubShop(subShopName: string)
+	self:setEnabled(true)
+	self._ui.Background[subShopName .. "Frame"].Visible = true
+	self:_closeFramesWithExclude(self._ui.Background[subShopName .. "Frame"])
+end
+
 function RobuxShop:Refresh()
 	local bestAreaUnlocked = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
 	for _, areaFrame in self._ui.Background.FearFrame:GetChildren() do

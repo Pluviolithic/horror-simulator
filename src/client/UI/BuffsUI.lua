@@ -1,11 +1,13 @@
 local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
+local UserInputService = game:GetService "UserInputService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local clockUtils = require(ReplicatedStorage.Common.Utils.ClockUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local player = Players.LocalPlayer
@@ -54,6 +56,29 @@ end)
 buffTray.Frame.SpeedDebuff.Activated:Connect(function()
 	MarketplaceService:PromptProductPurchase(player, productIDs["2xSpeed"].Value)
 end)
+
+for _, buffDisplay in buffTray.Frame:GetChildren() do
+	buffDisplay.MouseEnter:Connect(function()
+		if not UserInputService.MouseEnabled then
+			return
+		end
+		buffDisplay.Description.Visible = true
+	end)
+
+	buffDisplay.MouseLeave:Connect(function()
+		if not UserInputService.MouseEnabled then
+			return
+		end
+		buffDisplay.Description.Visible = false
+	end)
+
+	if not buffDisplay.Name:match "Boost" then
+		continue
+	end
+	buffDisplay.Activated:Connect(function()
+		RobuxShop:OpenSubShop "Boosts"
+	end)
+end
 
 playerStatePromise:andThen(function()
 	updateBuffTray(store:getState())
