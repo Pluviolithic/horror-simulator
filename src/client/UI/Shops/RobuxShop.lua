@@ -6,9 +6,8 @@ local MarketplaceService = game:GetService "MarketplaceService"
 
 local player = Players.LocalPlayer
 
---local Remotes = require(ReplicatedStorage.Common.Remotes)
---local Table = require(ReplicatedStorage.Common.Utils.Table)
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
+local Remotes = require(ReplicatedStorage.Common.Remotes)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
@@ -184,6 +183,17 @@ function RobuxShop:_initialize(): ()
 	for _, buttonDisplay in self._ui.Background.BoostsFrame.ScrollingFrame:GetChildren() do
 		for _, purchaseButton in buttonDisplay:GetChildren() do
 			if not purchaseButton.Name:match "Purchase" then
+				if purchaseButton.Name:match "Use" then
+					purchaseButton.Activated:Connect(function()
+						local boostDuration = purchaseButton.Name:match "(%d*%.?%d+)"
+						if
+							selectors.getBoostCount(store:getState(), player.Name, buttonDisplay.Name .. boostDuration)
+						then
+							return
+						end
+						Remotes.Client:Get("UseBoost"):SendToServer(buttonDisplay.Name .. boostDuration)
+					end)
+				end
 				continue
 			end
 			local boostIDInstance =
