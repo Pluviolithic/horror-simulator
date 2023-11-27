@@ -14,4 +14,18 @@ return {
 			}
 		end
 	),
+	applyBoostToPlayer = makeActionCreator("applyBoostToPlayer", function(playerName: string, boostName: string)
+		return {
+			playerName = playerName,
+			boostName = boostName,
+			shouldSave = true,
+		}
+	end),
+	removeBoostFromPlayer = makeActionCreator("removeBoostFromPlayer", function(playerName: string, boostName: string)
+		return {
+			playerName = playerName,
+			boostName = boostName,
+			shouldSave = true,
+		}
+	end),
 }

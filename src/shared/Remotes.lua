@@ -115,6 +115,12 @@ local Remotes = Net.CreateDefinitions {
 		},
 		Net.Middleware.TypeChecking(t.string),
 	},
+	UseBoost = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+		Net.Middleware.TypeChecking(t.string),
+	},
 
 	LegendaryUnboxed = Net.Definitions.ServerToClientEvent(),
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),

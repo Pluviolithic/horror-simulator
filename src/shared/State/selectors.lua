@@ -90,8 +90,8 @@ return {
 	getPurchasedBoosts = function(state, playerName)
 		return state.PurchaseData[playerName].PurchasedBoosts
 	end,
-	getInUseBoosts = function(state, playerName)
-		return state.PurchaseData[playerName].InUseBoosts
+	getActiveBoosts = function(state, playerName)
+		return state.PurchaseData[playerName].ActiveBoosts
 	end,
 	getBoostCount = function(state, playerName, boostName)
 		return state.PurchaseData[playerName].PurchasedBoosts[boostName] or 0

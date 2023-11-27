@@ -34,7 +34,7 @@ return {
 		AwardedGamepasses = {},
 		PurchasedTeleporters = {},
 		PurchasedBoosts = {},
-		InUseBoosts = {},
+		ActiveBoosts = {},
 	},
 
 	PetData = {

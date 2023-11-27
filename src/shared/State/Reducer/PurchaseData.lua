@@ -42,4 +42,17 @@ return Rodux.createReducer({}, {
 			) + (action.incrementAmount or 1)
 		end)
 	end,
+	applyBoostToPlayer = function(state, action)
+		return produce(state, function(draft)
+			local currentBoostData = draft[action.playerName].ActiveBoosts[action.boostName:match "%D+"]
+			if currentBoostData then
+				currentBoostData.Duration += tonumber(action.boostName:match "%d*%.?%d+")
+			else
+				draft[action.playerName].ActiveBoosts[action.boostName:match "%D+"] = {
+					StartTime = os.time(),
+					Duration = tonumber(action.boostName:match "(%d*%.?%d+)"),
+				}
+			end
+		end)
+	end,
 })
