@@ -464,6 +464,9 @@ local function updateFoundsDisplay(foundPets): ()
 end
 
 local function updateRarityListeners(luck: number): ()
+	if selectors.getActiveBoosts(store:getState(), player.Name)["LuckBoost"] then
+		luck += 5
+	end
 	for _, listener in rarityListeners do
 		listener(luck)
 	end
@@ -478,7 +481,11 @@ playerStatePromise:andThen(function()
 			return
 		end
 
-		if selectors.getStat(newState, player.Name, "Luck") ~= selectors.getStat(oldState, player.Name, "Luck") then
+		if
+			selectors.getStat(newState, player.Name, "Luck") ~= selectors.getStat(oldState, player.Name, "Luck")
+			or selectors.getActiveBoosts(newState, player.Name)["LuckBoost"]
+				and not selectors.getActiveBoosts(oldState, player.Name)["LuckBoost"]
+		then
 			updateRarityListeners(selectors.getStat(newState, player.Name, "Luck"))
 		end
 

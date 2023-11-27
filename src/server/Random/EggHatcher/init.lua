@@ -24,6 +24,10 @@ local function getWeightedRandom(player: Player, weights: { [string]: { [string]
 	local luck = selectors.getStat(store:getState(), player.Name, "Luck")
 	local newWeights = {}
 
+	if selectors.getActiveBoosts(store:getState(), player.Name)["LuckBoost"] then
+		luck += 5
+	end
+
 	if luck ~= 0 then
 		local normalRarity = 0
 		local boostedRarity = 0
