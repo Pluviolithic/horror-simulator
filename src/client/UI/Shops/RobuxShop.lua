@@ -187,7 +187,11 @@ function RobuxShop:_initialize(): ()
 					purchaseButton.Activated:Connect(function()
 						local boostDuration = purchaseButton.Name:match "(%d*%.?%d+)"
 						if
-							selectors.getBoostCount(store:getState(), player.Name, buttonDisplay.Name .. boostDuration)
+							not selectors.getBoostCount(
+								store:getState(),
+								player.Name,
+								buttonDisplay.Name .. boostDuration
+							)
 						then
 							return
 						end

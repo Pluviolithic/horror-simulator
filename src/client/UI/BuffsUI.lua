@@ -37,11 +37,11 @@ local function updateBuffTray(state)
 			end
 			continue
 		end
-		buffDisplay.Timer.Text = clockUtils.getFormattedRemainingTime(
-			activeBoosts[buffDisplay.Name].StartTime,
-			activeBoosts[buffDisplay.Name].Duration
-		)
 		if activeBoosts[buffDisplay.Name] then
+			buffDisplay.Timer.Text = clockUtils.getFormattedRemainingTime(
+				activeBoosts[buffDisplay.Name].StartTime,
+				activeBoosts[buffDisplay.Name].Duration
+			)
 			buffDisplay.Visible = true
 		else
 			buffDisplay.Visible = false
@@ -58,6 +58,10 @@ buffTray.Frame.SpeedDebuff.Activated:Connect(function()
 end)
 
 for _, buffDisplay in buffTray.Frame:GetChildren() do
+	if not buffDisplay:IsA "GuiButton" then
+		continue
+	end
+
 	buffDisplay.MouseEnter:Connect(function()
 		if not UserInputService.MouseEnabled then
 			return

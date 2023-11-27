@@ -7,7 +7,7 @@ return {
 		local minutes = math.floor(timeLeft / 60)
 
 		if minutes < 1 then
-			return "<1m"
+			return timeLeft .. "s"
 		else
 			return minutes .. "m"
 		end
