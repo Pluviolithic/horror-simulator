@@ -10,18 +10,4 @@ return {
 			shouldSave = true,
 		}
 	end),
-	increaseMaxPetCount = makeActionCreator("increaseMaxPetCount", function(playerName: string, amount: number)
-		return {
-			playerName = playerName,
-			amount = amount,
-			shouldSave = true,
-		}
-	end),
-	increasePlayerLuck = makeActionCreator("increasePlayerLuck", function(playerName: string, amount: number)
-		return {
-			playerName = playerName,
-			amount = amount,
-			shouldSave = true,
-		}
-	end),
 }

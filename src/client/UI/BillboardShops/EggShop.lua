@@ -353,11 +353,10 @@ local function handleShop(shop): ()
 	end
 
 	table.insert(rarityListeners, function(luck: number): ()
+		for _, petUI in shop.Background.Pets:GetChildren() do
+			petUI.RarityText.Text = string.format("%.1f%%", ReplicatedStorage.Pets[areaName][petUI.Name].Rarity.Value)
+		end
 		if luck == 0 then
-			for _, petUI in shop.Background.Pets:GetChildren() do
-				petUI.RarityText.Text =
-					string.format("%.1f%%", ReplicatedStorage.Pets[areaName][petUI.Name].Rarity.Value)
-			end
 			return
 		end
 
@@ -468,11 +467,9 @@ local function updateFoundsDisplay(foundPets): ()
 end
 
 local function updateRarityListeners(luck: number): ()
-	if selectors.getActiveBoosts(store:getState(), player.Name)["LuckBoost"] then
-		luck += 5
-	end
+	local hasLuckBoost = selectors.getActiveBoosts(store:getState(), player.Name)["LuckBoost"]
 	for _, listener in rarityListeners do
-		listener(luck)
+		listener(luck + (hasLuckBoost and 5 or 0))
 	end
 end
 
