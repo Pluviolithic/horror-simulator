@@ -13,7 +13,7 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local player = Players.LocalPlayer
 
 local buffTray = player.PlayerGui:WaitForChild "Buffs"
-local productIDs = ReplicatedStorage.Config.DevProductData.IDs
+local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 
 local function isScared(state)
 	if selectors.getActiveBoosts(state, player.Name)["FearlessBoost"] then
@@ -49,13 +49,22 @@ local function updateBuffTray(state)
 	end
 end
 
-buffTray.Frame.DamageDebuff.Activated:Connect(function()
-	MarketplaceService:PromptProductPurchase(player, productIDs["2xAttackSpeed"].Value)
-end)
+local currentOpenDescription, countdownActive
+local lastDescriptionTapped = -1
 
-buffTray.Frame.SpeedDebuff.Activated:Connect(function()
-	MarketplaceService:PromptProductPurchase(player, productIDs["2xSpeed"].Value)
-end)
+local function countdownDescriptionDisplayTime()
+	lastDescriptionTapped = os.time()
+	if countdownActive then
+		return
+	end
+	countdownActive = true
+	while lastDescriptionTapped + 10 > os.time() do
+		task.wait(0.25)
+	end
+	currentOpenDescription.Visible = false
+	currentOpenDescription = nil
+	countdownActive = false
+end
 
 for _, buffDisplay in buffTray.Frame:GetChildren() do
 	if not buffDisplay:IsA "GuiButton" then
@@ -76,6 +85,15 @@ for _, buffDisplay in buffTray.Frame:GetChildren() do
 		buffDisplay.Description.Visible = false
 	end)
 
+	buffDisplay.TouchTap:Connect(function()
+		if currentOpenDescription and currentOpenDescription ~= buffDisplay.Description then
+			currentOpenDescription.Visible = false
+			buffDisplay.Description.Visible = true
+		end
+		currentOpenDescription = buffDisplay.Description
+		countdownDescriptionDisplayTime()
+	end)
+
 	if not buffDisplay.Name:match "Boost" then
 		continue
 	end
@@ -83,6 +101,14 @@ for _, buffDisplay in buffTray.Frame:GetChildren() do
 		RobuxShop:OpenSubShop "Boosts"
 	end)
 end
+
+buffTray.Frame.DamageDebuff.Activated:Connect(function()
+	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xAttackSpeed"].Value)
+end)
+
+buffTray.Frame.SpeedDebuff.Activated:Connect(function()
+	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xSpeed"].Value)
+end)
 
 playerStatePromise:andThen(function()
 	updateBuffTray(store:getState())

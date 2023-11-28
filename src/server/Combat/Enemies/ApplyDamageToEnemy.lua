@@ -28,6 +28,10 @@ return function(player, enemy, info, janitor)
 	local weaponName = selectors.getEquippedWeapon(store:getState(), player.Name)
 	local damageMultiplier = if weaponName == "Fists" then 1 else weapons[weaponName].Damage.Value
 
+	janitor:Add(function()
+		enabled = false
+	end, true)
+
 	store:dispatch(actions.combatBegan(player.Name))
 
 	if weaponName ~= "Fists" then
@@ -56,8 +60,4 @@ return function(player, enemy, info, janitor)
 			janitor:Destroy()
 		end
 	end)
-
-	janitor:Add(function()
-		enabled = false
-	end, true)
 end

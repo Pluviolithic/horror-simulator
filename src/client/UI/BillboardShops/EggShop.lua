@@ -354,6 +354,10 @@ local function handleShop(shop): ()
 
 	table.insert(rarityListeners, function(luck: number): ()
 		if luck == 0 then
+			for _, petUI in shop.Background.Pets:GetChildren() do
+				petUI.RarityText.Text =
+					string.format("%.1f%%", ReplicatedStorage.Pets[areaName][petUI.Name].Rarity.Value)
+			end
 			return
 		end
 
@@ -484,7 +488,7 @@ playerStatePromise:andThen(function()
 		if
 			selectors.getStat(newState, player.Name, "Luck") ~= selectors.getStat(oldState, player.Name, "Luck")
 			or selectors.getActiveBoosts(newState, player.Name)["LuckBoost"]
-				and not selectors.getActiveBoosts(oldState, player.Name)["LuckBoost"]
+				~= selectors.getActiveBoosts(oldState, player.Name)["LuckBoost"]
 		then
 			updateRarityListeners(selectors.getStat(newState, player.Name, "Luck"))
 		end

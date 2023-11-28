@@ -32,15 +32,11 @@ return function(nextDispatch, store)
 
 				local boostData =
 					selectors.getActiveBoosts(store:getState(), action.playerName)[action.statName .. "Boost"]
-				if boostData then
-					multiplier += 2
-					multiplierCount += 1
-				end
 
 				if multiplierCount < 1 then
-					action.incrementAmount *= (1 + multiplier)
+					action.incrementAmount *= (1 + multiplier) * (boostData and 2 or 1)
 				else
-					action.incrementAmount *= multiplier
+					action.incrementAmount *= multiplier * (boostData and 2 or 1)
 				end
 			end
 		end

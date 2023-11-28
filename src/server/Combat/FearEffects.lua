@@ -14,6 +14,7 @@ local function isScared(playerName, state)
 	end
 	if selectors.getActiveBoosts(state, playerName)["FearlessBoost"] then
 		if selectors.getStat(state, playerName, "CurrentFearMeter") ~= 0 then
+			store:dispatch(actions.setPlayerStat(playerName, "LastScaredTimestamp", -1))
 			store:dispatch(actions.setPlayerStat(playerName, "CurrentFearMeter", 0))
 		end
 		return false
