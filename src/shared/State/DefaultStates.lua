@@ -103,4 +103,9 @@ return {
 		ShowOtherPets = true,
 		Jumpscares = true,
 	},
+
+	ChestTimers = {
+		VIPChest = -1,
+		GroupChest = -1,
+	},
 }

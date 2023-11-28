@@ -6,6 +6,7 @@ require(script.BuffsUI)
 require(script.SettingsUI)
 require(script.FixRichText)
 require(script.Inventories)
+require(script.ChestTimerUI)
 require(script.BillboardShops)
 
 return 0

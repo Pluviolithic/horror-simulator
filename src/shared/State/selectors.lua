@@ -96,4 +96,7 @@ return {
 	getBoostCount = function(state, playerName, boostName)
 		return state.PurchaseData[playerName].PurchasedBoosts[boostName] or 0
 	end,
+	getChestTimers = function(state, playerName)
+		return state.ChestTimers[playerName]
+	end,
 }

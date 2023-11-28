@@ -14,7 +14,7 @@ local function getFilteredState(playerName, state)
 		PurchaseData = selectors.getPurchaseData(state, playerName),
 		MissionData = selectors.getMissionData(state, playerName),
 		SavedSettings = selectors.getSavedSettings(state, playerName),
-		--MultiplierData = selectors.getMultiplierData(state, playerName),
+		ChestTimers = selectors.getChestTimers(state, playerName),
 	}
 	for field, entry in filteredState do
 		for key in entry do

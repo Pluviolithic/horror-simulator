@@ -121,7 +121,14 @@ local Remotes = Net.CreateDefinitions {
 		},
 		Net.Middleware.TypeChecking(t.string),
 	},
+	RedeemCode = Net.Definitions.ServerFunction {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+		Net.Middleware.TypeChecking(t.string),
+	},
 
+	OpenRobuxShopOnClient = Net.Definitions.ServerToClientEvent(),
 	LegendaryUnboxed = Net.Definitions.ServerToClientEvent(),
 	SendRoduxAction = Net.Definitions.ServerToClientEvent(),
 	SetControlsEnabled = Net.Definitions.ServerToClientEvent(),

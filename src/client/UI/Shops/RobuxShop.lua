@@ -95,6 +95,10 @@ function RobuxShop:_initialize(): ()
 		self:setEnabled(not self._isOpen)
 	end)
 
+	Remotes.Client:Get("OpenRobuxShopOnClient"):Connect(function(subShopName)
+		self:OpenSubShop(subShopName)
+	end)
+
 	self._ui.Boosts.Activated:Connect(function()
 		self._ui.Background.BoostsFrame.Visible = true
 		self:_closeFramesWithExclude(self._ui.Background.BoostsFrame)

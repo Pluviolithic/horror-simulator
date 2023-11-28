@@ -18,6 +18,9 @@ return {
 		LogInCount = 0,
 		HoursPlayed = 0,
 
+		VIPChestAwardIndex = 1,
+		GroupChestAwardIndex = 1,
+
 		MaxPetCount = 30,
 		CurrentPetCount = 0,
 		MaxPetEquipCount = 3,
@@ -82,5 +85,10 @@ return {
 		VIPChatTag = false,
 		VIPNameTag = false,
 		JumpscareCooldown = true,
+	},
+
+	ChestTimers = {
+		VIPChest = -1,
+		GroupChest = -1,
 	},
 }
