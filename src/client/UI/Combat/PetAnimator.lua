@@ -28,7 +28,7 @@ end):andThen(function(petsModel)
 		end
 
 		local numPets = #petsModel:GetChildren()
-		for i, petModel in ipairs(petsModel:GetChildren()) do
+		for i, petModel in petsModel:GetChildren() do
 			local position, look = petUtils.calculatePosition(rootPart, numPets, i)
 
 			petModel.PrimaryPart.BodyPosition.Position = position

@@ -17,6 +17,11 @@ local volumeKnobs = {
 	off = {},
 }
 
+local switches = {
+	play = {},
+	pause = {},
+}
+
 local function createKnob(soundInstance, on)
 	return TweenService:Create(
 		soundInstance,
@@ -46,6 +51,17 @@ for _, playlistFolder in playlists:GetChildren() do
 				volumeKnobs.on[playlistFolder.Name] = createKnob(nextAudioInstance, true)
 				volumeKnobs.off[playlistFolder.Name] = createKnob(nextAudioInstance, false)
 
+				switches.play[playlistFolder.Name] = function()
+					nextAudioInstance:Play()
+				end
+				switches.pause[playlistFolder.Name] = function()
+					nextAudioInstance:Pause()
+				end
+
+				volumeKnobs.off[playlistFolder.Name].Completed:Connect(function()
+					switches.pause[playlistFolder.Name]()
+				end)
+
 				if
 					not selectors.isPlayerLoaded(store:getState(), player.Name)
 					or selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
@@ -56,11 +72,10 @@ for _, playlistFolder in playlists:GetChildren() do
 
 				nextAudioInstance.Name = playlistFolder.Name
 				nextAudioInstance.Parent = soundFolder
-				nextAudioInstance:Play()
 				nextAudioInstance.Ended:Wait()
 			end
 		end
 	end)
 end
 
-return volumeKnobs
+return { volumeKnobs, switches }

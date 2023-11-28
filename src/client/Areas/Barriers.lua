@@ -94,7 +94,7 @@ playerStatePromise:andThen(function()
 end)
 
 CollectionService:GetInstanceAddedSignal("TP"):Connect(handleTeleporter)
-for _, teleporter in pairs(CollectionService:GetTagged "TP") do
+for _, teleporter in CollectionService:GetTagged "TP" do
 	handleTeleporter(teleporter)
 end
 

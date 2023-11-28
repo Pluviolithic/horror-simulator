@@ -85,7 +85,9 @@ return {
 		return state.SavedSettings[playerName]
 	end,
 	getSetting = function(state, playerName, setting)
-		return state.SavedSettings[playerName][setting] or state.TempSettings[playerName][setting]
+		return if type(state.SavedSettings[playerName][setting]) == "boolean"
+			then state.SavedSettings[playerName][setting]
+			else state.TempSettings[playerName][setting]
 	end,
 	getPurchasedBoosts = function(state, playerName)
 		return state.PurchaseData[playerName].PurchasedBoosts

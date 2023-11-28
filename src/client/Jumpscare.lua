@@ -65,7 +65,16 @@ playerStatePromise:andThen(function()
 		if selectors.getCurrentTarget(newState, player.Name) then
 			lastEnemyFought = selectors.getCurrentTarget(newState, player.Name)
 		end
-		if isScared(newState) and not isScared(oldState) and (os.time() - lastJumpscared) > jumpscareGap then
+		if
+			isScared(newState)
+			and not isScared(oldState)
+			and ((os.time() - lastJumpscared) > jumpscareGap or not selectors.getSetting(
+				newState,
+				player.Name,
+				"JumpscareCooldown"
+			))
+			and selectors.getSetting(newState, player.Name, "Jumpscares")
+		then
 			jumpscarePlayer(if lastEnemyFought then lastEnemyFought.Name else "Evil Clown")
 		end
 	end)

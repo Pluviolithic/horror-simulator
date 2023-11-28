@@ -1,17 +1,17 @@
 local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
---local MarketplaceService = game:GetService "MarketplaceService"
+local MarketplaceService = game:GetService "MarketplaceService"
 
 local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
---local Table = require(ReplicatedStorage.Common.Utils.Table)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
+local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local SettingsUI = CentralUI.new(player.PlayerGui:WaitForChild "Settings")
 
 local function shouldRefresh(newState, oldState)
@@ -28,6 +28,16 @@ function SettingsUI:_initialize(): ()
 			Remotes.Client:Get("SwitchSetting"):SendToServer(settingSwitch.Name)
 		end)
 		settingSwitch.Off.Activated:Connect(function()
+			if settingSwitch.Name:match "Vip" and not selectors.hasGamepass(store:getState(), player.Name, "VIP") then
+				MarketplaceService:PromptGamePassPurchase(player, gamepassIDs.VIP.Value)
+				return
+			end
+			if
+				settingSwitch.Name:match "Speed" and not selectors.hasGamepass(store:getState(), player.Name, "Speed")
+			then
+				MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xSpeed"].Value)
+				return
+			end
 			Remotes.Client:Get("SwitchSetting"):SendToServer(settingSwitch.Name)
 		end)
 	end

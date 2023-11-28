@@ -20,7 +20,7 @@ return function(nextDispatch, store)
 		local leaderstats = player:FindFirstChild "leaderstats"
 
 		if leaderstats then
-			for _, stat in pairs(leaderstats:GetChildren()) do
+			for _, stat in leaderstats:GetChildren() do
 				stat.Value =
 					formatter.formatNumberWithSuffix(selectors.getStat(store:getState(), player.Name, stat.Name))
 			end

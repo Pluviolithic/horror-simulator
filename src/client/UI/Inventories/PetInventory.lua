@@ -196,7 +196,7 @@ function PetInventory:Refresh()
 	end
 
 	-- clear the inventory
-	for _, rarityTemplate in pairs(self._ui.Background.ScrollingFrame:GetChildren()) do
+	for _, rarityTemplate in self._ui.Background.ScrollingFrame:GetChildren() do
 		if rarityTemplate:IsA "ImageButton" then
 			rarityTemplate:Destroy()
 		end

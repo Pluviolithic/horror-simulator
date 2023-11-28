@@ -35,9 +35,14 @@ function PlayerStatusUI:_updateUIFields(state)
 	playerUIFrame.Scared.Visible = selectors.getStat(state, self._player.Name, "CurrentFearMeter")
 		== selectors.getStat(state, self._player.Name, "MaxFearMeter")
 
-	if selectors.hasGamepass(state, self._player.Name, "VIP") then
+	if
+		selectors.hasGamepass(state, self._player.Name, "VIP")
+		and selectors.getSetting(state, self._player.Name, "VIPNameTag")
+	then
+		self._player:SetAttribute("isVIP", true)
 		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 193, 7)
 	else
+		self._player:SetAttribute("isVIP", false)
 		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 255, 255)
 	end
 end
