@@ -60,4 +60,9 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].ActiveBoosts[action.boostName:match "%D+"] = nil
 		end)
 	end,
+	redeemCode = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].RedeemedCodes[action.code] = true
+		end)
+	end,
 })

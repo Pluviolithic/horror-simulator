@@ -54,6 +54,7 @@ return {
 		PurchasedTeleporters = {},
 		PurchasedBoosts = {},
 		ActiveBoosts = {},
+		RedeemedCodes = {},
 	},
 
 	MissionData = {

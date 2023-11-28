@@ -99,4 +99,7 @@ return {
 	getChestTimers = function(state, playerName)
 		return state.ChestTimers[playerName]
 	end,
+	hasRedeemedCode = function(state, playerName, code)
+		return state.PurchaseData[playerName].RedeemedCodes[code]
+	end,
 }

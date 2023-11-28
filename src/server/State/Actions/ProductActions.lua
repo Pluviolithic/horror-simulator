@@ -28,4 +28,11 @@ return {
 			shouldSave = true,
 		}
 	end),
+	redeemCode = makeActionCreator("redeemCode", function(playerName: string, code: string)
+		return {
+			playerName = playerName,
+			code = code,
+			shouldSave = true,
+		}
+	end),
 }

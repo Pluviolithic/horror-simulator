@@ -38,6 +38,7 @@ return {
 		PurchasedTeleporters = {},
 		PurchasedBoosts = {},
 		ActiveBoosts = {},
+		RedeemedCodes = {},
 	},
 
 	PetData = {
