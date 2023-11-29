@@ -91,14 +91,14 @@ return {
 	},
 
 	SavedSettings = {
-		VIPChatTag = false,
-		VIPNameTag = false,
+		VipChatTag = false,
+		VipNameTag = false,
 		JumpscareCooldown = true,
 	},
 
 	TempSettings = {
 		BackgroundMusic = true,
-		["2xSpeed"] = false,
+		["2xSpeed"] = true,
 		BrightMode = false,
 		ShowMyPets = true,
 		ShowOtherPets = true,

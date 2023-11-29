@@ -33,7 +33,7 @@ function SettingsUI:_initialize(): ()
 				return
 			end
 			if
-				settingSwitch.Name:match "Speed" and not selectors.hasGamepass(store:getState(), player.Name, "Speed")
+				settingSwitch.Name:match "Speed" and not selectors.hasGamepass(store:getState(), player.Name, "2xSpeed")
 			then
 				MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xSpeed"].Value)
 				return
@@ -64,6 +64,11 @@ function SettingsUI:Refresh(): ()
 			continue
 		end
 		local settingValue = selectors.getSetting(store:getState(), player.Name, settingSwitch.Name)
+		if settingSwitch.Name == "2xSpeed" and not selectors.hasGamepass(store:getState(), player.Name, "2xSpeed") then
+			settingSwitch.On.Visible = false
+			settingSwitch.Off.Visible = true
+			continue
+		end
 		settingSwitch.On.Visible = settingValue
 		settingSwitch.Off.Visible = not settingValue
 	end

@@ -18,9 +18,8 @@ return {
 		store:dispatch(actions.equipWeapon(player.Name, "Hero Blade"))
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "Training DummyFearMultiplier", 0.5))
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "PunchingBagStrengthMultiplier", 0.2))
-		store:dispatch(actions.switchSetting(player.Name, "VIPNameTag"))
-		store:dispatch(actions.switchSetting(player.Name, "VIPChatTag"))
-		player:SetAttribute("isVIP", true)
+		store:dispatch(actions.switchSetting(player.Name, "VipNameTag"))
+		store:dispatch(actions.switchSetting(player.Name, "VipChatTag"))
 	end,
 	[IDs["50PetStorage"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 50))
@@ -60,10 +59,6 @@ return {
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "MaxFearMeterMultiplier", 2))
 	end,
 	[IDs["2xSpeed"].Value] = function(player: Player)
-		local humanoid = player.Character and player.Character:FindFirstChild "Humanoid"
-		if humanoid then
-			humanoid.WalkSpeed *= 2
-		end
 		store:dispatch(actions.switchSetting(player.Name, "2xSpeed"))
 	end,
 	[IDs["3xHatch"].Value] = true,

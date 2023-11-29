@@ -7,6 +7,7 @@ return {
 		return {
 			setting = setting,
 			playerName = playerName,
+			shouldSave = true,
 		}
 	end),
 }

@@ -21,7 +21,7 @@ local function getFilteredState(playerName, state)
 			if key:match "Multiplier" then
 				continue
 			end
-			if not profileTemplate[field][key] then
+			if type(profileTemplate[field][key]) == "nil" then
 				entry[key] = nil
 			end
 		end

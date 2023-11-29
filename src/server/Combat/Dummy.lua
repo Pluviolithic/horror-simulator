@@ -60,11 +60,19 @@ local function handleDummy(dummy)
 
 		humanoid:MoveTo(goalPosition + (humanoid.RootPart.Position - goalPosition).Unit * fightRange)
 
+		local currentAnimation, currentTrack = nil, nil
+		local animationInstances = getSortedAnimationInstances(animations.Fists:GetChildren())
+		local idleAnimation = ReplicatedStorage.CombatAnimations.Fists.Idle
+		local loadedIdleAnimation = humanoid:LoadAnimation(idleAnimation)
+		local runAnimations = true
+
 		local failed = false
 		local connection = nil
 		connection = store.changed:connect(function(newState)
 			if selectors.getCurrentTarget(newState, player.Name) ~= dummy then
 				failed = true
+				loadedIdleAnimation:Stop()
+				loadedIdleAnimation:Destroy()
 			end
 		end)
 
@@ -72,6 +80,7 @@ local function handleDummy(dummy)
 			humanoid:GetPropertyChangedSignal("MoveDirection"):Wait()
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 			failed = true
+			loadedIdleAnimation:Stop()
 		end)
 
 		repeat
@@ -84,12 +93,6 @@ local function handleDummy(dummy)
 		if failed or (player:DistanceFromCharacter(goalPosition) > fightRange + 5) then
 			return
 		end
-
-		local currentAnimation, currentTrack = nil, nil
-		local animationInstances = getSortedAnimationInstances(animations.Fists:GetChildren())
-		local idleAnimation = ReplicatedStorage.CombatAnimations.Fists.Idle
-		local loadedIdleAnimation = humanoid:LoadAnimation(idleAnimation)
-		local runAnimations = true
 
 		local currentIndex, maxIndex = 0, #animationInstances
 

@@ -10,7 +10,6 @@ Remotes.Server:Get("SwitchSetting"):Connect(function(player, setting)
 	if type(selectors.getSetting(store:getState(), player.Name, setting)) ~= "boolean" then
 		return
 	end
-	-- check vip pass
 	if setting == "2xSpeed" then
 		if not selectors.hasGamepass(store:getState(), player.Name, "2xSpeed") then
 			return

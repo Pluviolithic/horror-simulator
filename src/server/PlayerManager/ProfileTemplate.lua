@@ -83,8 +83,8 @@ return {
 	},
 
 	SavedSettings = {
-		VIPChatTag = false,
-		VIPNameTag = false,
+		VipChatTag = false,
+		VipNameTag = false,
 		JumpscareCooldown = true,
 	},
 

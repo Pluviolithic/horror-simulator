@@ -69,6 +69,10 @@ local function handlePunchingBag(bag: any)
 
 		local currentAnimation, currentTrack = nil, nil
 		local animationInstances = getSortedAnimationInstances(animations:FindFirstChild("Fists"):GetChildren())
+		local currentIndex, maxIndex = 0, #animationInstances
+		local idleAnimation = ReplicatedStorage.CombatAnimations.Fists.Idle
+		local loadedIdleAnimation = humanoid:LoadAnimation(idleAnimation)
+		loadedIdleAnimation.Priority = Enum.AnimationPriority.Idle
 
 		local connection
 		connection = disableSwitch.Event:Connect(function(disablingPlayer: Player)
@@ -76,6 +80,7 @@ local function handlePunchingBag(bag: any)
 				cancelled = true
 				connection:Disconnect()
 				currentTrack:Stop()
+				loadedIdleAnimation:Stop()
 
 				prompt.ActionText = "Start Training"
 				inUse = false
@@ -91,11 +96,6 @@ local function handlePunchingBag(bag: any)
 				end
 			end
 		end)
-
-		local currentIndex, maxIndex = 0, #animationInstances
-		local idleAnimation = ReplicatedStorage.CombatAnimations.Fists.Idle
-		local loadedIdleAnimation = humanoid:LoadAnimation(idleAnimation)
-		loadedIdleAnimation.Priority = Enum.AnimationPriority.Idle
 
 		task.spawn(function()
 			repeat
