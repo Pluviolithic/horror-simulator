@@ -12,12 +12,13 @@ local player = Players.LocalPlayer
 store.changed:connect(function(newState, oldState)
 	local oldPrimarySoundRegion = selectors.getAudioData(oldState, player.Name).PrimarySoundRegion
 	local newPrimarySoundRegion = selectors.getAudioData(newState, player.Name).PrimarySoundRegion
+	local oldBackgroundMusicSetting = selectors.getSetting(oldState, player.Name, "BackgroundMusic")
 
 	if not selectors.getSetting(newState, player.Name, "BackgroundMusic") then
 		newPrimarySoundRegion = nil
 	end
 
-	if oldPrimarySoundRegion ~= newPrimarySoundRegion then
+	if oldPrimarySoundRegion ~= newPrimarySoundRegion or not oldBackgroundMusicSetting then
 		if newPrimarySoundRegion then
 			if oldPrimarySoundRegion then
 				volumeKnobs.off[oldPrimarySoundRegion]:Play()
