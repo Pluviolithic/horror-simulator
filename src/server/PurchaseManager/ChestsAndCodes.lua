@@ -34,21 +34,21 @@ local function awardItem(player, item)
 end
 
 local vipChestAwards = {
-	"FearBoost",
+	"FearBoost15",
 	"SmallGemPack",
-	"DamageBoost",
-	"GemsBoost",
+	"DamageBoost15",
+	"GemsBoost15",
 	"TinyFearPack",
-	"FearlessBoost",
+	"FearlessBoost15",
 }
 
 local groupChestAwards = {
-	"GemsBoost",
+	"GemsBoost15",
 	"TinyFearPack",
-	"DamageBoost",
-	"FearBoost",
+	"DamageBoost15",
+	"FearBoost15",
 	"SmallGemPack",
-	"FearlessBoost",
+	"FearlessBoost15",
 }
 
 VIPChestZone.playerEntered:Connect(function(player)
@@ -105,15 +105,15 @@ task.spawn(function()
 	end
 
 	local foundMissingCode = false
-	if expiredCodes then
-		for _, code in codes:GetChildren() do
-			if not expiredCodes[code.Name] then
-				expiredCodes[code.Name] = code.Value
-				foundMissingCode = true
-			end
+	if not expiredCodes then
+		expiredCodes = {}
+	end
+
+	for _, code in codes:GetChildren() do
+		if not expiredCodes[code.Name] then
+			expiredCodes[code.Name] = code.Value
+			foundMissingCode = true
 		end
-	else
-		foundMissingCode = true
 	end
 
 	if not foundMissingCode then
