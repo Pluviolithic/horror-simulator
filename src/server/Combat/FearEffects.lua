@@ -50,10 +50,10 @@ local defaultWalkSpeed = 14
 local walkSpeedFearDebuff = -4
 store.changed:connect(function(newState, oldState)
 	for _, player in Players:GetPlayers() do
-		local hasPass = selectors.hasGamepass(newState, player.Name, "2xSpeed")
-		local doubleSpeedEnabled = selectors.getSetting(newState, player.Name, "2xSpeed")
-		local modifiedDebuff = walkSpeedFearDebuff * (hasPass and 2 or 1)
-		local newWalkSpeed = defaultWalkSpeed * (hasPass and doubleSpeedEnabled and 2 or 1)
+		local hasDoubleSpeed = selectors.hasGamepass(newState, player.Name, "2xSpeed")
+			and selectors.getSetting(newState, player.Name, "2xSpeed")
+		local modifiedDebuff = walkSpeedFearDebuff * (hasDoubleSpeed and 2 or 1)
+		local newWalkSpeed = defaultWalkSpeed * (hasDoubleSpeed and 2 or 1)
 		if isScared(player.Name, newState) then
 			task.spawn(trackPlayerScaredStatus, player)
 			newWalkSpeed += modifiedDebuff

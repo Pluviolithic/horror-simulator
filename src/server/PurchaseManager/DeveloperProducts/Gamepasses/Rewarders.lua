@@ -58,9 +58,7 @@ return {
 		)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "MaxFearMeterMultiplier", 2))
 	end,
-	[IDs["2xSpeed"].Value] = function(player: Player)
-		store:dispatch(actions.switchSetting(player.Name, "2xSpeed"))
-	end,
+	[IDs["2xSpeed"].Value] = true,
 	[IDs["3xHatch"].Value] = true,
 	[IDs["AutoHatch"].Value] = true,
 	[IDs["FasterHatch"].Value] = true,
