@@ -14,7 +14,7 @@ local devProductIDs = ReplicatedStorage.Config.DevProductData.IDs
 local function evolvePet(player, petName)
 	local petOwnedCount = selectors.getPetOwnedCount(store:getState(), player.Name, petName)
 
-	if not petOwnedCount or petOwnedCount < 5 then
+	if not petOwnedCount or petOwnedCount < 5 or petName:match "Evolved" then
 		return 1
 	end
 
