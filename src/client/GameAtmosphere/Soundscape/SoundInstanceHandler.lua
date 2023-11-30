@@ -52,7 +52,11 @@ for _, playlistFolder in playlists:GetChildren() do
 				volumeKnobs.off[playlistFolder.Name] = createKnob(nextAudioInstance, false)
 
 				switches.play[playlistFolder.Name] = function()
-					nextAudioInstance:Play()
+					if nextAudioInstance.IsPaused then
+						nextAudioInstance:Resume()
+					else
+						nextAudioInstance:Play()
+					end
 				end
 				switches.pause[playlistFolder.Name] = function()
 					nextAudioInstance:Pause()
@@ -73,6 +77,7 @@ for _, playlistFolder in playlists:GetChildren() do
 				nextAudioInstance.Name = playlistFolder.Name
 				nextAudioInstance.Parent = soundFolder
 				nextAudioInstance.Ended:Wait()
+				print "ended"
 			end
 		end
 	end)
