@@ -48,30 +48,43 @@ end
 
 local defaultWalkSpeed = 14
 local walkSpeedFearDebuff = -4
+
+local function updatePlayerFearEffects(player, newState, oldState)
+	local hasDoubleSpeed = selectors.hasGamepass(newState, player.Name, "2xSpeed")
+		and selectors.getSetting(newState, player.Name, "2xSpeed")
+	local modifiedDebuff = walkSpeedFearDebuff * (hasDoubleSpeed and 2 or 1)
+	local newWalkSpeed = defaultWalkSpeed * (hasDoubleSpeed and 2 or 1)
+	if isScared(player.Name, newState) then
+		task.spawn(trackPlayerScaredStatus, player)
+		newWalkSpeed += modifiedDebuff
+	elseif oldState and isScared(player.Name, oldState) then
+		newWalkSpeed -= modifiedDebuff
+	end
+	local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
+	if humanoid and humanoid.WalkSpeed ~= newWalkSpeed then
+		humanoid.WalkSpeed = newWalkSpeed
+	end
+	if
+		oldState
+		and selectors.isPlayerLoaded(oldState, player.Name)
+		and selectors.hasGamepass(newState, player.Name, "2xFearMeter")
+		and not selectors.hasGamepass(oldState, player.Name, "2xFearMeter")
+	then
+		store:dispatch(actions.setPlayerStat(player.Name, "CurrentFearMeter", 0))
+	end
+end
+
 store.changed:connect(function(newState, oldState)
 	for _, player in Players:GetPlayers() do
-		local hasDoubleSpeed = selectors.hasGamepass(newState, player.Name, "2xSpeed")
-			and selectors.getSetting(newState, player.Name, "2xSpeed")
-		local modifiedDebuff = walkSpeedFearDebuff * (hasDoubleSpeed and 2 or 1)
-		local newWalkSpeed = defaultWalkSpeed * (hasDoubleSpeed and 2 or 1)
-		if isScared(player.Name, newState) then
-			task.spawn(trackPlayerScaredStatus, player)
-			newWalkSpeed += modifiedDebuff
-		elseif isScared(player.Name, oldState) then
-			newWalkSpeed -= modifiedDebuff
-		end
-		local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
-		if humanoid and humanoid.WalkSpeed ~= newWalkSpeed then
-			humanoid.WalkSpeed = newWalkSpeed
-		end
-		if
-			selectors.isPlayerLoaded(oldState, player.Name)
-			and selectors.hasGamepass(newState, player.Name, "2xFearMeter")
-			and not selectors.hasGamepass(oldState, player.Name, "2xFearMeter")
-		then
-			store:dispatch(actions.setPlayerStat(player.Name, "CurrentFearMeter", 0))
-		end
+		updatePlayerFearEffects(player, newState, oldState)
 	end
+end)
+
+Players.PlayerAdded:Connect(function(player: Player)
+	repeat
+		task.wait(0.5)
+	until selectors.isPlayerLoaded(store:getState(), player.Name)
+	updatePlayerFearEffects(player, store:getState())
 end)
 
 return 0

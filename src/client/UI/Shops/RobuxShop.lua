@@ -12,6 +12,7 @@ local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
@@ -91,6 +92,8 @@ function RobuxShop:_countdownDescriptionDisplayTime()
 end
 
 function RobuxShop:_initialize(): ()
+	interfaces[self] = true
+
 	mainUI.RobuxShop.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)

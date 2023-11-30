@@ -9,6 +9,7 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
@@ -17,9 +18,13 @@ local SettingsUI = CentralUI.new(player.PlayerGui:WaitForChild "Settings")
 local function shouldRefresh(newState, oldState)
 	return selectors.getTempSettings(newState, player.Name) ~= selectors.getTempSettings(oldState, player.Name)
 		or selectors.getSavedSettings(newState, player.Name) ~= selectors.getSavedSettings(oldState, player.Name)
+		or selectors.hasGamepass(newState, player.Name, "2xSpeed")
+			and not selectors.hasGamepass(oldState, player.Name, "2xSpeed")
 end
 
 function SettingsUI:_initialize(): ()
+	interfaces[self] = true
+
 	for _, settingSwitch in self._ui.Background.ScrollingFrame:GetChildren() do
 		if not settingSwitch:FindFirstChild "On" then
 			continue

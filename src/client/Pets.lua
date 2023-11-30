@@ -12,7 +12,7 @@ local petsFolder = workspace.PetModels
 local playerName = Players.LocalPlayer.Name
 
 local function setPetEnabled(pet, enabled)
-	pet.PetUI.Enabled = enabled
+	pet:WaitForChild("PetUI").Enabled = enabled
 	for _, part in pet:GetChildren() do
 		if part:IsA "BasePart" then
 			part.Transparency = if enabled then 0 else 1
@@ -27,7 +27,7 @@ local function updateMyPets(show)
 		end
 
 		for _, pet in playerPetFolder:GetChildren() do
-			setPetEnabled(pet, show)
+			task.spawn(setPetEnabled, pet, show)
 		end
 	end
 end
@@ -39,25 +39,29 @@ local function updateOtherPets(show)
 		end
 
 		for _, pet in playerPetFolder:GetChildren() do
-			setPetEnabled(pet, show)
+			task.spawn(setPetEnabled, pet, show)
 		end
 	end
 end
 
-petsFolder.DescendantAdded:Connect(function(descendant)
-	if not descendant:FindFirstChild "PetUI" then
-		return
+local function handleSubPetFolder(subPetFolder)
+	if subPetFolder.Name == playerName then
+		updateMyPets(selectors.getSetting(store:getState(), playerName, "ShowMyPets"))
+		subPetFolder.ChildAdded:Connect(function()
+			updateMyPets(selectors.getSetting(store:getState(), playerName, "ShowMyPets"))
+		end)
+	else
+		updateOtherPets(selectors.getSetting(store:getState(), playerName, "ShowOtherPets"))
+		subPetFolder.ChildAdded:Connect(function()
+			updateOtherPets(selectors.getSetting(store:getState(), playerName, "ShowOtherPets"))
+		end)
 	end
+end
 
-	if descendant.Parent.Name == playerName then
-		if not selectors.getSetting(store:getState(), playerName, "ShowMyPets") then
-			setPetEnabled(descendant, false)
-		end
-		return
-	end
-
-	if not selectors.getSetting(store:getState(), descendant.Parent.Name, "ShowOtherPets") then
-		setPetEnabled(descendant, false)
+petsFolder.ChildAdded:Connect(handleSubPetFolder)
+task.spawn(function()
+	for _, player in Players:GetPlayers() do
+		handleSubPetFolder(petsFolder:WaitForChild(player.Name))
 	end
 end)
 

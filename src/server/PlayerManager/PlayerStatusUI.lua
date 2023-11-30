@@ -39,11 +39,18 @@ function PlayerStatusUI:_updateUIFields(state)
 		selectors.hasGamepass(state, self._player.Name, "VIP")
 		and selectors.getSetting(state, self._player.Name, "VipNameTag")
 	then
-		self._player:SetAttribute("isVIP", true)
 		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 193, 7)
 	else
-		self._player:SetAttribute("isVIP", false)
 		playerUIFrame.PlayerName.TextColor3 = Color3.fromRGB(255, 255, 255)
+	end
+
+	if
+		selectors.hasGamepass(state, self._player.Name, "VIP")
+		and selectors.getSetting(state, self._player.Name, "VipChatTag")
+	then
+		self._player:SetAttribute("isVIP", true)
+	else
+		self._player:SetAttribute("isVIP", false)
 	end
 end
 
