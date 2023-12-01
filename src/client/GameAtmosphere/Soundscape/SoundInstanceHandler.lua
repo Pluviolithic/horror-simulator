@@ -52,6 +52,9 @@ for _, playlistFolder in playlists:GetChildren() do
 				volumeKnobs.off[playlistFolder.Name] = createKnob(nextAudioInstance, false)
 
 				switches.play[playlistFolder.Name] = function()
+					if nextAudioInstance.IsPlaying then
+						return
+					end
 					if nextAudioInstance.IsPaused then
 						nextAudioInstance:Resume()
 					else
@@ -76,8 +79,16 @@ for _, playlistFolder in playlists:GetChildren() do
 
 				nextAudioInstance.Name = playlistFolder.Name
 				nextAudioInstance.Parent = soundFolder
+
+				if
+					not selectors.isPlayerLoaded(store:getState(), player.Name)
+					or playlistFolder.Name
+						== selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
+				then
+					nextAudioInstance:Play()
+				end
+
 				nextAudioInstance.Ended:Wait()
-				print "ended"
 			end
 		end
 	end)
