@@ -26,4 +26,11 @@ function Formatter.truncateMultiplier(n: number): string
 	return string.format("%.2f", n):gsub("%.?0+$", "")
 end
 
+-- taken from https://stackoverflow.com/questions/10989788/format-integer-in-lua
+function Formatter.formatNumberWithCommas(n: number): string
+	local _, _, minus, int, fraction = tostring(n):find "([-]?)(%d+)([.]?%d*)"
+	int = int:reverse():gsub("(%d%d%d)", "%1,")
+	return minus .. int:reverse():gsub("^,", "") .. fraction
+end
+
 return Formatter

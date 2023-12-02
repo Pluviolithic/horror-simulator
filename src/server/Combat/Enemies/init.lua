@@ -16,6 +16,7 @@ local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 
 local bossRespawnRate = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
 local enemyRespawnRate = ReplicatedStorage.Config.Combat.EnemyRespawnRate.Value
+local maxFearFromBossPercentage = ReplicatedStorage.Config.Combat.BossFearPercentage.Value
 
 local function addHealthBar(enemy, info)
 	local NPCUI = enemy:FindFirstChild("NPCUI", true)
@@ -106,7 +107,13 @@ local function handleEnemy(enemy)
 					continue
 				end
 
-				store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", damage, enemy.Name))
+				if isBoss then
+					local fear = math.clamp(damage, 0, info.MaxHealth * maxFearFromBossPercentage)
+					store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", fear, enemy.Name))
+				else
+					store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", damage, enemy.Name))
+				end
+
 				store:dispatch(actions.incrementPlayerStat(player.Name, "Kills"))
 				store:dispatch(actions.logKilledEnemyType(player.Name, enemy.Name))
 				store:dispatch(

@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
@@ -49,6 +50,12 @@ return function(player, enemy, info, janitor)
 			)
 			info.DamageDealtByPlayer[player] = (info.DamageDealtByPlayer[player] or 0) + damageToDeal
 			info.HealthValue.Value -= damageToDeal
+			Remotes.Server:Get("SendFightInfo"):SendToPlayer(player, {
+				Gems = enemy.Configuration.Gems.Value,
+				Health = info.HealthValue.Value,
+				MaxHealth = info.MaxHealth,
+				DamageDealtByPlayer = info.DamageDealtByPlayer[player],
+			})
 			task.wait(animationUtilities.getPlayerAttackSpeed(player))
 		end
 		if not enemy:FindFirstChild "Humanoid" then
