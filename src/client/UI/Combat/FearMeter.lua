@@ -3,7 +3,9 @@ local RunService = game:GetService "RunService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local MarketplaceService = game:GetService "MarketplaceService"
 
+local doubleFearMeterID = ReplicatedStorage.Config.GamepassData.IDs["2xFearMeter"].Value
 local Client = StarterPlayer.StarterPlayerScripts.Client
 local player = Players.LocalPlayer
 
@@ -61,6 +63,10 @@ playerStatePromise:andThen(function()
 		fearMeter.Disable.Visible = true
 		fearMeter.Background.Visible = true
 	end
+
+	fearMeter.Background.Activated:Connect(function()
+		MarketplaceService:PromptGamePassPurchase(player, doubleFearMeterID)
+	end)
 
 	updateBarSize(store:getState(), bar)
 	updateBarText(store:getState(), fearMeter.Fear)
