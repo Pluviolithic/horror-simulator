@@ -5,8 +5,9 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
-local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.ConfirmationUI)
+local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -20,6 +21,8 @@ local player = Players.LocalPlayer
 
 local mainUI = player.PlayerGui:WaitForChild "MainUI"
 local TeleportUI = CentralUI.new(player.PlayerGui:WaitForChild "Teleport")
+local confirmationUIInstance = player.PlayerGui:WaitForChild("Teleport").Confirmation
+local afkConfirmationUIInstance = mainUI.AFK.Confirmation
 
 local function getAreaTeleporter(areaName: string): Instance?
 	for _, teleporter in CollectionService:GetTagged "AreaTeleport" do
@@ -74,25 +77,21 @@ function TeleportUI:_initialize()
 	mainUI.AFK.Activated:Connect(function()
 		local primarySoundArea = selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
 		local purchasedTeleporters = selectors.getPurchasedTeleporters(store:getState(), player.Name)
-		local goal, targetAreaName = nil, nil
+		local target, targetAreaName = nil, nil
 
 		if areaRequirements["Howling Woods"].Value <= selectors.getStat(store:getState(), player.Name, "Strength") then
 			targetAreaName = "Howling Woods"
-			goal = workspace.Teleports.AFK2TP
+			target = workspace.Teleports.AFK2TP
 		else
 			targetAreaName = "Clown Town"
-			goal = workspace.Teleports.AFK1TP
+			target = workspace.Teleports.AFK1TP
 		end
 
 		if purchasedTeleporters[targetAreaName] or primarySoundArea == targetAreaName then
-			player.Character:PivotTo(
-				CFrame.fromMatrix(
-					goal.Position + goal.CFrame.LookVector * 5 + goal.CFrame.UpVector * 5,
-					goal.CFrame.RightVector,
-					goal.CFrame.UpVector
-				)
-			)
-			petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
+			confirmationUI(afkConfirmationUIInstance, "", function()
+				teleportPlayer(player, { target = target })
+				petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
+			end)
 		else
 			self:setEnabled(true)
 		end
@@ -122,25 +121,25 @@ function TeleportUI:_initialize()
 				if confirmationJanitor and confirmationJanitor.Destroy then
 					confirmationJanitor:Destroy()
 				end
-				confirmationJanitor = confirmationUI({
-					AreaName = area.Name,
-					Cost = if hasFreeTeleporters then 0 else area.Cost.Value,
-				}, function()
-					Remotes.Client:Get("PurchaseTeleporter"):SendToServer(area.Name)
-				end)
+				confirmationJanitor = confirmationUI(
+					confirmationUIInstance,
+					string.format(
+						'Unlock the %s teleport for <font color="rgb(224, 18, 231)">%s Gems</font>?',
+						area.Name,
+						if hasFreeTeleporters then 0 else area.Cost.Value
+					),
+					function()
+						Remotes.Client:Get("PurchaseTeleporter"):SendToServer(area.Name)
+					end
+				)
 				return
 			end
 			if not player.Character or not player.Character:FindFirstChild "HumanoidRootPart" then
 				return
 			end
-			local goal = getAreaTeleporter(area.Name)
-			player.Character:PivotTo(
-				CFrame.fromMatrix(
-					goal.Position + goal.CFrame.LookVector * 5 + goal.CFrame.UpVector * 5,
-					goal.CFrame.RightVector,
-					goal.CFrame.UpVector
-				)
-			)
+			teleportPlayer(player, {
+				target = getAreaTeleporter(area.Name),
+			})
 			petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 		end)
 	end

@@ -4,9 +4,10 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local CollectionService = game:GetService "CollectionService"
 
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
-local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local debounce = false
 local player = Players.LocalPlayer
@@ -48,10 +49,10 @@ local function handleTeleporter(teleporter)
 	local strengthRequirement = areaRequirements[teleporter.Name:sub(1, -4)].Value
 
 	teleporter.Touched:Connect(function(hit)
-		local goal = teleporters[teleporter.Name:gsub("%d", opposite)]
+		local target = teleporters[teleporter.Name:gsub("%d", opposite)]
 		local hitPlayer = Players:GetPlayerFromCharacter(hit.Parent)
 
-		if not hitPlayer or hitPlayer ~= player or not goal then
+		if not hitPlayer or hitPlayer ~= player or not target then
 			return
 		end
 
@@ -64,13 +65,7 @@ local function handleTeleporter(teleporter)
 		end
 		debounce = true
 
-		player.Character:PivotTo(
-			CFrame.fromMatrix(
-				goal.Position + goal.CFrame.LookVector * 5 + goal.CFrame.UpVector * 5,
-				goal.CFrame.RightVector,
-				goal.CFrame.UpVector
-			)
-		)
+		teleportPlayer(player, { target = target })
 
 		petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 

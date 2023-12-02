@@ -12,12 +12,15 @@ local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local teleportUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportUI)
+local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
+local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
 
 local weapons = ReplicatedStorage.Weapons
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local gamepassPrices = ReplicatedStorage.Config.GamepassData.Prices
 local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
 local mainUI = player.PlayerGui:WaitForChild "MainUI"
+local confirmationUIInstance = mainUI.WeaponShop.Confirmation
 
 WeaponShop.Trigger = "WeaponShop"
 WeaponShop._itemButtons = WeaponShop._ui.LeftBackground.ScrollingFrame:GetChildren()
@@ -44,15 +47,10 @@ function WeaponShop:_initialize(): ()
 		local purchasedTeleporters = selectors.getPurchasedTeleporters(store:getState(), player.Name)
 
 		if purchasedTeleporters["Clown Town"] or primarySoundArea == "Clown Town" then
-			local goal = workspace.Teleports.WeaponShopTP
-			player.Character:PivotTo(
-				CFrame.fromMatrix(
-					goal.Position + goal.CFrame.LookVector * 5 + goal.CFrame.UpVector * 5,
-					goal.CFrame.RightVector,
-					goal.CFrame.UpVector
-				)
-			)
-			petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
+			confirmationUI(confirmationUIInstance, "", function()
+				teleportPlayer(player, { target = workspace.Teleports.WeaponShopTP })
+				petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
+			end)
 		else
 			teleportUI:setEnabled(true)
 		end

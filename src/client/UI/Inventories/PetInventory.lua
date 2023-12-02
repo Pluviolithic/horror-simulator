@@ -18,6 +18,7 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
+local confirmationUIInstance = player.PlayerGui:WaitForChild("PetInventory").Confirmation
 local rarityTemplates = ReplicatedStorage.RarityTemplates
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 
@@ -76,40 +77,56 @@ function PetInventory:_initialize(): ()
 		if self._confirmationDestructor then
 			self._confirmationDestructor:Cleanup()
 		end
-		self._confirmationDestructor = confirmationUI("UnequipAll", function()
-			Remotes.Client:Get("UnequipAllPets"):SendToServer()
-			self:_clearFocusedDisplay()
-		end)
+		self._confirmationDestructor = confirmationUI(
+			confirmationUIInstance,
+			"Are you sure you want to Unequip All Pets?",
+			function()
+				Remotes.Client:Get("UnequipAllPets"):SendToServer()
+				self:_clearFocusedDisplay()
+			end
+		)
 	end)
 
 	self._ui.Background.EquipBest.Activated:Connect(function()
 		if self._confirmationDestructor then
 			self._confirmationDestructor:Cleanup()
 		end
-		self._confirmationDestructor = confirmationUI("EquipBest", function()
-			Remotes.Client:Get("EquipBestPets"):SendToServer()
-			self:_clearFocusedDisplay()
-		end)
+		self._confirmationDestructor = confirmationUI(
+			confirmationUIInstance,
+			"Are you sure you want to Equip Your Best Pets?",
+			function()
+				Remotes.Client:Get("EquipBestPets"):SendToServer()
+				self:_clearFocusedDisplay()
+			end
+		)
 	end)
 
 	self._ui.Background.EvolveAll.Activated:Connect(function()
 		if self._confirmationDestructor then
 			self._confirmationDestructor:Cleanup()
 		end
-		self._confirmationDestructor = confirmationUI("EvolveAll", function()
-			Remotes.Client:Get("EvolveAllPets"):SendToServer()
-			self:_clearFocusedDisplay()
-		end)
+		self._confirmationDestructor = confirmationUI(
+			confirmationUIInstance,
+			"Are you sure you want to Evolve All Pets?",
+			function()
+				Remotes.Client:Get("EvolveAllPets"):SendToServer()
+				self:_clearFocusedDisplay()
+			end
+		)
 	end)
 
 	self._ui.Background.DeleteAll.Activated:Connect(function()
 		if self._confirmationDestructor then
 			self._confirmationDestructor:Cleanup()
 		end
-		self._confirmationDestructor = confirmationUI("DeleteAll", function()
-			Remotes.Client:Get("DeleteAllPets"):SendToServer()
-			self:_clearFocusedDisplay()
-		end)
+		self._confirmationDestructor = confirmationUI(
+			confirmationUIInstance,
+			"Delete All Pets? Make sure all the pets you want to keep are Locked.",
+			function()
+				Remotes.Client:Get("DeleteAllPets"):SendToServer()
+				self:_clearFocusedDisplay()
+			end
+		)
 	end)
 
 	playerStatePromise:andThen(function()
