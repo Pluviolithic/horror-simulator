@@ -23,7 +23,7 @@ local function evolvePet(player, petName)
 
 	if unlockedPetCount < 5 then
 		local countToUnlock = 5 - unlockedPetCount
-		if equippedPets[petName] or countToUnlock > (petOwnedCount - equippedPets[petName]) then
+		if equippedPets[petName] and countToUnlock > (petOwnedCount - equippedPets[petName]) then
 			if countToUnlock == equippedPets[petName] then
 				store:dispatch(actions.unequipPlayerPets(player.Name, { [petName] = countToUnlock }))
 			else
