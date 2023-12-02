@@ -48,7 +48,7 @@ function WeaponShop:_initialize(): ()
 
 		if purchasedTeleporters["Clown Town"] or primarySoundArea == "Clown Town" then
 			confirmationUI(confirmationUIInstance, "", function()
-				teleportPlayer(player, { target = workspace.Teleports.WeaponShopTP })
+				teleportPlayer { target = workspace.Teleports.WeaponShopTP }
 				petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 			end)
 		else

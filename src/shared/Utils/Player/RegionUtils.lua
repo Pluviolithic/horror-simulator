@@ -26,4 +26,13 @@ return {
 	getRegions = function()
 		return missionZones
 	end,
+	getLocationNameForPoint = function(point: Vector3)
+		for areaName, zone in missionZones do
+			if zone:findPoint(point) then
+				return areaName
+			end
+		end
+
+		return nil
+	end,
 }

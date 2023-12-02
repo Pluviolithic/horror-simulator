@@ -90,7 +90,7 @@ function TeleportUI:_initialize()
 
 		if purchasedTeleporters[targetAreaName] or primarySoundArea == targetAreaName then
 			confirmationUI(afkConfirmationUIInstance, "", function()
-				teleportPlayer(player, { target = target })
+				teleportPlayer { target = target }
 				petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 			end)
 		else
@@ -133,9 +133,9 @@ function TeleportUI:_initialize()
 			if not player.Character or not player.Character:FindFirstChild "HumanoidRootPart" then
 				return
 			end
-			teleportPlayer(player, {
+			teleportPlayer {
 				target = getAreaTeleporter(area.Name),
-			})
+			}
 			petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 		end)
 	end

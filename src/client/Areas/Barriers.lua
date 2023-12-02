@@ -65,7 +65,7 @@ local function handleTeleporter(teleporter)
 		end
 		debounce = true
 
-		teleportPlayer(player, { target = target })
+		teleportPlayer { target = target }
 
 		petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 
