@@ -1,9 +1,14 @@
+local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+
+local destructor = Janitor.new()
 
 return function(confirmationUI, message, callback)
-	local destructor = Janitor.new()
+	interfaces[destructor] = true
+	destructor:Cleanup()
 	confirmationUI.Visible = true
 
 	if #message > 0 then
@@ -37,6 +42,10 @@ return function(confirmationUI, message, callback)
 			"Disconnect"
 		)
 	end
+
+	destructor:Add(function()
+		confirmationUI.Visible = false
+	end, true)
 
 	return destructor
 end

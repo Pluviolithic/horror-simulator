@@ -10,8 +10,9 @@ local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.Collidab
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
-local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
+local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Sift = require(ReplicatedStorage.Common.lib.Sift)
 
@@ -97,8 +98,6 @@ function TeleportUI:_initialize()
 		end
 	end)
 
-	local confirmationJanitor = nil
-
 	for _, area in self._ui.Background.ScrollingFrame:GetChildren() do
 		if not area:IsA "ImageLabel" then
 			continue
@@ -118,15 +117,12 @@ function TeleportUI:_initialize()
 				then
 					return
 				end
-				if confirmationJanitor and confirmationJanitor.Destroy then
-					confirmationJanitor:Destroy()
-				end
-				confirmationJanitor = confirmationUI(
+				confirmationUI(
 					confirmationUIInstance,
 					string.format(
 						'Unlock the %s teleport for <font color="rgb(224, 18, 231)">%s Gems</font>?',
 						area.Name,
-						if hasFreeTeleporters then 0 else area.Cost.Value
+						if hasFreeTeleporters then "0" else formatter.formatNumberWithSuffix(area.Cost.Value)
 					),
 					function()
 						Remotes.Client:Get("PurchaseTeleporter"):SendToServer(area.Name)

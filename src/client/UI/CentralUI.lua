@@ -1,8 +1,10 @@
 local StarterPlayer = game:GetService "StarterPlayer"
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local CentralUI = {}
 CentralUI.__index = CentralUI
 
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local collidableInterfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 function CentralUI.new(UI: GuiObject)
@@ -37,6 +39,10 @@ function CentralUI:setEnabled(enable: boolean?): ()
 	-- may change the blanket closure to be more nuanced in future
 	for interface in collidableInterfaces do
 		if interface ~= self then
+			if Janitor.Is(interface) then
+				interface:Cleanup()
+				continue
+			end
 			interface:setEnabled(false)
 		end
 	end
