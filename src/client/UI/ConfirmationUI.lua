@@ -5,11 +5,25 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 local destructor = Janitor.new()
+local currentConfirmationUI
 
 return function(confirmationUI, message, callback)
+	for interface in interfaces do
+		if Janitor.Is(interface) then
+			interface:Cleanup()
+			continue
+		end
+		interface:setEnabled(false)
+	end
+
+	if currentConfirmationUI == confirmationUI then
+		currentConfirmationUI = nil
+		return
+	end
+
 	interfaces[destructor] = true
-	destructor:Cleanup()
 	confirmationUI.Visible = true
+	currentConfirmationUI = confirmationUI
 
 	if #message > 0 then
 		confirmationUI.WarningText.Text = message
