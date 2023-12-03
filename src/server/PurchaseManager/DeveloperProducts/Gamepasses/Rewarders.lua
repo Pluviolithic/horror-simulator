@@ -57,6 +57,7 @@ return {
 			)
 		)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "MaxFearMeterMultiplier", 2))
+		store:dispatch(actions.setPlayerStat(player.Name, "LastScaredTimestamp", -1))
 	end,
 	[IDs["2xSpeed"].Value] = true,
 	[IDs["3xHatch"].Value] = true,

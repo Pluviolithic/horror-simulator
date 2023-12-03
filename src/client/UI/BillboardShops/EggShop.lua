@@ -14,6 +14,8 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
+local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["AutoHatch"].Value
@@ -287,7 +289,8 @@ local function handleShop(shop): ()
 		end
 
 		if selectors.getStat(store:getState(), player.Name, "Gems") < eggGemPrice * count then
-			hatching = false
+			PopupUI "You Can Not Afford To Open This Egg!"
+			RobuxShop:OpenSubShop "Gems"
 			return
 		end
 
@@ -297,6 +300,7 @@ local function handleShop(shop): ()
 			selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count
 			> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
 		then
+			PopupUI "Your Pet Inventory Is Full!"
 			hatching = false
 			return
 		end

@@ -46,22 +46,34 @@ playerStatePromise:andThen(function()
 
 	local currentState = store:getState()
 	local bar = fearMeter.Background.Bar
+	local fearMeterHidden = false
 
 	local function hideFearMeter()
+		fearMeterHidden = true
 		fearMeter.Fear.Visible = false
 		fearMeter.Icon.Visible = false
 		fearMeter.Image.Visible = false
 		fearMeter.Enable.Visible = true
 		fearMeter.Disable.Visible = false
+		fearMeter.Fearless.Visible = false
 		fearMeter.Background.Visible = false
 	end
 
 	local function revealFearMeter()
+		fearMeterHidden = false
 		fearMeter.Icon.Visible = true
 		fearMeter.Image.Visible = true
 		fearMeter.Enable.Visible = false
 		fearMeter.Disable.Visible = true
 		fearMeter.Background.Visible = true
+
+		if selectors.getActiveBoosts(currentState, player.Name)["FearlessBoost"] then
+			fearMeter.Fear.Visible = false
+			fearMeter.Fearless.Visible = true
+		else
+			fearMeter.Fear.Visible = true
+			fearMeter.Fearless.Visible = false
+		end
 	end
 
 	fearMeter.Background.Activated:Connect(function()
@@ -82,12 +94,14 @@ playerStatePromise:andThen(function()
 		local currentTarget = selectors.getCurrentTarget(newState, player.Name)
 		local previousTarget = selectors.getCurrentTarget(oldState, player.Name)
 
-		if selectors.getActiveBoosts(newState, player.Name)["FearlessBoost"] then
-			fearMeter.Fear.Visible = false
-			fearMeter.Fearless.Visible = true
-		else
-			fearMeter.Fear.Visible = true
-			fearMeter.Fearless.Visible = false
+		if not fearMeterHidden then
+			if selectors.getActiveBoosts(newState, player.Name)["FearlessBoost"] then
+				fearMeter.Fear.Visible = false
+				fearMeter.Fearless.Visible = true
+			else
+				fearMeter.Fear.Visible = true
+				fearMeter.Fearless.Visible = false
+			end
 		end
 
 		if currentTarget ~= previousTarget and currentTarget then
@@ -112,9 +126,7 @@ playerStatePromise:andThen(function()
 	fearMeter.Disable.Activated:Connect(hideFearMeter)
 
 	RunService.RenderStepped:Connect(function()
-		local secondsSinceEpoch = workspace:GetServerTimeNow()
-		local secondsSinceLastScared = secondsSinceEpoch
-			- selectors.getStat(currentState, player.Name, "LastScaredTimestamp")
+		local secondsSinceLastScared = os.time() - selectors.getStat(currentState, player.Name, "LastScaredTimestamp")
 		if secondsSinceLastScared < 120 then
 			fearMeter.ScaredTextTimer.Text = string.format(
 				"Lower your fear meter by working out or wait " .. "%02i:%02i" .. " minutes.",

@@ -9,6 +9,7 @@ local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.T
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
+local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -94,6 +95,7 @@ function TeleportUI:_initialize()
 				petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 			end)
 		else
+			PopupUI(`You Must Buy The {targetAreaName} Teleport First!`)
 			self:setEnabled(true)
 		end
 	end)
@@ -108,15 +110,18 @@ function TeleportUI:_initialize()
 		area.Teleport.Activated:Connect(function()
 			local hasFreeTeleporters = selectors.hasGamepass(store:getState(), player.Name, "FreeTeleporters")
 			if area.Locked.Visible or area.CostUI.Visible then
-				if
-					selectors.getStat(store:getState(), player.Name, "Strength") < areaRequirements[area.Name].Value
-					or (
-						selectors.getStat(store:getState(), player.Name, "Gems") < area.Cost.Value
-						and not hasFreeTeleporters
-					)
-				then
+				if selectors.getStat(store:getState(), player.Name, "Strength") < areaRequirements[area.Name].Value then
 					return
 				end
+				if
+					selectors.getStat(store:getState(), player.Name, "Gems") < area.Cost.Value
+					and not hasFreeTeleporters
+				then
+					PopupUI "You Can Not Afford This Teleporter!"
+					MarketplaceService:PromptGamePassPurchase(player, freeTeleportersGamepassID)
+					return
+				end
+
 				confirmationUI(
 					confirmationUIInstance,
 					string.format(

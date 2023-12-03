@@ -10,8 +10,10 @@ local Table = require(ReplicatedStorage.Common.Utils.Table)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local teleportUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportUI)
+local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
 local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
 
@@ -52,6 +54,7 @@ function WeaponShop:_initialize(): ()
 				petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 			end)
 		else
+			PopupUI "You Must Buy The Clown Town Teleport First!"
 			teleportUI:setEnabled(true)
 		end
 	end)
@@ -70,6 +73,7 @@ function WeaponShop:_initialize(): ()
 			--local damage = weapons[button.Name].Price.Value
 
 			if button:FindFirstChild "Locked" and button.Locked.Visible then
+				PopupUI "You must buy the previous weapon first!"
 				return
 			end
 
@@ -130,6 +134,8 @@ function WeaponShop:_initialize(): ()
 					focusedDisplay.GreenButton.Visible = true
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
 						if selectors.getStat(store:getState(), player.Name, "Gems") < price then
+							PopupUI "You Can Not Afford This Weapon!"
+							RobuxShop:OpenSubShop "Gems"
 							return
 						end
 						Remotes.Client:Get("PurchaseWeapon"):CallServerAsync(button.Name)

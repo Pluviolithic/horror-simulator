@@ -12,6 +12,10 @@ local BossUI = player.PlayerGui:WaitForChild "BossUI"
 local maxFearFromBossPercentage = ReplicatedStorage.Config.Combat.BossFearPercentage.Value
 
 Remotes.Client:Get("SendFightInfo"):Connect(function(info)
+	if not info.IsBoss then
+		return
+	end
+
 	local fearMultiplier = selectors.getMultiplierData(store:getState(), player.Name).FearMultiplier
 	local fearMultiplierCount = selectors.getMultiplierData(store:getState(), player.Name).FearMultiplierCount
 	local fearBoostData = selectors.getActiveBoosts(store:getState(), player.Name).FearBoost

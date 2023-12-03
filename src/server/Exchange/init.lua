@@ -41,11 +41,15 @@ local function handlePunchingBag(bag: any)
 		local cancelled = false
 
 		if
-			inUse
-			or selectors.getCurrentTarget(store:getState(), player.Name)
-			or selectors.getStat(store:getState(), player.Name, "Fear")
-				< selectors.getStat(store:getState(), player.Name, "RequiredFear")
+			selectors.getStat(store:getState(), player.Name, "Fear")
+			< selectors.getStat(store:getState(), player.Name, "RequiredFear")
 		then
+			Remotes.Server:Get("SendPopupMessage"):SendToPlayer(player, "Not enough fear!")
+			Remotes.Server:Get("OpenRobuxShopOnClient"):SendToPlayer(player, "Fear")
+			return
+		end
+
+		if inUse or selectors.getCurrentTarget(store:getState(), player.Name) then
 			if selectors.getCurrentTarget(store:getState(), player.Name) == bag and not cancelled then
 				disableSwitch:Fire(player)
 			end

@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -11,6 +12,28 @@ local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 local IDs = ReplicatedStorage.Config.DevProductData.IDs
 local packs = ReplicatedStorage.Config.DevProductData.Packs
 local boosts = ReplicatedStorage.Config.DevProductData.Boosts
+
+local function notifyClientOfAward(player: Player, item: string): ()
+	if item:match "Boost" then
+		local multiplierAmount = "2x "
+		if item:match "Luck" then
+			multiplierAmount = "5x "
+		elseif item:match "Fearless" then
+			multiplierAmount = ""
+		end
+		Remotes.Server
+			:Get("SendPopupMessage")
+			:SendToPlayer(player, `You Have Received A {multiplierAmount}{item:match "(%u.+)%u"} Boost!`)
+	else
+		local wordsInItemName = {}
+		for word in item:gmatch "%u%l+" do
+			table.insert(wordsInItemName, word)
+		end
+		Remotes.Server
+			:Get("SendPopupMessage")
+			:SendToPlayer(player, `You Have Received A {table.concat(wordsInItemName, " ")}!`)
+	end
+end
 
 local function awardPetsToPlayer(player: Player, petsDict: { [string]: number }): ()
 	store:dispatch(actions.givePlayerPets(player.Name, petsDict))
@@ -57,6 +80,7 @@ for _, pack in packs.Fear:GetChildren() do
 		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
 		areaName = areaName:gsub(" ", "_")
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", pack:GetAttribute(areaName), "Pack", true))
+		notifyClientOfAward(player, pack.Name)
 	end
 end
 
@@ -65,12 +89,14 @@ for _, pack in packs.Gems:GetChildren() do
 		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
 		areaName = areaName:gsub(" ", "_")
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", pack:GetAttribute(areaName), "Pack", true))
+		notifyClientOfAward(player, pack.Name)
 	end
 end
 
 for _, boost in boosts:GetChildren() do
 	productRewarders[boost.Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerBoostCount(player.Name, boost.Name))
+		notifyClientOfAward(player, boost.Name)
 	end
 end
 

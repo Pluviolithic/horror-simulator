@@ -1,6 +1,7 @@
 local ServerStorage = game:GetService "ServerStorage"
 local DataStoreService = game:GetService "DataStoreService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local MarketplaceService = game:GetService "MarketplaceService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
@@ -13,6 +14,7 @@ local clockUtils = require(ReplicatedStorage.Common.Utils.ClockUtils)
 local productRewarders = require(ServerScriptService.Server.PurchaseManager.DeveloperProducts.Products.Rewarders)
 
 local codes = ServerStorage.Codes
+local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local packIDs = ReplicatedStorage.Config.DevProductData.Packs
 
 local success, expiredCodes
@@ -28,6 +30,16 @@ local function awardItem(player, item)
 	if item:match "Boost" then
 		Remotes.Server:Get("OpenRobuxShopOnClient"):SendToPlayer(player, "Boosts")
 		store:dispatch(actions.incrementPlayerBoostCount(player.Name, item))
+
+		local multiplierAmount = "2x "
+		if item:match "Luck" then
+			multiplierAmount = "5x "
+		elseif item:match "Fearless" then
+			multiplierAmount = ""
+		end
+		Remotes.Server
+			:Get("SendPopupMessage")
+			:SendToPlayer(player, `You Have Received A {multiplierAmount}{item:match "(%u.+)%u"} Boost!`)
 	else
 		productRewarders[packIDs:FindFirstChild(item, true).Value](player)
 	end
@@ -53,6 +65,8 @@ local groupChestAwards = {
 
 VIPChestZone.playerEntered:Connect(function(player)
 	if not selectors.hasGamepass(store:getState(), player.Name, "VIP") then
+		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(player, "You Need VIP To Open This Chest!")
+		MarketplaceService:PromptGamePassPurchase(player, gamepassIDs.VIP.Value)
 		return
 	end
 	local chestTimers = selectors.getChestTimers(store:getState(), player.Name)
@@ -63,11 +77,14 @@ VIPChestZone.playerEntered:Connect(function(player)
 		store:dispatch(
 			actions.setPlayerStat(player.Name, "VIPChestAwardIndex", (currentAwardIndex % #vipChestAwards) + 1)
 		)
+	else
+		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(player, "You Can Not Claim This Yet!")
 	end
 end)
 
 groupChestZone.playerEntered:Connect(function(player)
 	if not player:IsInGroup(2855772) then
+		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(player, "Join Prodigy Studios For Free Rewards!")
 		return
 	end
 	local chestTimers = selectors.getChestTimers(store:getState(), player.Name)
@@ -78,6 +95,8 @@ groupChestZone.playerEntered:Connect(function(player)
 		store:dispatch(
 			actions.setPlayerStat(player.Name, "GroupChestAwardIndex", (currentAwardIndex % #groupChestAwards) + 1)
 		)
+	else
+		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(player, "You Can Not Claim This Yet!")
 	end
 end)
 

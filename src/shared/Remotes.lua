@@ -128,6 +128,7 @@ local Remotes = Net.CreateDefinitions {
 		Net.Middleware.TypeChecking(t.string),
 	},
 
+	SendPopupMessage = Net.Definitions.ServerToClientEvent(),
 	SendFightInfo = Net.Definitions.ServerToClientEvent(),
 	OpenRobuxShopOnClient = Net.Definitions.ServerToClientEvent(),
 	LegendaryUnboxed = Net.Definitions.ServerToClientEvent(),

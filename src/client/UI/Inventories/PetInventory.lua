@@ -11,6 +11,7 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
@@ -63,12 +64,9 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.Equipped.Buy.Activated:Connect(function()
-		if
-			not selectors.hasGamepass(store:getState(), player.Name, "1PetEquipped")
-			or selectors.hasGamepass(store:getState(), player.Name, "2PetEquipped")
-		then
+		if not selectors.hasGamepass(store:getState(), player.Name, "1PetEquipped") then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["1PetEquipped"].Value)
-		else
+		elseif not selectors.hasGamepass(store:getState(), player.Name, "2PetEquipped") then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2PetEquipped"].Value)
 		end
 	end)
@@ -372,6 +370,12 @@ function PetInventory:_setFocusedDisplay(details)
 		then
 			Remotes.Client:Get("EquipPet"):SendToServer(details.PetName, details.Locked)
 		else
+			PopupUI "Unequip A Pet First Or Buy More Pet Equips!"
+			if not selectors.hasGamepass(store:getState(), player.Name, "1PetEquipped") then
+				MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["1PetEquipped"].Value)
+			elseif not selectors.hasGamepass(store:getState(), player.Name, "2PetEquipped") then
+				MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2PetEquipped"].Value)
+			end
 			return
 		end
 		details.Locked = not details.Locked
@@ -380,7 +384,17 @@ function PetInventory:_setFocusedDisplay(details)
 	end))
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Delete.Activated:Connect(function()
-		if not details.Locked then
+		if details.Locked then
+			if petUtils.getPet(details.PetName):FindFirstChild "PermaLock" then
+				PopupUI "You Can Not Delete This Pet!"
+				return
+			end
+			if details.Equipped then
+				PopupUI "Unequip The Pet First!"
+			else
+				PopupUI "Unlock The Pet First!"
+			end
+		else
 			Remotes.Client:Get("DeletePet"):SendToServer(details.PetName)
 			self:_clearFocusedDisplay()
 		end

@@ -7,6 +7,7 @@ local MarketplaceService = game:GetService "MarketplaceService"
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local clockUtils = require(ReplicatedStorage.Common.Utils.ClockUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
@@ -43,8 +44,17 @@ local function updateBuffTray(state)
 				activeBoosts[buffDisplay.Name].Duration
 			)
 			buffDisplay.Visible = true
-		else
+		elseif buffDisplay.Visible then
 			buffDisplay.Visible = false
+
+			local multiplierAmount = "2x "
+			if buffDisplay.Name:match "Luck" then
+				multiplierAmount = "5x "
+			elseif buffDisplay.Name:match "Fearless" then
+				multiplierAmount = ""
+			end
+
+			PopupUI(`{multiplierAmount}{buffDisplay.Name:match "(%u.+)%u"} Boost Has Expired!`)
 		end
 	end
 end

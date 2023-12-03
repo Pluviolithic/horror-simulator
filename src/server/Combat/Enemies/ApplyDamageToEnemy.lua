@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local CollectionService = game:GetService "CollectionService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
@@ -51,6 +52,7 @@ return function(player, enemy, info, janitor)
 			info.DamageDealtByPlayer[player] = (info.DamageDealtByPlayer[player] or 0) + damageToDeal
 			info.HealthValue.Value -= damageToDeal
 			Remotes.Server:Get("SendFightInfo"):SendToPlayer(player, {
+				IsBoss = CollectionService:HasTag(enemy, "Boss"),
 				Gems = enemy.Configuration.Gems.Value,
 				Health = info.HealthValue.Value,
 				MaxHealth = info.MaxHealth,
