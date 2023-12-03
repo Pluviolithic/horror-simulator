@@ -76,7 +76,7 @@ local function handleEnemy(enemy)
 
 	task.spawn(function()
 		while enemy:IsDescendantOf(game) do
-			if os.time() - lastInCombat < 5 or #info.EngagedPlayers > 0 then
+			if os.time() - lastInCombat < (if isBoss then 15 else 5) or #info.EngagedPlayers > 0 then
 				task.wait(1)
 				continue
 			end
@@ -108,7 +108,7 @@ local function handleEnemy(enemy)
 				end
 
 				if isBoss then
-					local fear = math.clamp(damage, 0, info.MaxHealth * maxFearFromBossPercentage)
+					local fear = math.clamp(damage, 0, info.MaxHealth * maxFearFromBossPercentage / 100)
 					store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", fear, enemy.Name))
 				else
 					store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", damage, enemy.Name))

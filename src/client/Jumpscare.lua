@@ -25,8 +25,16 @@ local function isScared(state)
 end
 
 local function jumpscarePlayer(enemyName)
+	local preservedUIState = {}
 	local jumpscare = jumpscares[enemyName]
 	local animation = jumpscare.Enemy.Configuration.Anim
+
+	for _, gui in player.PlayerGui:GetChildren() do
+		if gui:IsA "ScreenGui" then
+			preservedUIState[gui] = gui.Enabled
+			gui.Enabled = false
+		end
+	end
 
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.CFrame = jumpscare.Camera.CFrame
@@ -56,6 +64,10 @@ local function jumpscarePlayer(enemyName)
 
 		camera.CameraSubject = player.Character
 		camera.CameraType = Enum.CameraType.Custom
+
+		for gui, enabled in pairs(preservedUIState) do
+			gui.Enabled = enabled
+		end
 	end)
 end
 

@@ -32,6 +32,9 @@ animationUtilities = {
 		return currentIndex, animationInstances[currentIndex]:Clone()
 	end,
 	getPlayerAttackSpeed = function(player)
+		if not selectors.isPlayerLoaded(store:getState(), player.Name) then
+			return playerAttackSpeed
+		end
 		local multiplier = 1
 		if selectors.hasGamepass(store:getState(), player.Name, doubleAttackSpeedID) then
 			multiplier /= 2
