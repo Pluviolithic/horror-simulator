@@ -131,7 +131,8 @@ function TeleportUI:_initialize()
 					),
 					function()
 						Remotes.Client:Get("PurchaseTeleporter"):SendToServer(area.Name)
-					end
+					end,
+					self
 				)
 				return
 			end

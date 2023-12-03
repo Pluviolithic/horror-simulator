@@ -7,8 +7,11 @@ local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.Collidab
 local destructor = Janitor.new()
 local currentConfirmationUI
 
-return function(confirmationUI, message, callback)
+return function(confirmationUI, message, callback, interfaceToSkip)
 	for interface in interfaces do
+		if interface == interfaceToSkip then
+			continue
+		end
 		if Janitor.Is(interface) then
 			interface:Cleanup()
 			continue

@@ -81,7 +81,8 @@ function PetInventory:_initialize(): ()
 			function()
 				Remotes.Client:Get("UnequipAllPets"):SendToServer()
 				self:_clearFocusedDisplay()
-			end
+			end,
+			self
 		)
 	end)
 
@@ -95,7 +96,8 @@ function PetInventory:_initialize(): ()
 			function()
 				Remotes.Client:Get("EquipBestPets"):SendToServer()
 				self:_clearFocusedDisplay()
-			end
+			end,
+			self
 		)
 	end)
 
@@ -109,7 +111,8 @@ function PetInventory:_initialize(): ()
 			function()
 				Remotes.Client:Get("EvolveAllPets"):SendToServer()
 				self:_clearFocusedDisplay()
-			end
+			end,
+			self
 		)
 	end)
 
@@ -123,7 +126,8 @@ function PetInventory:_initialize(): ()
 			function()
 				Remotes.Client:Get("DeleteAllPets"):SendToServer()
 				self:_clearFocusedDisplay()
-			end
+			end,
+			self
 		)
 	end)
 
