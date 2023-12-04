@@ -44,7 +44,6 @@ local function shouldRefresh(newState, oldState): boolean
 		)
 		or selectors.getOwnedPets(newState, player.Name) ~= selectors.getOwnedPets(oldState, player.Name)
 		or selectors.getEquippedPets(newState, player.Name) ~= selectors.getEquippedPets(oldState, player.Name)
-		or selectors.getLockedPets(newState, player.Name) ~= selectors.getLockedPets(oldState, player.Name)
 end
 
 function PetInventory:_initialize(): ()
@@ -165,6 +164,8 @@ function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, lock
 				destructor:Cleanup()
 				Remotes.Client:Get("UnlockPet"):SendToServer(petTemplate.PetName.Text)
 				self:_initializeLockButton(petTemplate, false)
+				self._focusedTemplateDetails.Locked = false
+				self:_setFocusedDisplay(self._focusedTemplateDetails)
 			end),
 			"Disconnect"
 		)
@@ -191,6 +192,8 @@ function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, lock
 				destructor:Cleanup()
 				Remotes.Client:Get("LockPet"):SendToServer(petTemplate.PetName.Text)
 				self:_initializeLockButton(petTemplate, true)
+				self._focusedTemplateDetails.Locked = true
+				self:_setFocusedDisplay(self._focusedTemplateDetails)
 			end),
 			"Disconnect"
 		)
@@ -327,6 +330,7 @@ function PetInventory:_setFocusedDisplay(details)
 	self._focusedDestructor = Janitor.new()
 
 	self._focusedTemplate = details.PetTemplate
+	self._focusedTemplateDetails = details
 
 	if not details.Locked and details.PetTemplate:FindFirstChild "Unlocked" then
 		details.PetTemplate.Unlocked.Visible = true
