@@ -22,6 +22,7 @@ local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["AutoHatch
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xHatch"].Value
 local doubleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["2xLuck"].Value
 local tripleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xLuck"].Value
+local fasterHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["FasterHatch"].Value
 
 local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
@@ -407,12 +408,16 @@ local function handleShop(shop): ()
 		buyEgg(1, true)
 	end)
 
-	shop.Background["2xLuck"].Activated:Connect(function()
+	shop.Background.Passes["2xLuck"].Activated:Connect(function()
 		MarketplaceService:PromptGamePassPurchase(player, doubleLuckGamepassID)
 	end)
 
-	shop.Background["3xLuck"].Activated:Connect(function()
+	shop.Background.Passes["3xLuck"].Activated:Connect(function()
 		MarketplaceService:PromptGamePassPurchase(player, tripleLuckGamepassID)
+	end)
+
+	shop.Background.Passes.FasterHatch.Activated:Connect(function()
+		MarketplaceService:PromptGamePassPurchase(player, fasterHatchGamepassID)
 	end)
 
 	listeners[shop] = function(keyCode: Enum.KeyCode): ()
