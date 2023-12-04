@@ -43,6 +43,7 @@ local function handleDummy(dummy)
 
 	clickDetector.MouseClick:Connect(function(player: Player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
+		local premiumMultiplier = if player.MembershipType == Enum.MembershipType.Premium then 1.2 else 1
 		if debounceTable[player.UserId] or not humanoid then
 			return
 		end
@@ -148,7 +149,9 @@ local function handleDummy(dummy)
 			and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
 			and player:DistanceFromCharacter(goalPosition) <= fightRange + 5
 		do
-			store:dispatch(actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear, dummy.Name))
+			store:dispatch(
+				actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear * premiumMultiplier, dummy.Name)
+			)
 			if
 				selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
 				== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
