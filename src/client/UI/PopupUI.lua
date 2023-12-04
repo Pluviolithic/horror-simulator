@@ -9,7 +9,7 @@ local Popups = player.PlayerGui:WaitForChild("ScreenEffects").Popups
 
 local activePopups = {}
 
-local popupGenerator = function(message)
+local popupGenerator = function(message, textColor)
 	if activePopups[message] then
 		return
 	end
@@ -17,6 +17,11 @@ local popupGenerator = function(message)
 
 	local popup = popupTemplate:Clone()
 	popup.PopupText.Text = message
+
+	if textColor then
+		popup.PopupText.TextColor3 = textColor
+	end
+
 	popup.Parent = Popups
 
 	popup.PopupText:TweenPosition(

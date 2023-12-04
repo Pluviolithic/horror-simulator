@@ -1,20 +1,35 @@
 local Players = game:GetService "Players"
+local TweenService = game:GetService "TweenService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local CollectionService = game:GetService "CollectionService"
 
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
+local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local debounce = false
 local player = Players.LocalPlayer
+local AFKUnlockUI = player.PlayerGui:WaitForChild("ScreenEffects").Unlocks.AFK
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
 
 local teleporters = {}
+local unlockedAreas = {}
 local originalTransparencies = {}
+
+local AFKUnlockUIOnTween = TweenService:Create(
+	AFKUnlockUI,
+	TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+	{ Transparency = 0 }
+)
+local AFKUnlockUIOffTween = TweenService:Create(
+	AFKUnlockUI,
+	TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+	{ Transparency = 1 }
+)
 
 local function unlockArea(areaName: string, lock: boolean?)
 	for _, barrier in CollectionService:GetTagged(areaName .. "Barrier") do
@@ -39,6 +54,23 @@ local function unlockAreas()
 			unlockArea(requirement.Name, true)
 		else
 			unlockArea(requirement.Name)
+			if not unlockedAreas[requirement.Name] then
+				unlockedAreas[requirement.Name] = true
+				PopupUI("New Area Unlocked!", Color3.fromRGB(250, 250, 250))
+				workspace.Beams[requirement.Name].Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
+
+				if requirement.Name == "Howling Woods" then
+					AFKUnlockUI.Transparency = 1
+					AFKUnlockUI.Visible = true
+					AFKUnlockUIOnTween:Play()
+					AFKUnlockUIOnTween.Completed:Wait()
+					task.delay(6, function()
+						AFKUnlockUIOffTween:Play()
+						AFKUnlockUIOffTween.Completed:Wait()
+						AFKUnlockUI.Visible = false
+					end)
+				end
+			end
 		end
 	end
 end
@@ -66,6 +98,12 @@ local function handleTeleporter(teleporter)
 		debounce = true
 
 		teleportPlayer { target = target }
+
+		for _, beam in workspace.Beams:GetChildren() do
+			if beam.Name == teleporter.Name:sub(1, -4) and beam.Beam.Attachment1 then
+				beam.Beam.Attachment1 = nil
+			end
+		end
 
 		petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 

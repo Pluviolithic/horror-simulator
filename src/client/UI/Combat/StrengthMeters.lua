@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
@@ -37,6 +38,7 @@ function StrengthMeters:_initialize(): ()
 
 	playerStatePromise:andThen(function()
 		self:Refresh()
+		self._currentRank = selectors.getStat(store:getState(), player.Name, "Rank")
 
 		store.changed:connect(function(newState, oldState)
 			if not shouldRefresh(newState, oldState) then
@@ -50,7 +52,17 @@ end
 function StrengthMeters:Refresh(): ()
 	local meters = self._ui.Background.ScrollingFrame:GetChildren()
 	local strength = selectors.getStat(store:getState(), player.Name, "Strength")
-	local currentRank = selectors.getStat(store:getState(), player.Name, "Rank")
+	local newRank = selectors.getStat(store:getState(), player.Name, "Rank")
+
+	if newRank ~= self._currentRank then
+		PopupUI(`You Leveled Up To Rank {newRank}!`, Color3.fromRGB(250, 250, 250))
+		PopupUI(
+			`Your Fear Meter Increased To {selectors.getStat(store:getState(), player.Name, "MaxFearMeter")}!`,
+			Color3.fromRGB(250, 250, 250)
+		)
+		self._currentRank = newRank
+	end
+
 	for _, meter in meters do
 		if not meter:IsA "ImageLabel" then
 			continue
@@ -59,7 +71,7 @@ function StrengthMeters:Refresh(): ()
 		local meterRank = tonumber(meter.Name:match "%d+")
 		local percentComplete = math.clamp(strength / rankUtils.getRankRequirement(meterRank), 0, 1)
 
-		meter.Level.Text.Text = currentRank
+		meter.Level.Text.Text = newRank
 		meter.Background.Bar.Size = UDim2.fromScale(
 			minBarSize.X.Scale + (maxBarSize.X.Scale - minBarSize.X.Scale) * percentComplete,
 			minBarSize.Y.Scale
@@ -69,7 +81,7 @@ function StrengthMeters:Refresh(): ()
 			continue
 		end
 
-		if meterRank > (currentRank + 1) then
+		if meterRank > (newRank + 1) then
 			meter.Locked.Visible = true
 		else
 			meter.Locked.Visible = false
