@@ -23,19 +23,17 @@ local originalTransparencies = {}
 local AFKUnlockUIOnTween = TweenService:Create(
 	AFKUnlockUI,
 	TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-	{ Transparency = 0 }
+	{ TextTransparency = 0 }
 )
 local AFKUnlockUIOffTween = TweenService:Create(
 	AFKUnlockUI,
 	TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-	{ Transparency = 1 }
+	{ TextTransparency = 1 }
 )
 
 AFKUnlockUIOnTween.Completed:Connect(function()
 	task.wait(6)
 	AFKUnlockUIOffTween:Play()
-	AFKUnlockUIOffTween.Completed:Wait()
-	AFKUnlockUI.Visible = false
 end)
 
 local function unlockArea(areaName: string, lock: boolean?)
@@ -74,8 +72,6 @@ local function unlockAreas(oldWasLoaded)
 				end
 
 				if requirement.Name == "Howling Woods" and oldWasLoaded then
-					AFKUnlockUI.Transparency = 1
-					AFKUnlockUI.Visible = true
 					AFKUnlockUIOnTween:Play()
 				end
 			end
