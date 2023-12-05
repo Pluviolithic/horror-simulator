@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local TweenService = game:GetService "TweenService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
@@ -23,6 +24,27 @@ local gamepassPrices = ReplicatedStorage.Config.GamepassData.Prices
 local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
 local mainUI = player.PlayerGui:WaitForChild "MainUI"
 local confirmationUIInstance = mainUI.WeaponShop.Confirmation
+local currentTargetPrice = math.huge
+local lastCanAffordNotification = -1
+local canAffordNotificationUI = player.PlayerGui:WaitForChild("ScreenEffects").Unlocks.Weapon
+
+local canAffordNotificationUIOnTween = TweenService:Create(
+	canAffordNotificationUI,
+	TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+	{ Transparency = 0 }
+)
+local canAffordNotificationUIOffTween = TweenService:Create(
+	canAffordNotificationUI,
+	TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+	{ Transparency = 1 }
+)
+
+canAffordNotificationUIOnTween.Completed:Connect(function()
+	task.wait(6)
+	canAffordNotificationUIOffTween:Play()
+	canAffordNotificationUIOffTween.Completed:Wait()
+	canAffordNotificationUI.Visible = false
+end)
 
 WeaponShop.Trigger = "WeaponShop"
 WeaponShop._itemButtons = WeaponShop._ui.LeftBackground.ScrollingFrame:GetChildren()
@@ -31,6 +53,18 @@ function WeaponShop:_initialize(): ()
 	store.changed:connect(function(newState, oldState)
 		if not self._isOpen then
 			return
+		end
+
+		if
+			selectors.getStat(newState, player.Name, "Gems") >= currentTargetPrice
+			and currentTargetPrice < selectors.getStat(oldState, player.Name, "Gems")
+			and os.time() - lastCanAffordNotification > 300
+			and selectors.isPlayerLoaded(oldState, player.Name)
+		then
+			lastCanAffordNotification = os.time()
+			canAffordNotificationUI.Transparency = 1
+			canAffordNotificationUI.Visible = true
+			canAffordNotificationUIOnTween:Play()
 		end
 
 		if
@@ -205,6 +239,11 @@ function WeaponShop:Refresh(): ()
 			button.GemPrice.Visible = true
 			button.Icon.Visible = true
 			restAreLocked = true
+
+			local price = weapons[button.Name]:FindFirstChild "Price"
+			if price then
+				currentTargetPrice = price.Value
+			end
 		else
 			-- this item is not unlocked
 			button.Locked.Visible = true

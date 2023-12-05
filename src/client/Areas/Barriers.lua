@@ -31,6 +31,13 @@ local AFKUnlockUIOffTween = TweenService:Create(
 	{ Transparency = 1 }
 )
 
+AFKUnlockUIOnTween.Completed:Connect(function()
+	task.wait(6)
+	AFKUnlockUIOffTween:Play()
+	AFKUnlockUIOffTween.Completed:Wait()
+	AFKUnlockUI.Visible = false
+end)
+
 local function unlockArea(areaName: string, lock: boolean?)
 	for _, barrier in CollectionService:GetTagged(areaName .. "Barrier") do
 		local barrierUI = barrier:FindFirstChild "BarrierLockDisplay"
@@ -48,7 +55,7 @@ local function unlockArea(areaName: string, lock: boolean?)
 	end
 end
 
-local function unlockAreas()
+local function unlockAreas(oldWasLoaded)
 	for _, requirement in areaRequirements:GetChildren() do
 		if requirement.Value > selectors.getStat(store:getState(), player.Name, "Strength") then
 			unlockArea(requirement.Name, true)
@@ -56,19 +63,20 @@ local function unlockAreas()
 			unlockArea(requirement.Name)
 			if not unlockedAreas[requirement.Name] then
 				unlockedAreas[requirement.Name] = true
-				PopupUI("New Area Unlocked!", Color3.fromRGB(250, 250, 250))
-				workspace.Beams[requirement.Name].Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
 
-				if requirement.Name == "Howling Woods" then
+				if oldWasLoaded then
+					PopupUI("New Area Unlocked!", Color3.fromRGB(250, 250, 250))
+				end
+
+				if workspace.Beams:FindFirstChild(requirement.Name) and oldWasLoaded then
+					workspace.Beams[requirement.Name].Beam.Attachment1 =
+						player.Character.HumanoidRootPart.RootAttachment
+				end
+
+				if requirement.Name == "Howling Woods" and oldWasLoaded then
 					AFKUnlockUI.Transparency = 1
 					AFKUnlockUI.Visible = true
 					AFKUnlockUIOnTween:Play()
-					AFKUnlockUIOnTween.Completed:Wait()
-					task.delay(6, function()
-						AFKUnlockUIOffTween:Play()
-						AFKUnlockUIOffTween.Completed:Wait()
-						AFKUnlockUI.Visible = false
-					end)
 				end
 			end
 		end
@@ -113,7 +121,7 @@ local function handleTeleporter(teleporter)
 end
 
 playerStatePromise:andThen(function()
-	unlockAreas()
+	unlockAreas(false)
 	store.changed:connect(function(newState, oldState)
 		if
 			selectors.isPlayerLoaded(oldState, player.Name)
@@ -122,7 +130,7 @@ playerStatePromise:andThen(function()
 		then
 			return
 		end
-		unlockAreas()
+		unlockAreas(selectors.isPlayerLoaded(oldState, player.Name))
 	end)
 end)
 
