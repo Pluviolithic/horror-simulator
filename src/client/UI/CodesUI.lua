@@ -10,8 +10,6 @@ local player = Players.LocalPlayer
 local CodesUI = CentralUI.new(player.PlayerGui:WaitForChild "Codes")
 
 function CodesUI:_initialize()
-	interfaces[self] = true
-
 	player.PlayerGui:WaitForChild("MainUI").Codes.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)
@@ -34,5 +32,7 @@ function CodesUI:OnOpen()
 end
 
 task.spawn(CodesUI._initialize, CodesUI)
+
+interfaces[CodesUI] = true
 
 return CodesUI

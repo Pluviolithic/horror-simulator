@@ -47,8 +47,6 @@ local function shouldRefresh(newState, oldState): boolean
 end
 
 function PetInventory:_initialize(): ()
-	interfaces[self] = true
-
 	player.PlayerGui:WaitForChild("MainUI").Pets.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)
@@ -426,5 +424,7 @@ function PetInventory:OnOpen()
 end
 
 task.spawn(PetInventory._initialize, PetInventory)
+
+interfaces[PetInventory] = true
 
 return PetInventory

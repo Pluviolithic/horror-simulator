@@ -16,6 +16,7 @@ local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI
 local teleportUI = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportUI)
 local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
@@ -259,5 +260,7 @@ function WeaponShop:OnOpen()
 end
 
 task.spawn(WeaponShop._initialize, WeaponShop)
+
+interfaces[WeaponShop] = true
 
 return WeaponShop

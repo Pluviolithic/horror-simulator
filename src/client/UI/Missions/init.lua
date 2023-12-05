@@ -51,7 +51,6 @@ end
 
 function MissionsUI:_initialize(): ()
 	self._janitor = Janitor.new()
-	interfaces[self] = true
 
 	self._ui.Dialogue.Frame.Cancel.Activated:Connect(function()
 		self:setEnabled(false)
@@ -316,5 +315,7 @@ playerStatePromise:andThen(function()
 end)
 
 require(script.ProgressUI)
+
+interfaces[MissionsUI] = true
 
 return 0

@@ -66,8 +66,6 @@ function TeleportUI:_initialize()
 		end)
 	end)
 
-	interfaces[self] = true
-
 	player.PlayerGui:WaitForChild("MainUI").Teleport.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)
@@ -176,5 +174,8 @@ function TeleportUI:OnOpen()
 end
 
 task.spawn(TeleportUI._initialize, TeleportUI)
+
+TeleportUI.Trigger = "TeleportShop"
+interfaces[TeleportUI] = true
 
 return TeleportUI

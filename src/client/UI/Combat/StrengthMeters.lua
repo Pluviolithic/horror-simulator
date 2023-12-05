@@ -28,8 +28,6 @@ local function shouldRefresh(newState, oldState): boolean
 end
 
 function StrengthMeters:_initialize(): ()
-	interfaces[self] = true
-
 	player.PlayerGui:WaitForChild("Rank").Open.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)
@@ -104,5 +102,7 @@ function StrengthMeters:Refresh(): ()
 end
 
 task.spawn(StrengthMeters._initialize, StrengthMeters)
+
+interfaces[StrengthMeters] = true
 
 return StrengthMeters

@@ -92,10 +92,16 @@ function RobuxShop:_countdownDescriptionDisplayTime()
 end
 
 function RobuxShop:_initialize(): ()
-	interfaces[self] = true
-
 	mainUI.RobuxShop.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
+	end)
+
+	mainUI.Fear.Buy.Activated:Connect(function()
+		self:OpenSubShop "Fear"
+	end)
+
+	mainUI.Gems.Buy.Activated:Connect(function()
+		self:OpenSubShop "Gems"
 	end)
 
 	Remotes.Client:Get("OpenRobuxShopOnClient"):Connect(function(subShopName)
@@ -229,5 +235,7 @@ function RobuxShop:_initialize(): ()
 end
 
 task.spawn(RobuxShop._initialize, RobuxShop)
+
+interfaces[RobuxShop] = true
 
 return RobuxShop

@@ -23,8 +23,6 @@ local function shouldRefresh(newState, oldState)
 end
 
 function SettingsUI:_initialize(): ()
-	interfaces[self] = true
-
 	for _, settingSwitch in self._ui.Background.ScrollingFrame:GetChildren() do
 		if not settingSwitch:FindFirstChild "On" then
 			continue
@@ -80,5 +78,7 @@ function SettingsUI:Refresh(): ()
 end
 
 task.spawn(SettingsUI._initialize, SettingsUI)
+
+interfaces[SettingsUI] = true
 
 return SettingsUI
