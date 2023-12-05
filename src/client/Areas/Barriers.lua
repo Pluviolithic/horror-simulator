@@ -67,8 +67,17 @@ local function unlockAreas(oldWasLoaded)
 				end
 
 				if workspace.Beams:FindFirstChild(requirement.Name) and oldWasLoaded then
-					workspace.Beams[requirement.Name].Beam.Attachment1 =
-						player.Character.HumanoidRootPart.RootAttachment
+					local hasActiveBeam = false
+					for _, beam in workspace.Beams:GetChildren() do
+						if beam.Beam.Attachment1 then
+							hasActiveBeam = true
+							break
+						end
+					end
+					if not hasActiveBeam then
+						workspace.Beams[requirement.Name].Beam.Attachment1 =
+							player.Character.HumanoidRootPart.RootAttachment
+					end
 				end
 
 				if requirement.Name == "Howling Woods" and oldWasLoaded then
@@ -103,12 +112,6 @@ local function handleTeleporter(teleporter)
 
 		teleportPlayer { target = target }
 
-		for _, beam in workspace.Beams:GetChildren() do
-			if beam.Name == teleporter.Name:sub(1, -4) and beam.Beam.Attachment1 then
-				beam.Beam.Attachment1 = nil
-			end
-		end
-
 		petUtils.instantiatePets(player.Name, selectors.getEquippedPets(store:getState(), player.Name))
 
 		task.wait(1)
@@ -121,12 +124,24 @@ playerStatePromise:andThen(function()
 	store.changed:connect(function(newState, oldState)
 		if
 			selectors.isPlayerLoaded(oldState, player.Name)
-			and selectors.getStat(newState, player.Name, "Strength")
-				== selectors.getStat(oldState, player.Name, "Strength")
+			and selectors.getStat(newState, player.Name, "Strength") == selectors.getStat(
+				oldState,
+				player.Name,
+				"Strength"
+			)
+			and selectors.getAudioData(newState, player.Name).PrimarySoundRegion
+				== selectors.getAudioData(oldState, player.Name).PrimarySoundRegion
 		then
 			return
 		end
 		unlockAreas(selectors.isPlayerLoaded(oldState, player.Name))
+		for _, beam in workspace.Beams:GetChildren() do
+			if
+				beam.Name == selectors.getAudioData(newState, player.Name).PrimarySoundRegion and beam.Beam.Attachment1
+			then
+				beam.Beam.Attachment1 = nil
+			end
+		end
 	end)
 end)
 
