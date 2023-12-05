@@ -11,36 +11,29 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 
 local player = Players.LocalPlayer
 local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
-local length = 0
+local playerWorkoutSpeed = workoutSpeed
 local looping = false
-local defaultLength = workoutSpeed * 100
 local WorkoutUI = player.PlayerGui:WaitForChild "WorkoutUI"
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 
---local buffer = {}
+local startTime
 
 local function countdownTimer()
-	length = defaultLength
+	startTime = os.clock()
 	if looping then
 		return
 	end
 	looping = true
-	--length = defaultLength
-	--WorkoutUI.Background.Frame.Bar.Size = UDim2.fromScale(1.013, 1.104)
-	--WorkoutUI.Background.Frame.Bar:TweenSize(UDim2.fromScale(0, 1.104), Enum.EasingDirection.InOut, Enum.EasingStyle.Linear, (length + 30) / 100, true)
-	WorkoutUI.Background.Frame.Timer.Text = length
+	WorkoutUI.Background.Frame.Timer.Text = playerWorkoutSpeed .. "s"
 	repeat
-		task.wait(0.01)
-		length -= 1
-		-- one decimal of precision
-		WorkoutUI.Background.Frame.Timer.Text = string.format("%.1fs", length / 100)
-		WorkoutUI.Background.Frame.Bar.Size = UDim2.fromScale(1.013 * length / defaultLength, 1.104)
-	until length <= 0 or not looping
+		task.wait()
+		local length = os.clock() - startTime
+		WorkoutUI.Background.Frame.Timer.Text =
+			string.format("%.1fs", math.clamp(playerWorkoutSpeed - length, 0, playerWorkoutSpeed))
+		WorkoutUI.Background.Frame.Bar.Size =
+			UDim2.fromScale(1.013 * (playerWorkoutSpeed - length) / playerWorkoutSpeed, 1.104)
+	until length >= playerWorkoutSpeed or not looping
 	looping = false
-	--if #buffer > 0 then
-	--  table.remove(buffer)
-	--  countdownTimer()
-	--end
 end
 
 playerStatePromise:andThen(function()
@@ -58,16 +51,15 @@ playerStatePromise:andThen(function()
 		end
 
 		if not currentTarget and WorkoutUI.Enabled then
-			--table.clear(buffer)
 			looping = false
 			WorkoutUI.Enabled = false
 			return
 		elseif not currentTarget then
 			local hasTripleSpeed = selectors.hasGamepass(newState, player.Name, "3xWorkoutSpeed")
 			if hasTripleSpeed then
-				defaultLength = workoutSpeed / 3 * 100
+				playerWorkoutSpeed = workoutSpeed / 3
 			else
-				defaultLength = workoutSpeed * 100
+				playerWorkoutSpeed = workoutSpeed
 			end
 			return
 		end
@@ -81,7 +73,6 @@ playerStatePromise:andThen(function()
 		end
 
 		if requiredFearChanged then
-			--table.insert(buffer, true)
 			task.spawn(countdownTimer)
 		end
 	end)
