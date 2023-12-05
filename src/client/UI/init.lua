@@ -1,5 +1,6 @@
 require(script.Shops)
 require(script.Combat)
+require(script.MainUI)
 require(script.Displays)
 require(script.Missions)
 require(script.BuffsUI)

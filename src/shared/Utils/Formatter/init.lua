@@ -33,4 +33,37 @@ function Formatter.formatNumberWithCommas(n: number): string
 	return minus .. int:reverse():gsub("^,", "") .. fraction
 end
 
+local tweenBuffers = {}
+function Formatter.tweenFormattedTextNumber(textLabel, startNumber, endNumber, duration)
+	if tweenBuffers[textLabel] then
+		tweenBuffers[textLabel] = { startNumber, endNumber, duration }
+		return
+	end
+	tweenBuffers[textLabel] = true
+
+	local startTime = os.clock()
+	local difference = endNumber - startNumber
+
+	task.spawn(function()
+		repeat
+			local timePassed = os.clock() - startTime
+			local progress = timePassed / duration
+			local currentNumber = startNumber + difference * progress
+
+			textLabel.Text = Formatter.formatNumberWithSuffix(currentNumber)
+			task.wait()
+		until timePassed >= duration
+
+		textLabel.Text = Formatter.formatNumberWithSuffix(endNumber)
+
+		local bufferData = if type(tweenBuffers[textLabel]) == "table"
+			then table.unpack(tweenBuffers[textLabel])
+			else nil
+		tweenBuffers[textLabel] = nil
+		if bufferData then
+			Formatter.tweenFormattedTextNumber(textLabel, bufferData)
+		end
+	end)
+end
+
 return Formatter

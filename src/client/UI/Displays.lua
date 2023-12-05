@@ -41,9 +41,6 @@ Promise.new(function(resolve)
 	resolve(interfaces)
 end):andThen(function(interfaces)
 	local displays = {
-		{ first = interfaces.MainUI.Strength.Amount },
-		{ first = interfaces.MainUI.Fear.Amount },
-		{ first = interfaces.MainUI.Gems.Amount },
 		{
 			first = interfaces.WeaponShop.LeftBackground.Gems,
 			second = function(displayName)
