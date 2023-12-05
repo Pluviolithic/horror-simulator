@@ -56,7 +56,7 @@ function WeaponShop:_initialize(): ()
 		if
 			selectors.getStat(newState, player.Name, "Gems") >= currentTargetPrice
 			and currentTargetPrice > selectors.getStat(oldState, player.Name, "Gems")
-			and os.time() - lastCanAffordNotification > 300
+			and os.time() - lastCanAffordNotification > 180
 			and selectors.isPlayerLoaded(oldState, player.Name)
 		then
 			lastCanAffordNotification = os.time()
