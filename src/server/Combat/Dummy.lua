@@ -8,6 +8,7 @@ local playerAttackSpeed = ReplicatedStorage.Config.Combat.PlayerAttackSpeed.Valu
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
+local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local function getSortedAnimationInstances(animationInstances)
@@ -142,6 +143,9 @@ local function handleDummy(dummy)
 
 		task.wait(1)
 
+		Remotes.Server:Get("SendFightInfo"):SendToPlayer(player, {
+			IsDummy = true,
+		})
 		while
 			runAnimations
 			and humanoid:IsDescendantOf(game)
