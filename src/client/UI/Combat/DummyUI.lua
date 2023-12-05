@@ -31,7 +31,7 @@ playerStatePromise:andThen(function()
 		if not currentEnemy and DummyUI.Enabled then
 			DummyUI.Enabled = false
 			DummyUI.Counter.Text = ""
-      preAFKFear = selectors.getStat(newState, player.Name, "Fear")
+			preAFKFear = selectors.getStat(newState, player.Name, "Fear")
 			return
 		elseif not currentEnemy then
 			preAFKFear = selectors.getStat(newState, player.Name, "Fear")
