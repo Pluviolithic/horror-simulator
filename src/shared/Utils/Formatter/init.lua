@@ -34,14 +34,15 @@ function Formatter.formatNumberWithCommas(n: number): string
 end
 
 local tweenBuffers = {}
-function Formatter.tweenFormattedTextNumber(textLabel, startNumber, endNumber, duration)
+function Formatter.tweenFormattedTextNumber(textLabel, config)
 	if tweenBuffers[textLabel] then
-		tweenBuffers[textLabel] = { startNumber, endNumber, duration }
+		tweenBuffers[textLabel] = table.clone(config)
 		return
 	end
 	tweenBuffers[textLabel] = true
 
 	local startTime = os.clock()
+	local startNumber, endNumber, duration = table.unpack(config)
 	local difference = endNumber - startNumber
 
 	task.spawn(function()
@@ -50,17 +51,21 @@ function Formatter.tweenFormattedTextNumber(textLabel, startNumber, endNumber, d
 			local progress = timePassed / duration
 			local currentNumber = startNumber + difference * progress
 
+			if startNumber > endNumber then
+				currentNumber = math.clamp(currentNumber, endNumber, startNumber)
+			else
+				currentNumber = math.clamp(currentNumber, startNumber, endNumber)
+			end
+
 			textLabel.Text = Formatter.formatNumberWithSuffix(currentNumber)
 			task.wait()
 		until timePassed >= duration
 
 		textLabel.Text = Formatter.formatNumberWithSuffix(endNumber)
 
-		local bufferData = if type(tweenBuffers[textLabel]) == "table"
-			then table.unpack(tweenBuffers[textLabel])
-			else nil
+		local bufferData = tweenBuffers[textLabel]
 		tweenBuffers[textLabel] = nil
-		if bufferData then
+		if type(bufferData) == "table" then
 			Formatter.tweenFormattedTextNumber(textLabel, bufferData)
 		end
 	end)

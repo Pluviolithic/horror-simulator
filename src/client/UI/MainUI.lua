@@ -23,19 +23,19 @@ playerStatePromise:andThen(function()
 			selectors.getStat(oldState, player.Name, "Strength") or 0
 
 		if newGems ~= oldGems then
-			formatter.tweenFormattedTextNumber(MainUI.Gems.Amount, oldGems, newGems, 0.5)
+			formatter.tweenFormattedTextNumber(MainUI.Gems.Amount, { oldGems, newGems, 0.3 })
 		elseif MainUI.Gems.Amount.Text ~= formatter.formatNumberWithSuffix(newGems) then
 			MainUI.Gems.Amount.Text = formatter.formatNumberWithSuffix(newGems)
 		end
 
 		if newFear ~= oldFear then
-			formatter.tweenFormattedTextNumber(MainUI.Fear.Amount, oldFear, newFear, 0.5)
+			formatter.tweenFormattedTextNumber(MainUI.Fear.Amount, { oldFear, newFear, 0.3 })
 		elseif MainUI.Fear.Amount.Text ~= formatter.formatNumberWithSuffix(newFear) then
 			MainUI.Fear.Amount.Text = formatter.formatNumberWithSuffix(newFear)
 		end
 
 		if newStrength ~= oldStrength then
-			formatter.tweenFormattedTextNumber(MainUI.Strength.Amount, oldStrength, newStrength, 0.5)
+			formatter.tweenFormattedTextNumber(MainUI.Strength.Amount, { oldStrength, newStrength, 0.3 })
 		elseif MainUI.Strength.Amount.Text ~= formatter.formatNumberWithSuffix(newStrength) then
 			MainUI.Strength.Amount.Text = formatter.formatNumberWithSuffix(newStrength)
 		end
