@@ -51,6 +51,11 @@ return function(player, enemy, info, janitor)
 			)
 			info.DamageDealtByPlayer[player] = (info.DamageDealtByPlayer[player] or 0) + damageToDeal
 			info.HealthValue.Value -= damageToDeal
+
+			if enemy.Parent == nil then
+				break
+			end
+
 			Remotes.Server:Get("SendFightInfo"):SendToPlayer(player, {
 				IsBoss = CollectionService:HasTag(enemy, "Boss"),
 				Gems = enemy.Configuration.Gems.Value,
