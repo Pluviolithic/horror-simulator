@@ -17,7 +17,7 @@ local DummyUI = player.PlayerGui:WaitForChild "AFKUI"
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 
 Remotes.Client:Get("SendFightInfo"):Connect(function(info)
-	if not info.IsDummy then
+	if not info.IsDummy or not selectors.getCurrentTarget(store:getState(), player.Name) then
 		return
 	end
 
