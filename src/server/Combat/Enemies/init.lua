@@ -1,9 +1,11 @@
 local Players = game:GetService "Players"
 local RunService = game:GetService "RunService"
+local TweenService = game:GetService "TweenService"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local Remotes = require(ReplicatedStorage.Common.Remotes)
 local applyDamageToEnemy = require(script.ApplyDamageToEnemy)
 local store = require(ServerScriptService.Server.State.Store)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
@@ -95,7 +97,6 @@ local function handleEnemy(enemy)
 		end
 	end)
 
-	enemyJanitor:Add(enemy)
 	enemyJanitor:Add(enemyAnimationJanitor)
 	enemyJanitor:Add(info.HealthValue:GetPropertyChangedSignal("Value"):Connect(function()
 		if info.HealthValue.Value <= 0 then
@@ -107,8 +108,10 @@ local function handleEnemy(enemy)
 					continue
 				end
 
+				local fearToSend, gemsToSend = damage, enemy.Configuration.Gems.Value * damage / info.MaxHealth
 				if isBoss then
 					local fear = math.clamp(damage, 0, info.MaxHealth * maxFearFromBossPercentage / 100)
+					fearToSend = fear
 					store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", fear, enemy.Name))
 				else
 					store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", damage, enemy.Name))
@@ -116,16 +119,34 @@ local function handleEnemy(enemy)
 
 				store:dispatch(actions.incrementPlayerStat(player.Name, "Kills"))
 				store:dispatch(actions.logKilledEnemyType(player.Name, enemy.Name))
-				store:dispatch(
-					actions.incrementPlayerStat(
-						player.Name,
-						"Gems",
-						enemy.Configuration.Gems.Value * damage / info.MaxHealth,
-						enemy.Name
-					)
-				)
+				store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", gemsToSend, enemy.Name))
+
+				Remotes.Server:Get("SpawnRewardPart"):SendToPlayer(player, fearToSend, gemsToSend)
 			end
+			enemyJanitor:Cleanup()
+			enemyJanitor:Add(enemy)
+
+			-- destroy npc ui
+			-- fade out enemy
+
+			enemy.Head.NPCUI.Enabled = false
+			for _, descendant in enemy:GetDescendants() do
+				if
+					not descendant:IsA "BasePart"
+					or descendant.Name == "HumanoidRootPart"
+					or descendant.Name == "Hitbox"
+				then
+					continue
+				end
+
+				local tween = TweenService:Create(descendant, TweenInfo.new(0.5), { Transparency = 1 })
+				enemyJanitor:Add(tween)
+				tween:Play()
+			end
+
+			task.wait(1)
 			enemyJanitor:Destroy()
+
 			task.wait(respawnRate)
 			enemyClone.Parent = workspace
 		end
