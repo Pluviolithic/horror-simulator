@@ -5,7 +5,6 @@ local MarketplaceService = game:GetService "MarketplaceService"
 
 local player = Players.LocalPlayer
 
-local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -22,13 +21,17 @@ local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
 local confirmationUIInstance = player.PlayerGui:WaitForChild("PetInventory").Confirmation
 local rarityTemplates = ReplicatedStorage.RarityTemplates
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
+local globalMaxPetEquipCount = ReplicatedStorage.Config.Pets.GlobalMaxPetEquipCount.Value
 
 local evolvedColor = Color3.fromRGB(255, 255, 0)
 local ableToEvolveColor = Color3.fromRGB(0, 229, 255)
 local unableToEvolveColor = Color3.fromRGB(255, 255, 255)
 
-local function multiplierComparator(a: { [any]: any }, b: { [any]: any }): boolean
-	return a.Multiplier > b.Multiplier
+local pets = {}
+local layoutOrders = {}
+
+local function multiplierComparator(a, b): boolean
+	return a.Multiplier.Value > b.Multiplier.Value
 end
 
 local function shouldRefresh(newState, oldState): boolean
@@ -44,9 +47,30 @@ local function shouldRefresh(newState, oldState): boolean
 		)
 		or selectors.getOwnedPets(newState, player.Name) ~= selectors.getOwnedPets(oldState, player.Name)
 		or selectors.getEquippedPets(newState, player.Name) ~= selectors.getEquippedPets(oldState, player.Name)
+		or selectors.getLockedPets(newState, player.Name) ~= selectors.getLockedPets(oldState, player.Name)
 end
 
 function PetInventory:_initialize(): ()
+	for _, petFolder in ReplicatedStorage.Pets:GetChildren() do
+		for _, pet in petFolder:GetChildren() do
+			table.insert(pets, pet)
+		end
+	end
+
+	for _, petFolder in ReplicatedStorage.EvolvedPets:GetChildren() do
+		for _, pet in petFolder:GetChildren() do
+			table.insert(pets, pet)
+		end
+	end
+
+	table.sort(pets, multiplierComparator)
+
+	for index, pet in pets do
+		layoutOrders[pet.Name] = index + globalMaxPetEquipCount
+	end
+
+	table.clear(pets)
+
 	player.PlayerGui:WaitForChild("MainUI").Pets.Activated:Connect(function()
 		self:setEnabled(not self._isOpen)
 	end)
@@ -140,64 +164,6 @@ function PetInventory:_initialize(): ()
 	end)
 end
 
-function PetInventory:_initializeLockButton(petTemplate: ImageButton | any, locked: boolean): ()
-	local destructor = Janitor.new()
-	destructor:LinkToInstance(petTemplate)
-
-	if self._focusedTemplate == petTemplate then
-		petTemplate.Unlocked.Visible = true
-	end
-
-	if locked then
-		petTemplate.Lock.Visible = true
-		destructor:Add(
-			petTemplate.Lock.Activated:Connect(function()
-				if
-					petTemplate.Equipped.Visible
-					or petUtils.getPet(petTemplate.PetName.Text):FindFirstChild "PermaLock"
-				then
-					return
-				end
-				petTemplate.Lock.Visible = false
-				destructor:Cleanup()
-				Remotes.Client:Get("UnlockPet"):SendToServer(petTemplate.PetName.Text)
-				self:_initializeLockButton(petTemplate, false)
-				self._focusedTemplateDetails.Locked = false
-				self:_setFocusedDisplay(self._focusedTemplateDetails)
-			end),
-			"Disconnect"
-		)
-	else
-		destructor:Add(
-			petTemplate.MouseEnter:Connect(function()
-				petTemplate.Unlocked.Visible = true
-			end),
-			"Disconnect"
-		)
-		destructor:Add(
-			petTemplate.MouseLeave:Connect(function()
-				if self._focusedTemplate == petTemplate or petTemplate.Lock.Visible then
-					return
-				end
-				petTemplate.Unlocked.Visible = false
-			end),
-			"Disconnect"
-		)
-		destructor:Add(
-			petTemplate.Unlocked.Activated:Connect(function()
-				petTemplate.Unlocked.Visible = false
-				petTemplate.Lock.Visible = true
-				destructor:Cleanup()
-				Remotes.Client:Get("LockPet"):SendToServer(petTemplate.PetName.Text)
-				self:_initializeLockButton(petTemplate, true)
-				self._focusedTemplateDetails.Locked = true
-				self:_setFocusedDisplay(self._focusedTemplateDetails)
-			end),
-			"Disconnect"
-		)
-	end
-end
-
 function PetInventory:Refresh()
 	if
 		selectors.getStat(store:getState(), player.Name, "MaxPetCount") == 180
@@ -215,95 +181,127 @@ function PetInventory:Refresh()
 		self._ui.Background.Equipped.Amount.Position = UDim2.fromScale(0.352, 0.113)
 	end
 
-	-- clear the inventory
-	for _, rarityTemplate in self._ui.Background.ScrollingFrame:GetChildren() do
-		if rarityTemplate:IsA "ImageButton" then
-			rarityTemplate:Destroy()
+	local ownedPets = table.clone(selectors.getOwnedPets(store:getState(), player.Name))
+	local equippedPets = table.clone(selectors.getEquippedPets(store:getState(), player.Name))
+	local lockedPets = table.clone(selectors.getLockedPets(store:getState(), player.Name))
+
+	local lastFoundIndices = {}
+	local sortedEquippedPets = {}
+	for petName, count in equippedPets do
+		for _ = 1, count do
+			table.insert(sortedEquippedPets, petUtils.getPet(petName))
+		end
+	end
+	table.sort(sortedEquippedPets, multiplierComparator)
+
+	local foundMatch = if self._focusedTemplateDetails then false else true
+	local propertiesToMatch
+	if not foundMatch then
+		propertiesToMatch = {
+			Equipped = self._focusedTemplateDetails.Equipped,
+			Locked = self._focusedTemplateDetails.Locked,
+			Name = self._focusedTemplateDetails.PetName,
+		}
+	end
+
+	for _, petTemplate in self._ui.Background.ScrollingFrame:GetChildren() do
+		if not petTemplate:IsA "UIGridLayout" then
+			petTemplate:Destroy()
 		end
 	end
 
-	self._focusedTemplate = nil
+	for petName, count in ownedPets do
+		for _ = 1, count do
+			local lockedPetCount = lockedPets[petName] or 0
+			local equippedPetCount = equippedPets[petName] or 0
+			local pet = petUtils.getPet(petName)
+			local petTemplate = rarityTemplates[pet.RarityName.Value]:Clone()
 
-	local lockCounters = table.clone(selectors.getLockedPets(store:getState(), player.Name))
-	local equippedCounters = table.clone(selectors.getEquippedPets(store:getState(), player.Name))
-
-	local equippedPetTemplates = {}
-	local lockedPetTemplates = {}
-	local petTemplates = {}
-
-	for petName, quantity in selectors.getOwnedPets(store:getState(), player.Name) do
-		local pet = petUtils.getPet(petName)
-		local rarityTemplate = rarityTemplates[pet.RarityName.Value]:Clone()
-
-		rarityTemplate.PetImage.Image = pet.ImageID.Value
-		rarityTemplate.PetName.Text = petName
-		rarityTemplate.Lock.Visible = false
-		rarityTemplate.Unlocked.Visible = false
-		rarityTemplate.Equipped.Visible = false
-		rarityTemplate.Name = petName
-
-		for _ = 1, quantity do
-			local petTemplate = rarityTemplate:Clone()
-			local details = {
-				PetName = petName,
-				Quantity = quantity,
-				PetImage = pet.ImageID.Value,
-				PetTemplate = petTemplate,
-				Multiplier = pet.Multiplier.Value,
-			}
-
-			if details.Multiplier < 1 then
-				details.Multiplier += 1
-			end
-
-			if lockCounters[petName] and lockCounters[petName] > 0 then
-				lockCounters[petName] -= 1
-				self:_initializeLockButton(petTemplate, true)
-				details.Locked = true
-				table.insert(lockedPetTemplates, details)
-			else
-				self:_initializeLockButton(petTemplate, false)
-				details.Locked = false
-			end
-
-			if equippedCounters[petName] and equippedCounters[petName] > 0 then
-				equippedCounters[petName] -= 1
-				petTemplate.Equipped.Visible = true
-				details.Equipped = true
-				table.insert(equippedPetTemplates, details)
-			else
-				details.Equipped = false
-			end
+			petTemplate.PetImage.Image = pet.ImageID.Value
+			petTemplate.PetName.Text = petName
+			petTemplate.Visible = true
+			petTemplate.Name = petName
+			petTemplate.LayoutOrder = layoutOrders[pet.Name]
 
 			if petName:match "Evolved" then
-				details.Evolved = true
 				petTemplate.PetName.TextColor3 = evolvedColor
 			end
 
-			if not details.Locked and not details.Equipped then
-				table.insert(petTemplates, details)
+			petTemplate.Parent = self._ui.Background.ScrollingFrame
+
+			if lockedPetCount > 0 then
+				petTemplate.Lock.Visible = true
+				lockedPets[petName] -= 1
+			else
+				petTemplate.Lock.Visible = false
+			end
+			if equippedPetCount > 0 then
+				petTemplate.LayoutOrder = table.find(sortedEquippedPets, pet, lastFoundIndices[pet] or 1)
+				lastFoundIndices[pet] = petTemplate.LayoutOrder + 1
+				petTemplate.Equipped.Visible = true
+				equippedPets[petName] -= 1
+			else
+				petTemplate.Equipped.Visible = false
+			end
+
+			if
+				not foundMatch
+				and petTemplate.Equipped.Visible == propertiesToMatch.Equipped
+				and petTemplate.Lock.Visible == propertiesToMatch.Locked
+				and petTemplate.PetName.Text == propertiesToMatch.Name
+			then
+				foundMatch = true
+				self._focusedTemplate = petTemplate
+				self:_setFocusedDisplay()
 			end
 
 			petTemplate.Activated:Connect(function()
 				if self._focusedTemplate == petTemplate then
 					self:_clearFocusedDisplay()
+					self._focusedTemplate = nil
 					return
-				elseif self._focusedTemplate then
+				elseif self._focusedTemplate and self._focusedTemplate.Parent ~= nil then
 					self._focusedTemplate.Unlocked.Visible = false
 				end
-				self:_setFocusedDisplay(details)
+				self._focusedTemplate = petTemplate
+				self._focusedTemplateDetails = {
+					Equipped = petTemplate.Equipped.Visible,
+					Locked = petTemplate.Lock.Visible,
+					PetName = petTemplate.PetName.Text,
+				}
+				self:_setFocusedDisplay()
+			end)
+
+			petTemplate.Unlocked.Activated:Connect(function()
+				--petTemplate.Unlocked.Visible = false
+				--petTemplate.Lock.Visible = true
+				self._focusedTemplateDetails.Locked = true
+				Remotes.Client:Get("LockPet"):SendToServer(petName)
+			end)
+
+			petTemplate.Lock.Activated:Connect(function()
+				--petTemplate.Unlocked.Visible = true
+				--petTemplate.Lock.Visible = false
+				if petTemplate.Equipped.Visible or pet:FindFirstChild "PermaLock" then
+					--PopupUI "You Can Not Unlock This Pet!"
+					return
+				end
+				self._focusedTemplateDetails.Locked = false
+				Remotes.Client:Get("UnlockPet"):SendToServer(petName)
+			end)
+
+			petTemplate.MouseEnter:Connect(function()
+				if not petTemplate.Lock.Visible then
+					petTemplate.Unlocked.Visible = true
+				end
+			end)
+
+			petTemplate.MouseLeave:Connect(function()
+				if self._focusedTemplate ~= petTemplate then
+					petTemplate.Unlocked.Visible = false
+				end
 			end)
 		end
-	end
-
-	table.sort(equippedPetTemplates, multiplierComparator)
-	table.sort(lockedPetTemplates, multiplierComparator)
-	table.sort(petTemplates, multiplierComparator)
-
-	local templates = Sift.Array.concat(equippedPetTemplates, lockedPetTemplates, petTemplates)
-
-	for _, template in templates do
-		template.PetTemplate.Parent = self._ui.Background.ScrollingFrame
 	end
 end
 
@@ -311,7 +309,6 @@ function PetInventory:_clearFocusedDisplay()
 	if self._focusedDestructor then
 		self._focusedDestructor:Cleanup()
 		self._focusedDestructor = nil
-		self._focusedTemplate = nil
 	end
 
 	self._ui.RightBackground.Icon.Visible = false
@@ -323,11 +320,26 @@ function PetInventory:_clearFocusedDisplay()
 	self._ui.RightBackground.Multiplier.Visible = false
 end
 
-function PetInventory:_setFocusedDisplay(details)
+function PetInventory:_setFocusedDisplay()
 	self:_clearFocusedDisplay()
 	self._focusedDestructor = Janitor.new()
 
-	self._focusedTemplate = details.PetTemplate
+	if not self._focusedTemplate then
+		return
+	end
+
+	local pet = petUtils.getPet(self._focusedTemplate.PetName.Text)
+	local details = {
+		PetName = self._focusedTemplate.PetName.Text,
+		PetImage = self._focusedTemplate.PetImage.Image,
+		Multiplier = pet.Multiplier.Value,
+		Evolved = pet.Name:match "Evolved",
+		Quantity = selectors.getOwnedPets(store:getState(), player.Name)[pet.Name],
+		Equipped = self._focusedTemplate.Equipped.Visible,
+		Locked = self._focusedTemplate.Lock.Visible,
+		PetTemplate = self._focusedTemplate,
+	}
+
 	self._focusedTemplateDetails = details
 
 	if not details.Locked and details.PetTemplate:FindFirstChild "Unlocked" then
@@ -384,9 +396,9 @@ function PetInventory:_setFocusedDisplay(details)
 			end
 			return
 		end
-		details.Locked = not details.Locked
-		details.Equipped = not details.Equipped
-		self:_setFocusedDisplay(details)
+		self._focusedTemplate.Equipped.Visible = not details.Equipped
+		self._focusedTemplate.Lock.Visible = details.Locked
+		self:_setFocusedDisplay()
 	end))
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Delete.Activated:Connect(function()
@@ -403,6 +415,7 @@ function PetInventory:_setFocusedDisplay(details)
 		else
 			Remotes.Client:Get("DeletePet"):SendToServer(details.PetName)
 			self:_clearFocusedDisplay()
+			self._focusedTemplate = nil
 		end
 	end))
 
@@ -414,12 +427,14 @@ function PetInventory:_setFocusedDisplay(details)
 		if details.Quantity > 4 then
 			Remotes.Client:Get("EvolvePet"):SendToServer(details.PetName)
 			self:_clearFocusedDisplay()
+			self._focusedTemplate = nil
 		end
 	end))
 end
 
 function PetInventory:OnOpen()
 	self:_clearFocusedDisplay()
+	self._focusedTemplate = nil
 	self:Refresh()
 end
 
