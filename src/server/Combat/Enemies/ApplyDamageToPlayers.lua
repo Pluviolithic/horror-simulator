@@ -21,6 +21,9 @@ return function(enemy, info, janitor)
 	task.spawn(function()
 		while damagePlayers do
 			for _, player in info.EngagedPlayers do
+				if not selectors.isPlayerLoaded(store:getState(), player.Name) then
+					continue
+				end
 				if selectors.getActiveBoosts(store:getState(), player.Name)["FearlessBoost"] then
 					continue
 				end

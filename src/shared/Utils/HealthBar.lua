@@ -16,13 +16,26 @@ function HealthBar.new(bar: Frame)
 end
 
 function HealthBar:resize(health: number, maxHealth: number)
-	self._healthBar.Size = UDim2.fromScale(health / maxHealth, 1)
+	self._healthBar:TweenSize(
+		UDim2.fromScale(health / maxHealth, 1),
+		Enum.EasingDirection.Out,
+		Enum.EasingStyle.Linear,
+		0.5,
+		true
+	)
 end
 
 function HealthBar:updateText(health: number, maxHealth: number)
 	self._healthBarText.Text = formatter.formatNumberWithSuffix(health)
 		.. "/"
 		.. formatter.formatNumberWithSuffix(maxHealth)
+	-- local appendText = "/" .. formatter.formatNumberWithSuffix(maxHealth)
+	-- formatter.tweenFormattedTextNumber(self._healthBarText, {
+	-- 	self._oldHealth or health,
+	-- 	health,
+	-- 	0.5,
+	-- 	appendText,
+	-- })
 end
 
 function HealthBar:recolor(health: number, maxHealth: number)
@@ -42,8 +55,10 @@ function HealthBar:connect(humanoid: any)
 	if humanoid:IsA "Humanoid" then
 		self._healthBarConnection = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
 			self:update(humanoid.Health, humanoid.MaxHealth)
+			self._oldHealth = humanoid.Health
 		end)
 		self:update(humanoid.Health, humanoid.MaxHealth)
+		self._oldHealth = humanoid.Health
 	else
 		local humanoidInstance = humanoid:FindFirstChildOfClass "Humanoid"
 
@@ -59,8 +74,10 @@ function HealthBar:connect(humanoid: any)
 		local maxHealth = healthValue.Value
 		self._healthBarConnection = healthValue:GetPropertyChangedSignal("Value"):Connect(function()
 			self:update(healthValue.Value, maxHealth)
+			self._oldHealth = healthValue.Value
 		end)
 		self:update(healthValue.Value, maxHealth)
+		self._oldHealth = healthValue.Value
 	end
 end
 

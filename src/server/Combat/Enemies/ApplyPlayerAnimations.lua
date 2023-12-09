@@ -39,13 +39,15 @@ return function(player, janitor)
 
 	janitor:Add(function()
 		runAnimations = false
-		if animationTrack.IsPlaying then
-			animationTrack:Stop()
-		end
 		if loadedIdleAnimation.IsPlaying then
 			loadedIdleAnimation:Stop()
 		end
-		animationTrack:Destroy()
 		loadedIdleAnimation:Destroy()
+		if animationTrack.IsPlaying then
+			task.spawn(function()
+				animationTrack.Stopped:Wait()
+				animationTrack:Destroy()
+			end)
+		end
 	end, true)
 end

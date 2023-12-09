@@ -26,6 +26,7 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 end)
 
 playerStatePromise:andThen(function()
+	local lastFearGained = 0
 	store.changed:connect(function(newState)
 		local currentEnemy = selectors.getCurrentTarget(newState, player.Name)
 		if not currentEnemy and DummyUI.Enabled then
@@ -43,8 +44,15 @@ playerStatePromise:andThen(function()
 		end
 
 		local fearGained = selectors.getStat(newState, player.Name, "Fear") - preAFKFear
-		DummyUI.Counter.Text =
-			`Fear Gained: <font color= "rgb(255, 207, 56)">{formatter.formatNumberWithSuffix(fearGained)}</font>`
+		formatter.tweenFormattedTextNumber(DummyUI.Counter, {
+			lastFearGained,
+			fearGained,
+			0.5,
+			function(n)
+				return `Fear Gained: <font color="rgb(255, 207, 56)">{formatter.formatNumberWithSuffix(n)}</font>`
+			end,
+		})
+		lastFearGained = fearGained
 	end)
 end)
 

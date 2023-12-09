@@ -11,6 +11,7 @@ local player = Players.LocalPlayer
 
 local playerStatePromise = require(Client.State.PlayerStatePromise)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(Client.State.Store)
 
 local minSize = UDim2.fromScale(0.878, 0.043)
@@ -25,19 +26,30 @@ local function updateBarSize(state, bar)
 	)
 	local relativeBarHeight = (maxSize.Y.Scale - minSize.Y.Scale) * percentage
 
-	bar.Size = UDim2.fromScale(minSize.X.Scale, minSize.Y.Scale + relativeBarHeight)
+	bar:TweenSize(
+		UDim2.fromScale(minSize.X.Scale, minSize.Y.Scale + relativeBarHeight),
+		Enum.EasingDirection.Out,
+		Enum.EasingStyle.Quad,
+		0.5,
+		true
+	)
 end
 
-local function updateBarText(state, textLabel)
-	local currentFearMeter = selectors.getStat(state, player.Name, "CurrentFearMeter")
-	local maxFearMeter = selectors.getStat(state, player.Name, "MaxFearMeter")
-	local newText = currentFearMeter
+local function updateBarText(textLabel, newState, oldState)
+	local previousFearMeter = if oldState then selectors.getStat(oldState, player.Name, "CurrentFearMeter") else 0
+	local currentFearMeter = selectors.getStat(newState, player.Name, "CurrentFearMeter")
+	local maxFearMeter = selectors.getStat(newState, player.Name, "MaxFearMeter")
 
 	if currentFearMeter == maxFearMeter then
-		newText = "Max"
+		textLabel.Text = "Max"
+		return
 	end
 
-	textLabel.Text = newText
+	formatter.tweenFormattedTextNumber(textLabel, {
+		previousFearMeter,
+		currentFearMeter,
+		0.5,
+	})
 end
 
 playerStatePromise:andThen(function()
@@ -81,11 +93,11 @@ playerStatePromise:andThen(function()
 	end)
 
 	updateBarSize(store:getState(), bar)
-	updateBarText(store:getState(), fearMeter.Fear)
+	updateBarText(fearMeter.Fear, store:getState())
 	store.changed:connect(function(newState, oldState)
 		currentState = newState
 		updateBarSize(newState, bar)
-		updateBarText(newState, fearMeter.Fear)
+		updateBarText(fearMeter.Fear, newState, oldState)
 
 		if not selectors.isPlayerLoaded(oldState, player.Name) then
 			return

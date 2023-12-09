@@ -37,17 +37,23 @@ local function countdownTimer()
 end
 
 playerStatePromise:andThen(function()
+	local previousRequiredFear = selectors.getStat(store:getState(), player.Name, "RequiredFear")
 	store.changed:connect(function(newState, oldState)
 		local currentTarget = selectors.getCurrentTarget(newState, player.Name)
 		local previousTarget = selectors.getCurrentTarget(oldState, player.Name)
-		local requiredFearChanged = selectors.getStat(newState, player.Name, "RequiredFear")
-			~= selectors.getStat(oldState, player.Name, "RequiredFear")
+		local currentRequiredFear = selectors.getStat(newState, player.Name, "RequiredFear")
+		local requiredFearChanged = currentRequiredFear ~= selectors.getStat(oldState, player.Name, "RequiredFear")
 
 		if requiredFearChanged then
-			WorkoutUI.Background.FearCost.Text =
-				`Required Fear: <font color= "rgb(255, 207, 56)">{formatter.formatNumberWithSuffix(
-					selectors.getStat(newState, player.Name, "RequiredFear")
-				)}</font>`
+			formatter.tweenFormattedTextNumber(WorkoutUI.Background.FearCost, {
+				previousRequiredFear,
+				currentRequiredFear,
+				0.5,
+				function(n)
+					return `Required Fear: <font color= "rgb(255, 207, 56)">{formatter.formatNumberWithSuffix(n)}</font>`
+				end,
+			})
+			previousRequiredFear = currentRequiredFear
 		end
 
 		if not currentTarget and WorkoutUI.Enabled then

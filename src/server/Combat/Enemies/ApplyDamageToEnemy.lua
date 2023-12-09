@@ -1,3 +1,4 @@
+local TweenService = game:GetService "TweenService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local CollectionService = game:GetService "CollectionService"
 local ServerScriptService = game:GetService "ServerScriptService"
@@ -7,9 +8,12 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils)
 
+local random = Random.new()
 local weapons = ReplicatedStorage.Weapons
+local damageIndicatorTemplate = ReplicatedStorage.DamageTemplate
 
 local function canAttack(player, enemy, info)
 	if not enemy:IsDescendantOf(game) then
@@ -55,6 +59,24 @@ return function(player, enemy, info, janitor)
 			if enemy.Parent == nil then
 				break
 			end
+
+			task.spawn(function()
+				local damageIndicator = damageIndicatorTemplate:Clone()
+				local tween = TweenService:Create(damageIndicator.Amount, TweenInfo.new(0.5), { TextTransparency = 1 })
+
+				damageIndicator.Position = UDim2.fromScale(random:NextNumber(0, 0.7), random:NextNumber(0.01, 0.85))
+				damageIndicator.Rotation = random:NextNumber(-7, 7)
+				damageIndicator.Amount.Text = "-" .. formatter.formatNumberWithSuffix(damageToDeal)
+				damageIndicator.Parent = enemy.Hitbox.DamageIndicators.Frame
+
+				damageIndicator.Amount:TweenPosition(UDim2.fromScale(0.05, -1), "Out", "Quad", 1, true)
+				task.wait(0.5)
+
+				tween:Play()
+				tween.Completed:Wait()
+				tween:Destroy()
+				damageIndicator:Destroy()
+			end)
 
 			Remotes.Server:Get("SendFightInfo"):SendToPlayer(player, {
 				IsBoss = CollectionService:HasTag(enemy, "Boss"),

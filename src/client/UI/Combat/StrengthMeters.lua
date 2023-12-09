@@ -70,9 +70,15 @@ function StrengthMeters:Refresh(): ()
 		local percentComplete = math.clamp(strength / rankUtils.getRankRequirement(meterRank), 0, 1)
 
 		meter.Level.Text.Text = newRank
-		meter.Background.Bar.Size = UDim2.fromScale(
-			minBarSize.X.Scale + (maxBarSize.X.Scale - minBarSize.X.Scale) * percentComplete,
-			minBarSize.Y.Scale
+		meter.Background.Bar:TweenSize(
+			UDim2.fromScale(
+				minBarSize.X.Scale + (maxBarSize.X.Scale - minBarSize.X.Scale) * percentComplete,
+				minBarSize.Y.Scale
+			),
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quad,
+			0.5,
+			true
 		)
 
 		if not meter:FindFirstChild "Locked" then
@@ -95,9 +101,15 @@ function StrengthMeters:Refresh(): ()
 		0,
 		1
 	)
-	self._mainRankBar.Size = UDim2.fromScale(
-		minMainBarSize.X.Scale + (maxMainBarSize.X.Scale - minMainBarSize.X.Scale) * percentComplete,
-		minMainBarSize.Y.Scale
+	self._mainRankBar:TweenSize(
+		UDim2.fromScale(
+			minMainBarSize.X.Scale + (maxMainBarSize.X.Scale - minMainBarSize.X.Scale) * percentComplete,
+			minMainBarSize.Y.Scale
+		),
+		Enum.EasingDirection.Out,
+		Enum.EasingStyle.Quad,
+		0.5,
+		true
 	)
 end
 

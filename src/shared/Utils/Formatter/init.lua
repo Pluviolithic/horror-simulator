@@ -42,26 +42,33 @@ function Formatter.tweenFormattedTextNumber(textLabel, config)
 	tweenBuffers[textLabel] = true
 
 	local startTime = os.clock()
-	local startNumber, endNumber, duration = table.unpack(config)
-	local difference = endNumber - startNumber
+	local startNumber, endNumber, duration, customFormatter = table.unpack(config)
+	local difference = if endNumber > startNumber then endNumber - startNumber else startNumber - endNumber
 
 	task.spawn(function()
 		repeat
 			local timePassed = os.clock() - startTime
 			local progress = timePassed / duration
-			local currentNumber = startNumber + difference * progress
+			local currentNumber
 
 			if startNumber > endNumber then
-				currentNumber = math.clamp(currentNumber, endNumber, startNumber)
+				currentNumber = math.clamp(startNumber + difference * progress, endNumber, startNumber)
 			else
-				currentNumber = math.clamp(currentNumber, startNumber, endNumber)
+				currentNumber = math.clamp(startNumber - difference * progress, startNumber, endNumber)
 			end
-
-			textLabel.Text = Formatter.formatNumberWithSuffix(currentNumber)
+			if customFormatter then
+				textLabel.Text = customFormatter(currentNumber)
+			else
+				textLabel.Text = Formatter.formatNumberWithSuffix(currentNumber)
+			end
 			task.wait()
 		until timePassed >= duration
 
-		textLabel.Text = Formatter.formatNumberWithSuffix(endNumber)
+		if customFormatter then
+			textLabel.Text = customFormatter(endNumber)
+		else
+			textLabel.Text = Formatter.formatNumberWithSuffix(endNumber)
+		end
 
 		local bufferData = tweenBuffers[textLabel]
 		tweenBuffers[textLabel] = nil

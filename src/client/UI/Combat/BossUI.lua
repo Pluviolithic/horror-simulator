@@ -32,7 +32,13 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 		fearToDisplay *= fearMultiplier * (fearBoostData and 2 or 1)
 	end
 
-	BossUI.Background.Frame.Health.Size = UDim2.fromScale(1.013 * info.Health / info.MaxHealth, 1.104)
+	BossUI.Background.Frame.Health:TweenSize(
+		UDim2.fromScale(1.013 * info.Health / info.MaxHealth, 1.104),
+		Enum.EasingDirection.Out,
+		Enum.EasingStyle.Quad,
+		0.5,
+		true
+	)
 	BossUI.Background.Frame.HP.Text = formatter.formatNumberWithCommas(info.Health)
 	BossUI.Background.FearCounter.Text = "Fear: " .. formatter.formatNumberWithSuffix(fearToDisplay) .. maxAddon
 	BossUI.Background.DamageCounter.Text = "Damage: " .. formatter.formatNumberWithSuffix(info.DamageDealtByPlayer)
