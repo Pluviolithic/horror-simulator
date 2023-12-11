@@ -7,6 +7,7 @@ local MarketplaceService = game:GetService "MarketplaceService"
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local player = Players.LocalPlayer
@@ -56,6 +57,14 @@ playerStatePromise:andThen(function()
 			previousRequiredFear = currentRequiredFear
 		end
 
+		if selectors.hasGamepass(newState, player.Name, "2xStrength") then
+			WorkoutUI.Passes["2xStrength"].Visible = false
+		end
+
+		if selectors.hasGamepass(newState, player.Name, "3xWorkoutSpeed") then
+			WorkoutUI.Passes["3xWorkoutSpeed"].Visible = false
+		end
+
 		if not currentTarget and WorkoutUI.Enabled then
 			looping = false
 			WorkoutUI.Enabled = false
@@ -91,5 +100,8 @@ end)
 WorkoutUI.Passes["3xWorkoutSpeed"].Activated:Connect(function()
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["3xWorkoutSpeed"].Value)
 end)
+
+DescriptionUI(WorkoutUI.Passes["2xStrength"], WorkoutUI.Passes["2xStrength"].Frame)
+DescriptionUI(WorkoutUI.Passes["3xWorkoutSpeed"], WorkoutUI.Passes["3xWorkoutSpeed"].Frame)
 
 return 0

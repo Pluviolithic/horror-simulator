@@ -21,17 +21,21 @@ local function notifyClientOfAward(player: Player, item: string): ()
 		elseif item:match "Fearless" then
 			multiplierAmount = ""
 		end
-		Remotes.Server
-			:Get("SendPopupMessage")
-			:SendToPlayer(player, `You Have Received A {multiplierAmount}{item:match "(%u.+)%u"} Boost!`)
+		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(
+			player,
+			`You Have Received A {multiplierAmount}{item:match "(%u.+)%u"} Boost!`,
+			Color3.fromRGB(250, 250, 250)
+		)
 	else
 		local wordsInItemName = {}
 		for word in item:gmatch "%u%l+" do
 			table.insert(wordsInItemName, word)
 		end
-		Remotes.Server
-			:Get("SendPopupMessage")
-			:SendToPlayer(player, `You Have Received A {table.concat(wordsInItemName, " ")}!`)
+		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(
+			player,
+			`You Have Received A {table.concat(wordsInItemName, " ")}!`,
+			Color3.fromRGB(250, 250, 250)
+		)
 	end
 end
 

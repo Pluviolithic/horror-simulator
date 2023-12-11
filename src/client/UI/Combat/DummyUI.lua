@@ -8,6 +8,7 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local preAFKFear = 0
@@ -28,6 +29,14 @@ end)
 playerStatePromise:andThen(function()
 	local lastFearGained = 0
 	store.changed:connect(function(newState)
+		if selectors.hasGamepass(newState, player.Name, "2xFear") then
+			DummyUI.Passes["2xFear"].Visible = false
+		end
+
+		if selectors.hasGamepass(newState, player.Name, "2xAttackSpeed") then
+			DummyUI.Passes["2xAttackSpeed"].Visible = false
+		end
+
 		local currentEnemy = selectors.getCurrentTarget(newState, player.Name)
 		if not currentEnemy and DummyUI.Enabled then
 			DummyUI.Enabled = false
@@ -63,5 +72,8 @@ end)
 DummyUI.Passes["2xAttackSpeed"].Activated:Connect(function()
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xAttackSpeed"].Value)
 end)
+
+DescriptionUI(DummyUI.Passes["2xFear"], DummyUI.Passes["2xFear"].Frame)
+DescriptionUI(DummyUI.Passes["2xAttackSpeed"], DummyUI.Passes["2xAttackSpeed"].Frame)
 
 return 0

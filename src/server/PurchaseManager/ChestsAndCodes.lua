@@ -37,9 +37,11 @@ local function awardItem(player, item)
 		elseif item:match "Fearless" then
 			multiplierAmount = ""
 		end
-		Remotes.Server
-			:Get("SendPopupMessage")
-			:SendToPlayer(player, `You Have Received A {multiplierAmount}{item:match "(%u.+)%u"} Boost!`)
+		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(
+			player,
+			`You Have Received A {multiplierAmount}{item:match "(%u.+)%u"} Boost!`,
+			Color3.fromRGB(250, 250, 250)
+		)
 	else
 		productRewarders[packIDs:FindFirstChild(item, true).Value](player)
 	end

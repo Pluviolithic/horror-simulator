@@ -16,8 +16,13 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 		return
 	end
 
+	local gemsMultiplier = selectors.getMultiplierData(store:getState(), player.Name).GemsMultiplier
+	local gemsMultiplierCount = selectors.getMultiplierData(store:getState(), player.Name).GemsMultiplierCount or 0
+	local gemsBoostData = selectors.getActiveBoosts(store:getState(), player.Name).GemsBoost
+	local gemsToDisplay = info.Gems * info.DamageDealtByPlayer / info.MaxHealth
+
 	local fearMultiplier = selectors.getMultiplierData(store:getState(), player.Name).FearMultiplier
-	local fearMultiplierCount = selectors.getMultiplierData(store:getState(), player.Name).FearMultiplierCount
+	local fearMultiplierCount = selectors.getMultiplierData(store:getState(), player.Name).FearMultiplierCount or 0
 	local fearBoostData = selectors.getActiveBoosts(store:getState(), player.Name).FearBoost
 	local fearToDisplay = math.clamp(info.DamageDealtByPlayer, 0, info.MaxHealth * maxFearFromBossPercentage / 100)
 	local maxAddon = if fearToDisplay == info.MaxHealth * maxFearFromBossPercentage / 100 then " (Max)" else ""
@@ -32,6 +37,12 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 		fearToDisplay *= fearMultiplier * (fearBoostData and 2 or 1)
 	end
 
+	if gemsMultiplierCount < 1 then
+		gemsToDisplay *= (1 + gemsMultiplier) * (gemsBoostData and 2 or 1)
+	else
+		gemsToDisplay *= gemsMultiplier * (gemsBoostData and 2 or 1)
+	end
+
 	BossUI.Background.Frame.Health:TweenSize(
 		UDim2.fromScale(1.013 * info.Health / info.MaxHealth, 1.104),
 		Enum.EasingDirection.Out,
@@ -42,8 +53,7 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 	BossUI.Background.Frame.HP.Text = formatter.formatNumberWithCommas(info.Health)
 	BossUI.Background.FearCounter.Text = "Fear: " .. formatter.formatNumberWithSuffix(fearToDisplay) .. maxAddon
 	BossUI.Background.DamageCounter.Text = "Damage: " .. formatter.formatNumberWithSuffix(info.DamageDealtByPlayer)
-	BossUI.Background.GemsCounter.Text = "Gems: "
-		.. formatter.formatNumberWithSuffix(info.Gems * info.DamageDealtByPlayer / info.MaxHealth)
+	BossUI.Background.GemsCounter.Text = "Gems: " .. formatter.formatNumberWithSuffix(gemsToDisplay)
 end)
 
 store.changed:connect(function(newState)

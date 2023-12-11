@@ -13,8 +13,9 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local animations = ReplicatedStorage.CombatAnimations
 local disableSwitch = Instance.new "BindableEvent"
 
+local strengthRanks = ReplicatedStorage.Config.StrengthRanks
+local requiredFear = ReplicatedStorage.Config.Workout.RequiredFear.Value
 local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
-local baseStrength = ReplicatedStorage.Config.Workout.Strength.Value
 local tripleWorkoutSpeedPassID = ReplicatedStorage.Config.GamepassData.IDs["3xWorkoutSpeed"].Value
 
 local function getSortedAnimationInstances(animationInstances)
@@ -137,11 +138,13 @@ local function handlePunchingBag(bag: any)
 					-selectors.getStat(store:getState(), player.Name, "RequiredFear")
 				)
 			)
-			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", baseStrength * multiplier, bag.Name))
+			store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", requiredFear * multiplier, bag.Name))
 
 			local maxFearMeter = selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 			local currentFearMeter = selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
-			local reductionAmount = -maxFearMeter / 20
+			local reductionAmount = maxFearMeter
+				* strengthRanks["Rank" .. selectors.getStat(store:getState(), player.Name, "Rank")].FearDecrease.Value
+				/ 100
 
 			if (currentFearMeter + reductionAmount) < 0 then
 				reductionAmount = -currentFearMeter

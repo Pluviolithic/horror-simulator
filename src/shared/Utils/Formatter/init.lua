@@ -43,18 +43,18 @@ function Formatter.tweenFormattedTextNumber(textLabel, config)
 
 	local startTime = os.clock()
 	local startNumber, endNumber, duration, customFormatter = table.unpack(config)
-	local difference = if endNumber > startNumber then endNumber - startNumber else startNumber - endNumber
+	local difference = endNumber - startNumber
 
 	task.spawn(function()
 		repeat
 			local timePassed = os.clock() - startTime
 			local progress = timePassed / duration
-			local currentNumber
+			local currentNumber = startNumber + difference * progress
 
 			if startNumber > endNumber then
-				currentNumber = math.clamp(startNumber + difference * progress, endNumber, startNumber)
+				currentNumber = math.clamp(currentNumber, endNumber, startNumber)
 			else
-				currentNumber = math.clamp(startNumber - difference * progress, startNumber, endNumber)
+				currentNumber = math.clamp(currentNumber, startNumber, endNumber)
 			end
 			if customFormatter then
 				textLabel.Text = customFormatter(currentNumber)

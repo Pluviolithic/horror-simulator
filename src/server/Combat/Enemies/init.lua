@@ -129,7 +129,7 @@ local function handleEnemy(enemy)
 			-- destroy npc ui
 			-- fade out enemy
 
-			enemy.Head.NPCUI.Enabled = false
+			enemy:FindFirstChild("NPCUI", true).Enabled = false
 			for _, descendant in enemy:GetDescendants() do
 				if
 					not descendant:IsA "BasePart"
@@ -180,8 +180,10 @@ local function handleEnemy(enemy)
 		playerJanitor:Add(
 			store.changed:connect(function(newState)
 				if
-					not selectors.isPlayerLoaded(newState, player.Name)
-					or selectors.getCurrentTarget(newState, player.Name) ~= enemy
+					(
+						not selectors.isPlayerLoaded(newState, player.Name)
+						or selectors.getCurrentTarget(newState, player.Name) ~= enemy
+					) and Janitor.Is(playerJanitor)
 				then
 					playerJanitor:Destroy()
 				end

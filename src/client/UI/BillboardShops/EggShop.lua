@@ -9,6 +9,7 @@ local MarketplaceService = game:GetService "MarketplaceService"
 
 local player = Players.LocalPlayer
 
+local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
@@ -16,6 +17,7 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
+local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["AutoHatch"].Value
@@ -42,6 +44,7 @@ local eggGemPricesConfig = ReplicatedStorage.Config.Pets.Prices
 
 local petAreas = {}
 local rarityListeners = {}
+local passListeners = {}
 local listeners = {}
 local validInputs = {
 	[Enum.KeyCode.E] = true,
@@ -420,6 +423,18 @@ local function handleShop(shop): ()
 		MarketplaceService:PromptGamePassPurchase(player, fasterHatchGamepassID)
 	end)
 
+	DescriptionUI(shop.Background.Passes["2xLuck"], shop.Background.Passes["2xLuck"].Frame)
+	DescriptionUI(shop.Background.Passes["3xLuck"], shop.Background.Passes["3xLuck"].Frame)
+	DescriptionUI(shop.Background.Passes.FasterHatch, shop.Background.Passes.FasterHatch.Frame)
+
+	table.insert(passListeners, function(passName: string, hasPass: boolean): ()
+		if not shop.Background.Passes:FindFirstChild(passName) then
+			return
+		end
+
+		shop.Background.Passes[passName].Visible = not hasPass
+	end)
+
 	listeners[shop] = function(keyCode: Enum.KeyCode): ()
 		if keyCode == Enum.KeyCode.E then
 			buyEgg(1, false)
@@ -497,6 +512,19 @@ playerStatePromise:andThen(function()
 				~= selectors.getActiveBoosts(oldState, player.Name)["LuckBoost"]
 		then
 			updateRarityListeners(selectors.getStat(newState, player.Name, "Luck"))
+		end
+
+		if
+			not Sift.Dictionary.equals(
+				selectors.getPurchaseData(newState, player.Name),
+				selectors.getPurchaseData(oldState, player.Name)
+			)
+		then
+			for _, listener in passListeners do
+				listener("2xLuck", selectors.hasGamepass(newState, player.Name, "2xLuck"))
+				listener("3xLuck", selectors.hasGamepass(newState, player.Name, "3xLuck"))
+				listener("FasterHatch", selectors.hasGamepass(newState, player.Name, "FasterHatch"))
+			end
 		end
 
 		if selectors.getFoundPets(newState, player.Name) == selectors.getFoundPets(oldState, player.Name) then

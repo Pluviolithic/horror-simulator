@@ -1,6 +1,5 @@
 local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
-local UserInputService = game:GetService "UserInputService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
@@ -12,6 +11,7 @@ local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
+local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
@@ -77,19 +77,19 @@ function RobuxShop:Refresh()
 	end
 end
 
-function RobuxShop:_countdownDescriptionDisplayTime()
-	self._lastDescriptionTapped = os.time()
-	if self._countdownActive then
-		return
-	end
-	self._countdownActive = true
-	self._ui.Background.GamepassesFrame.Description.Visible = true
-	while self._lastDescriptionTapped + 10 > os.time() do
-		task.wait(0.25)
-	end
-	self._ui.Background.GamepassesFrame.Description.Visible = false
-	self._countdownActive = false
-end
+-- function RobuxShop:_countdownDescriptionDisplayTime()
+-- 	self._lastDescriptionTapped = os.time()
+-- 	if self._countdownActive then
+-- 		return
+-- 	end
+-- 	self._countdownActive = true
+-- 	self._ui.Background.GamepassesFrame.Description.Visible = true
+-- 	while self._lastDescriptionTapped + 10 > os.time() do
+-- 		task.wait(0.25)
+-- 	end
+-- 	self._ui.Background.GamepassesFrame.Description.Visible = false
+-- 	self._countdownActive = false
+-- end
 
 function RobuxShop:_initialize(): ()
 	mainUI.RobuxShop.Activated:Connect(function()
@@ -140,25 +140,11 @@ function RobuxShop:_initialize(): ()
 				MarketplaceService:PromptGamePassPurchase(player, gamepassIDInstance.Value)
 			end)
 
-			buttonDisplay.MouseEnter:Connect(function()
-				if not UserInputService.MouseEnabled then
-					return
-				end
-				self._ui.Background.GamepassesFrame.Description.TextLabel.Text = buttonDisplay.DescriptionText.Value
-				self._ui.Background.GamepassesFrame.Description.Visible = true
-			end)
-
-			buttonDisplay.MouseLeave:Connect(function()
-				if not UserInputService.MouseEnabled then
-					return
-				end
-				self._ui.Background.GamepassesFrame.Description.Visible = false
-			end)
-
-			buttonDisplay.TouchTap:Connect(function()
-				self._ui.Background.GamepassesFrame.Description.TextLabel.Text = buttonDisplay.DescriptionText.Value
-				self:_countdownDescriptionDisplayTime()
-			end)
+			DescriptionUI(
+				buttonDisplay,
+				self._ui.Background.GamepassesFrame.Description,
+				buttonDisplay.DescriptionText.Value
+			)
 		end
 	end
 
