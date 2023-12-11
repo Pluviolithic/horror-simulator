@@ -104,4 +104,10 @@ return {
 	hasRedeemedCode = function(state, playerName, code)
 		return state.PurchaseData[playerName].RedeemedCodes[code]
 	end,
+	getTutorialData = function(state, playerName)
+		return state.TutorialData[playerName]
+	end,
+	getTutorialStep = function(state, playerName)
+		return state.TutorialData[playerName].CurrentStep
+	end,
 }

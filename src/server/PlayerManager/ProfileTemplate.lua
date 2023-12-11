@@ -92,4 +92,8 @@ return {
 		VIPChest = -1,
 		GroupChest = -1,
 	},
+
+	TutorialData = {
+		CurrentStep = 1,
+	},
 }

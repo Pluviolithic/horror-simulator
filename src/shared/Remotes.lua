@@ -127,6 +127,11 @@ local Remotes = Net.CreateDefinitions {
 		},
 		Net.Middleware.TypeChecking(t.string),
 	},
+	IncrementTutorialStep = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
+		},
+	},
 
 	SpawnRewardPart = Net.Definitions.ServerToClientEvent(),
 	SendPopupMessage = Net.Definitions.ServerToClientEvent(),
