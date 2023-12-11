@@ -5,6 +5,8 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local getMultiplierAdjustedStat =
+	require(ReplicatedStorage.Common.Utils.Player.MultiplierUtils).getMultiplierAdjustedStat
 
 local player = Players.LocalPlayer
 local baseRewardPart = ReplicatedStorage.KillRewardPart
@@ -19,12 +21,12 @@ Remotes.Client:Get("SpawnRewardPart"):Connect(function(fear, gems)
 
 	formatter.tweenFormattedTextNumber(rewardPart.KillRewardUI.Frame.FearFrame.Amount, {
 		0,
-		fear,
+		getMultiplierAdjustedStat(player, "Fear", fear),
 		0.3,
 	})
 	formatter.tweenFormattedTextNumber(rewardPart.KillRewardUI.Frame.GemsFrame.Amount, {
 		0,
-		gems,
+		getMultiplierAdjustedStat(player, "Gems", gems),
 		0.3,
 	})
 

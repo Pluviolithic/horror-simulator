@@ -6,6 +6,8 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local getStatAdjustedMultiplier =
+	require(ReplicatedStorage.Common.Utils.Player.MultiplierUtils).getMultiplierAdjustedStat
 
 local player = Players.LocalPlayer
 local BossUI = player.PlayerGui:WaitForChild "BossUI"
@@ -16,14 +18,7 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 		return
 	end
 
-	local gemsMultiplier = selectors.getMultiplierData(store:getState(), player.Name).GemsMultiplier
-	local gemsMultiplierCount = selectors.getMultiplierData(store:getState(), player.Name).GemsMultiplierCount or 0
-	local gemsBoostData = selectors.getActiveBoosts(store:getState(), player.Name).GemsBoost
 	local gemsToDisplay = info.Gems * info.DamageDealtByPlayer / info.MaxHealth
-
-	local fearMultiplier = selectors.getMultiplierData(store:getState(), player.Name).FearMultiplier
-	local fearMultiplierCount = selectors.getMultiplierData(store:getState(), player.Name).FearMultiplierCount or 0
-	local fearBoostData = selectors.getActiveBoosts(store:getState(), player.Name).FearBoost
 	local fearToDisplay = math.clamp(info.DamageDealtByPlayer, 0, info.MaxHealth * maxFearFromBossPercentage / 100)
 	local maxAddon = if fearToDisplay == info.MaxHealth * maxFearFromBossPercentage / 100 then " (Max)" else ""
 
@@ -31,17 +26,8 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 		BossUI.Enabled = true
 	end
 
-	if fearMultiplierCount < 1 then
-		fearToDisplay *= (1 + fearMultiplier) * (fearBoostData and 2 or 1)
-	else
-		fearToDisplay *= fearMultiplier * (fearBoostData and 2 or 1)
-	end
-
-	if gemsMultiplierCount < 1 then
-		gemsToDisplay *= (1 + gemsMultiplier) * (gemsBoostData and 2 or 1)
-	else
-		gemsToDisplay *= gemsMultiplier * (gemsBoostData and 2 or 1)
-	end
+	gemsToDisplay = getStatAdjustedMultiplier(player, "Gems", gemsToDisplay)
+	fearToDisplay = getStatAdjustedMultiplier(player, "Fear", fearToDisplay)
 
 	BossUI.Background.Frame.Health:TweenSize(
 		UDim2.fromScale(1.013 * info.Health / info.MaxHealth, 1.104),

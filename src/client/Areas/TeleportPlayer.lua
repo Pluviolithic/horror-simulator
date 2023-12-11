@@ -5,6 +5,7 @@ local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 
 local player = Players.LocalPlayer
+local ContentProvider = game:GetService "ContentProvider"
 local transitionsUI = player.PlayerGui:WaitForChild "Transitions"
 
 local defaultTeleportData = {
@@ -12,6 +13,15 @@ local defaultTeleportData = {
 	horizontalOffset = 5,
 	target = workspace.Teleports["Clown TownTP"],
 }
+
+local imagesToPreload = {}
+for _, imageLabel in pairs(transitionsUI:GetDescendants()) do
+	if imageLabel:IsA "ImageLabel" then
+		table.insert(imagesToPreload, imageLabel.Image)
+	end
+end
+
+task.spawn(ContentProvider.PreloadAsync, ContentProvider, imagesToPreload)
 
 return function(teleportData)
 	teleportData = Dict.merge(defaultTeleportData, teleportData)

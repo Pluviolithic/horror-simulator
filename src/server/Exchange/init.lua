@@ -142,7 +142,7 @@ local function handlePunchingBag(bag: any)
 
 			local maxFearMeter = selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 			local currentFearMeter = selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
-			local reductionAmount = maxFearMeter
+			local reductionAmount = -maxFearMeter
 				* strengthRanks["Rank" .. selectors.getStat(store:getState(), player.Name, "Rank")].FearDecrease.Value
 				/ 100
 
