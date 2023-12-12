@@ -7,6 +7,7 @@ local random = Random.new()
 local server = ServerScriptService.Server
 local animations = ReplicatedStorage.CombatAnimations
 local damageIndicatorTemplate = ReplicatedStorage.DamageTemplate
+local fistSound = ReplicatedStorage.Config.Audio.SoundEffects.Fists
 local playerAttackSpeed = ReplicatedStorage.Config.Combat.PlayerAttackSpeed.Value
 
 local store = require(server.State.Store)
@@ -46,7 +47,7 @@ local function handleDummy(dummy)
 
 	local debounceTable = {}
 
-	clickDetector.MouseClick:Connect(function(player: Player)
+	clickDetector.MouseClick:Connect(function(player)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass "Humanoid"
 		local premiumMultiplier = if player.MembershipType == Enum.MembershipType.Premium then 1.2 else 1
 		if debounceTable[player.UserId] or not humanoid then
@@ -115,6 +116,12 @@ local function handleDummy(dummy)
 				currentAnimation = animationInstances[currentIndex]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				currentTrack:Play()
+
+				local sound = player.Character.HumanoidRootPart:FindFirstChild "Fists" or fistSound:Clone()
+				sound.Parent = player.Character.HumanoidRootPart
+				sound.PlaybackSpeed = random:NextNumber(0.9, 1.1)
+				sound:Play()
+
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
 

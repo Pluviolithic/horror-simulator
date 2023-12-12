@@ -97,9 +97,11 @@ local function handleEnemy(enemy)
 		end
 	end)
 
-	enemyJanitor:Add(function()
-		enemy.Hitbox.DeathSFX:Play()
-	end, true)
+	if isBoss then
+		enemyJanitor:Add(function()
+			enemy.Hitbox.DeathSFX:Play()
+		end, true)
+	end
 	enemyJanitor:Add(enemyAnimationJanitor)
 	enemyJanitor:Add(info.HealthValue:GetPropertyChangedSignal("Value"):Connect(function()
 		if info.HealthValue.Value <= 0 then
@@ -147,14 +149,19 @@ local function handleEnemy(enemy)
 				tween:Play()
 			end
 
-			task.spawn(function()
-				if enemy.Hitbox.DeathSFX.IsPlaying then
-					enemy.Hitbox.DeathSFX.Ended:Wait()
-				else
-					task.wait(1)
-				end
+			if isBoss then
+				task.spawn(function()
+					if enemy.Hitbox.DeathSFX.IsPlaying then
+						enemy.Hitbox.DeathSFX.Ended:Wait()
+					else
+						task.wait(1)
+					end
+					enemyJanitor:Destroy()
+				end)
+			else
+				task.wait(1)
 				enemyJanitor:Destroy()
-			end)
+			end
 
 			task.wait(respawnRate)
 			enemyClone.Parent = workspace

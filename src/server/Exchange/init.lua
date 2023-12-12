@@ -10,10 +10,12 @@ local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
+local random = Random.new()
 local animations = ReplicatedStorage.CombatAnimations
 local disableSwitch = Instance.new "BindableEvent"
 
 local strengthRanks = ReplicatedStorage.Config.StrengthRanks
+local fistSound = ReplicatedStorage.Config.Audio.SoundEffects.Fists
 local requiredFear = ReplicatedStorage.Config.Workout.RequiredFear.Value
 local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
 local tripleWorkoutSpeedPassID = ReplicatedStorage.Config.GamepassData.IDs["3xWorkoutSpeed"].Value
@@ -38,7 +40,7 @@ local function handlePunchingBag(bag: any)
 	local multiplier = bag.Multiplier.Value
 	local inUse = false
 
-	prompt.Triggered:Connect(function(player: Player)
+	prompt.Triggered:Connect(function(player)
 		local cancelled = false
 
 		if
@@ -108,6 +110,12 @@ local function handlePunchingBag(bag: any)
 				currentAnimation = animationInstances[currentIndex]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
 				currentTrack:Play()
+
+				local sound = player.Character.HumanoidRootPart:FindFirstChild "Fists" or fistSound:Clone()
+				sound.Parent = player.Character.HumanoidRootPart
+				sound.PlaybackSpeed = random:NextNumber(0.9, 1.1)
+				sound:Play()
+
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
 

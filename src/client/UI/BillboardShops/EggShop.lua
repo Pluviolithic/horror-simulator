@@ -176,17 +176,19 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 
 		tweens.whiteScreenFlashTween:Play()
 
-		for _, sound in hatchingSounds:GetChildren() do
-			task.spawn(function()
-				if sound:FindFirstChild "Delay" and sound.Delay.Value ~= 0 then
-					task.wait(sound.Delay.Value)
-				end
-				sound:Play()
-				if sound:FindFirstChild "Duration" then
-					task.wait(sound.Duration.Value)
-					sound:Stop()
-				end
-			end)
+		if selectors.getSetting(store:getState(), player.Name, "SoundEffects") then
+			for _, sound in hatchingSounds:GetChildren() do
+				task.spawn(function()
+					if sound:FindFirstChild "Delay" and sound.Delay.Value ~= 0 then
+						task.wait(sound.Delay.Value)
+					end
+					sound:Play()
+					if sound:FindFirstChild "Duration" then
+						task.wait(sound.Duration.Value)
+						sound:Stop()
+					end
+				end)
+			end
 		end
 
 		task.wait(0.25)
