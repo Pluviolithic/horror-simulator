@@ -72,21 +72,6 @@ local function updatePlayerFearEffects(player, newState, oldState)
 	then
 		store:dispatch(actions.setPlayerStat(player.Name, "CurrentFearMeter", 0))
 	end
-
-	if
-		not selectors.isPlayerLoaded(oldState)
-		or selectors.getTutorialStep(newState, player.Name) ~= selectors.getTutorialStep(oldState, player.Name)
-	then
-		if selectors.getTutorialStep(newState, player.Name) == 3 then
-			store:dispatch(
-				actions.setPlayerStat(
-					player.Name,
-					"CurrentFearMeter",
-					0.95 * selectors.getStat(newState, player.Name, "MaxFearMeter")
-				)
-			)
-		end
-	end
 end
 
 store.changed:connect(function(newState, oldState)

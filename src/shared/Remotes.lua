@@ -132,10 +132,11 @@ local Remotes = Net.CreateDefinitions {
 			MaxRequestsPerMinute = 60,
 		},
 	},
-	ResetTutorialFearMeter = Net.Definitions.ClientToServerEvent {
+	SetTutorialFearMeterPercent = Net.Definitions.ClientToServerEvent {
 		Net.Middleware.RateLimit {
 			MaxRequestsPerMinute = 60,
 		},
+		Net.Middleware.TypeChecking(t.number),
 	},
 
 	SpawnRewardPart = Net.Definitions.ServerToClientEvent(),

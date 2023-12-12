@@ -12,9 +12,18 @@ Remotes.Server:Get("IncrementTutorialStep"):Connect(function(player)
 	end
 end)
 
-Remotes.Server:Get("ResetTutorialFearMeter"):Connect(function(player)
-	if selectors.getTutorialStep(store:getState(), player.Name) == 3 then
-		store:dispatch(actions.setPlayerStat(player.Name, "CurrentFearMeter", 0))
+Remotes.Server:Get("SetTutorialFearMeterPercent"):Connect(function(player, amount)
+	if (amount == 0 or amount == 0.95) and selectors.getTutorialStep(store:getState(), player.Name) == 3 then
+		store:dispatch(
+			actions.setPlayerStat(
+				player.Name,
+				"CurrentFearMeter",
+				amount * selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+			)
+		)
+		if amount == 0 then
+			store:dispatch(actions.setPlayerStat(player.Name, "LastScaredTimestamp", -1))
+		end
 	end
 end)
 
