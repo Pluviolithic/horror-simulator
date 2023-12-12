@@ -11,6 +11,7 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local SettingsUI = CentralUI.new(player.PlayerGui:WaitForChild "Settings")
@@ -28,9 +29,11 @@ function SettingsUI:_initialize(): ()
 			continue
 		end
 		settingSwitch.On.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			Remotes.Client:Get("SwitchSetting"):SendToServer(settingSwitch.Name)
 		end)
 		settingSwitch.Off.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			if settingSwitch.Name:match "Vip" and not selectors.hasGamepass(store:getState(), player.Name, "VIP") then
 				MarketplaceService:PromptGamePassPurchase(player, gamepassIDs.VIP.Value)
 				return
@@ -46,6 +49,7 @@ function SettingsUI:_initialize(): ()
 	end
 
 	player.PlayerGui:WaitForChild("MainUI").Settings.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self:setEnabled(not self._isOpen)
 	end)
 

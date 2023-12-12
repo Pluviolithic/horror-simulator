@@ -101,6 +101,7 @@ return {
 		["2xSpeed"] = true,
 		BrightMode = false,
 		ShowMyPets = true,
+		SoundEffects = true,
 		ShowOtherPets = true,
 		Jumpscares = true,
 	},

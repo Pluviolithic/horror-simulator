@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local destructor = Janitor.new()
 local currentConfirmationUI
@@ -34,6 +35,7 @@ return function(confirmationUI, message, callback, interfaceToSkip)
 
 	destructor:Add(
 		confirmationUI.Confirm.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			confirmationUI.Visible = false
 			destructor:Cleanup()
 			callback()
@@ -43,6 +45,7 @@ return function(confirmationUI, message, callback, interfaceToSkip)
 
 	destructor:Add(
 		confirmationUI.Close.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			confirmationUI.Visible = false
 			destructor:Cleanup()
 		end),
@@ -53,6 +56,7 @@ return function(confirmationUI, message, callback, interfaceToSkip)
 	if cancel then
 		destructor:Add(
 			confirmationUI.Cancel.Activated:Connect(function()
+				playSoundEffect "UIButton"
 				confirmationUI.Visible = false
 				destructor:Cleanup()
 			end),

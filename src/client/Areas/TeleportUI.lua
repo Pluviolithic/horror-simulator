@@ -4,6 +4,7 @@ local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
@@ -67,14 +68,17 @@ function TeleportUI:_initialize()
 	end)
 
 	player.PlayerGui:WaitForChild("MainUI").Teleport.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self:setEnabled(not self._isOpen)
 	end)
 
 	self._ui.Ad.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		MarketplaceService:PromptGamePassPurchase(player, freeTeleportersGamepassID)
 	end)
 
 	mainUI.AFK.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		local primarySoundArea = selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
 		local purchasedTeleporters = selectors.getPurchasedTeleporters(store:getState(), player.Name)
 		local target, targetAreaName = nil, nil
@@ -106,6 +110,7 @@ function TeleportUI:_initialize()
 		area.Teleport.Active = true
 
 		area.Teleport.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			local hasFreeTeleporters = selectors.hasGamepass(store:getState(), player.Name, "FreeTeleporters")
 			if area.Locked.Visible or area.CostUI.Visible then
 				if selectors.getStat(store:getState(), player.Name, "Strength") < areaRequirements[area.Name].Value then

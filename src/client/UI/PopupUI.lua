@@ -1,7 +1,9 @@
 local Players = game:GetService "Players"
+local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local player = Players.LocalPlayer
 local popupTemplate = ReplicatedStorage.PopupTemplate
@@ -14,6 +16,12 @@ local popupGenerator = function(message, textColor)
 		return
 	end
 	activePopups[message] = true
+
+	if textColor == Color3.fromRGB(250, 250, 250) then
+		playSoundEffect "WhitePopup"
+	else
+		playSoundEffect "RedPopup"
+	end
 
 	local popup = popupTemplate:Clone()
 	popup.PopupText.Text = message

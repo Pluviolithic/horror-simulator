@@ -10,6 +10,7 @@ local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local preAFKFear = 0
 local player = Players.LocalPlayer
@@ -66,10 +67,12 @@ playerStatePromise:andThen(function()
 end)
 
 DummyUI.Passes["2xFear"].Activated:Connect(function()
+	playSoundEffect "UIButton"
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xFear"].Value)
 end)
 
 DummyUI.Passes["2xAttackSpeed"].Activated:Connect(function()
+	playSoundEffect "UIButton"
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xAttackSpeed"].Value)
 end)
 

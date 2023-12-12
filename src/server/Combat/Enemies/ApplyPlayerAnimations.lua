@@ -1,11 +1,13 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
-local combatAnimations = ReplicatedStorage.CombatAnimations
-
 local store = require(ServerScriptService.Server.State.Store)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils)
+
+local random = Random.new()
+local combatAnimations = ReplicatedStorage.CombatAnimations
+local fistSound = ReplicatedStorage.Config.Audio.SoundEffects.Fists
 
 return function(player, janitor)
 	local runAnimations = true
@@ -26,6 +28,39 @@ return function(player, janitor)
 			animationTrack.Priority = Enum.AnimationPriority.Action
 
 			animationTrack:Play()
+
+			task.spawn(function()
+				local weapon = selectors.getEquippedWeapon(store:getState(), player.Name)
+				if weapon == "Fists" then
+					local sound = player.Character.HumanoidRootPart:FindFirstChild "Fists" or fistSound:Clone()
+					sound.Parent = player.Character.HumanoidRootPart
+					sound.PlaybackSpeed = random:NextNumber(0.9, 1.1)
+					sound:Play()
+					return
+				end
+
+				local playbackSpeed = random:NextNumber(0.9, 1.1)
+
+				local sounds = player.Character[weapon]:FindFirstChild "Sounds"
+				while not sounds do
+					task.wait()
+					sounds = player.Character[weapon]:FindFirstChild "Sounds"
+				end
+				for _, sound in sounds:GetChildren() do
+					task.spawn(function()
+						if sound:FindFirstChild "Delay" and sound.Delay.Value ~= 0 then
+							task.wait(sound.Delay.Value)
+						end
+						sound.PlaybackSpeed = playbackSpeed
+						sound:Play()
+						if sound:FindFirstChild "Duration" then
+							task.wait(sound.Duration.Value)
+							sound:Stop()
+						end
+					end)
+				end
+			end)
+
 			animationTrack.Stopped:Wait()
 			animationTrack:Destroy()
 

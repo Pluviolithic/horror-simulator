@@ -6,7 +6,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
---local permissionList = require(ReplicatedStorage.Common.PermissionList)
+local permissionList = require(ReplicatedStorage.Common.PermissionList)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local strengthMeters = require(StarterPlayer.StarterPlayerScripts.Client.UI.Combat.StrengthMeters)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
@@ -19,9 +19,9 @@ local TutorialUI = player.PlayerGui:WaitForChild "Tutorial"
 local starterStrength = ReplicatedStorage.Config.Workout.Strength.Value
 local rolloutSpeed = ReplicatedStorage.Config.Text.MissionTextRolloutSpeed.Value
 
--- if permissionList[player.UserId] then
--- 	return 0
--- end
+if permissionList.Admins[player.UserId] then
+	return 0
+end
 
 local rolloutFinished = false
 local function rolloutTutorialText(text)

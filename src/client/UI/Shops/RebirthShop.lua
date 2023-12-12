@@ -3,6 +3,7 @@ local StarterPlayer = game:GetService "StarterPlayer"
 
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local player = Players.LocalPlayer
 local mainUI = player.PlayerGui:WaitForChild "MainUI"
@@ -11,6 +12,7 @@ local RebirthShop = {}
 
 function RebirthShop:_initialize()
 	mainUI.Rebirth.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		PopupUI "Rebirth Update Coming Soon!"
 	end)
 end

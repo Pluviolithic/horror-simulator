@@ -13,9 +13,9 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.ConfirmationUI)
-local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
-
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local PetInventory = CentralUI.new(player.PlayerGui:WaitForChild "PetInventory")
 local confirmationUIInstance = player.PlayerGui:WaitForChild("PetInventory").Confirmation
@@ -72,10 +72,12 @@ function PetInventory:_initialize(): ()
 	table.clear(pets)
 
 	player.PlayerGui:WaitForChild("MainUI").Pets.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self:setEnabled(not self._isOpen)
 	end)
 
 	self._ui.Background.Storage.Buy.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		local maxPetCount = selectors.getStat(store:getState(), player.Name, "MaxPetCount")
 		if maxPetCount == 30 or maxPetCount == 130 then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["50PetStorage"].Value)
@@ -85,6 +87,7 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.Equipped.Buy.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		if not selectors.hasGamepass(store:getState(), player.Name, "1PetEquipped") then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["1PetEquipped"].Value)
 		elseif not selectors.hasGamepass(store:getState(), player.Name, "2PetEquipped") then
@@ -93,6 +96,7 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.UnequipAll.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		if self._confirmationDestructor then
 			self._confirmationDestructor:Cleanup()
 		end
@@ -108,6 +112,7 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.EquipBest.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		if self._confirmationDestructor then
 			self._confirmationDestructor:Cleanup()
 		end
@@ -123,6 +128,7 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.EvolveAll.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		if self._confirmationDestructor then
 			self._confirmationDestructor:Cleanup()
 		end
@@ -138,6 +144,7 @@ function PetInventory:_initialize(): ()
 	end)
 
 	self._ui.Background.DeleteAll.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		if self._confirmationDestructor then
 			self._confirmationDestructor:Cleanup()
 		end
@@ -256,6 +263,7 @@ function PetInventory:Refresh()
 			end
 
 			petTemplate.Activated:Connect(function()
+				playSoundEffect "UIButton"
 				if self._focusedTemplate == petTemplate then
 					self:_clearFocusedDisplay()
 					self._focusedTemplate = nil
@@ -273,6 +281,7 @@ function PetInventory:Refresh()
 			end)
 
 			petTemplate.Unlocked.Activated:Connect(function()
+				playSoundEffect "UIButton"
 				--petTemplate.Unlocked.Visible = false
 				--petTemplate.Lock.Visible = true
 				self._focusedTemplateDetails.Locked = true
@@ -280,6 +289,7 @@ function PetInventory:Refresh()
 			end)
 
 			petTemplate.Lock.Activated:Connect(function()
+				playSoundEffect "UIButton"
 				--petTemplate.Unlocked.Visible = true
 				--petTemplate.Lock.Visible = false
 				if petTemplate.Equipped.Visible or pet:FindFirstChild "PermaLock" then
@@ -380,6 +390,7 @@ function PetInventory:_setFocusedDisplay()
 	self._ui.RightBackground.Multiplier.Visible = true
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Equip.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		if details.Equipped then
 			Remotes.Client:Get("UnequipPet"):SendToServer(details.PetName)
 		elseif
@@ -402,6 +413,7 @@ function PetInventory:_setFocusedDisplay()
 	end))
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Delete.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		if details.Locked then
 			if petUtils.getPet(details.PetName):FindFirstChild "PermaLock" then
 				PopupUI "You Can Not Delete This Pet!"
@@ -424,6 +436,7 @@ function PetInventory:_setFocusedDisplay()
 	end
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Evolve.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		if details.Quantity > 4 then
 			Remotes.Client:Get("EvolvePet"):SendToServer(details.PetName)
 			self:_clearFocusedDisplay()

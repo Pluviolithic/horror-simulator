@@ -5,6 +5,7 @@ local CentralUI = {}
 CentralUI.__index = CentralUI
 
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 local collidableInterfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 
 function CentralUI.new(UI: GuiObject)
@@ -18,6 +19,7 @@ function CentralUI.new(UI: GuiObject)
 
 	if exit then
 		exit.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			self:setEnabled(false)
 		end)
 	end

@@ -17,6 +17,7 @@ local playerStatePromise = require(Client.State.PlayerStatePromise)
 local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local statusUIListeners = {}
 local missionRequirements = ReplicatedStorage.Missions
@@ -53,6 +54,7 @@ function MissionsUI:_initialize(): ()
 	self._janitor = Janitor.new()
 
 	self._ui.Dialogue.Frame.Cancel.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self:setEnabled(false)
 	end)
 
@@ -66,6 +68,7 @@ function MissionsUI:_initialize(): ()
 
 	self._ui.Dialogue.Frame.Skip.Visible = false
 	self._ui.Dialogue.Frame.Skip.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		local playerRegion = regionUtils.getPlayerLocationName(player.Name)
 		local currentMissionData = selectors.getMissionData(store:getState(), player.Name)[playerRegion]
 		local currentMissionRequirements =
@@ -195,6 +198,8 @@ function MissionsUI:OnOpen()
 				pending = false
 			end)
 			self._janitor:Add(self._ui.Dialogue.Frame.Confirm.Activated:Connect(function()
+				playSoundEffect "UIButton"
+				playSoundEffect "MissionCompleted"
 				if pending then
 					self._confirmPressed = true
 					return
@@ -218,6 +223,7 @@ function MissionsUI:OnOpen()
 				pending = false
 			end)
 			self._janitor:Add(self._ui.Dialogue.Frame.Confirm.Activated:Connect(function()
+				playSoundEffect "UIButton"
 				if pending then
 					self._confirmPressed = true
 					return
@@ -239,6 +245,7 @@ function MissionsUI:OnOpen()
 		end)
 
 		self._janitor:Add(self._ui.Dialogue.Frame.Confirm.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			if pending then
 				self._confirmPressed = true
 				return
@@ -272,6 +279,7 @@ function MissionsUI:OnOpen()
 		end)
 
 		self._janitor:Add(self._ui.Dialogue.Frame.Confirm.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			if pending then
 				self._confirmPressed = true
 				return

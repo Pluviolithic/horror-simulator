@@ -19,6 +19,7 @@ local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
 local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["AutoHatch"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xHatch"].Value
@@ -72,6 +73,9 @@ local tweens = {
 		}
 	),
 }
+
+local hatchingSounds = ReplicatedStorage.Config.Audio.Hatching:Clone()
+hatchingSounds.Parent = workspace
 
 local function createEggShakeTween(egg: GuiObject, rotation): Tween
 	return TweenService:Create(egg, TweenInfo.new(0.1), {
@@ -171,6 +175,20 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 		end
 
 		tweens.whiteScreenFlashTween:Play()
+
+		for _, sound in hatchingSounds:GetChildren() do
+			task.spawn(function()
+				if sound:FindFirstChild "Delay" and sound.Delay.Value ~= 0 then
+					task.wait(sound.Delay.Value)
+				end
+				sound:Play()
+				if sound:FindFirstChild "Duration" then
+					task.wait(sound.Duration.Value)
+					sound:Stop()
+				end
+			end)
+		end
+
 		task.wait(0.25)
 
 		local oldMinSize = uiToShow["Pet" .. 1].UISizeConstraint.MinSize
@@ -400,26 +418,32 @@ local function handleShop(shop): ()
 	end)
 
 	shop.Background.Open1.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		buyEgg(1, false)
 	end)
 
 	shop.Background.Open3.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		buyEgg(3, false)
 	end)
 
 	shop.Background.Auto.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		buyEgg(1, true)
 	end)
 
 	shop.Background.Passes["2xLuck"].Activated:Connect(function()
+		playSoundEffect "UIButton"
 		MarketplaceService:PromptGamePassPurchase(player, doubleLuckGamepassID)
 	end)
 
 	shop.Background.Passes["3xLuck"].Activated:Connect(function()
+		playSoundEffect "UIButton"
 		MarketplaceService:PromptGamePassPurchase(player, tripleLuckGamepassID)
 	end)
 
 	shop.Background.Passes.FasterHatch.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		MarketplaceService:PromptGamePassPurchase(player, fasterHatchGamepassID)
 	end)
 

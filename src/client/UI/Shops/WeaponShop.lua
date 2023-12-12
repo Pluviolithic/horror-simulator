@@ -19,6 +19,7 @@ local confirmationUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.Conf
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local weapons = ReplicatedStorage.Weapons
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
@@ -80,6 +81,7 @@ function WeaponShop:_initialize(): ()
 	end)
 
 	mainUI.WeaponShop.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		local primarySoundArea = selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
 		local purchasedTeleporters = selectors.getPurchasedTeleporters(store:getState(), player.Name)
 
@@ -100,6 +102,7 @@ function WeaponShop:_initialize(): ()
 		end
 
 		button.Activated:Connect(function()
+			playSoundEffect "UIButton"
 			local focusedDisplay = WeaponShop._ui.RightBackground
 			local price = weapons[button.Name]:FindFirstChild "Price"
 			if price then
@@ -136,6 +139,7 @@ function WeaponShop:_initialize(): ()
 				end
 
 				self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
+					playSoundEffect "UIButton"
 					if focusedDisplay.GreenButton.Text.Text == "Unequip" then
 						Remotes.Client:Get("UnequipWeapon"):CallServerAsync()
 					else
@@ -154,6 +158,7 @@ function WeaponShop:_initialize(): ()
 					focusedDisplay.GreenButton.Visible = true
 
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
+						playSoundEffect "UIButton"
 						local id = gamepassIDs.VIP.Value
 						if button.Name == "Scythe" then
 							id = gamepassIDs.Scythe.Value
@@ -168,6 +173,7 @@ function WeaponShop:_initialize(): ()
 					focusedDisplay.GreenButton.Text.Text = "Purchase"
 					focusedDisplay.GreenButton.Visible = true
 					self._eventConnections["PurchaseButton"] = focusedDisplay.GreenButton.Activated:Connect(function()
+						playSoundEffect "UIButton"
 						if selectors.getStat(store:getState(), player.Name, "Gems") < price then
 							PopupUI "You Can Not Afford This Weapon!"
 							RobuxShop:OpenSubShop "Gems"

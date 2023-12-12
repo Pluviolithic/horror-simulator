@@ -14,6 +14,7 @@ local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI
 local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local RobuxShop = CentralUI.new(player.PlayerGui:WaitForChild "RobuxShop")
@@ -93,14 +94,17 @@ end
 
 function RobuxShop:_initialize(): ()
 	mainUI.RobuxShop.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self:setEnabled(not self._isOpen)
 	end)
 
 	mainUI.Fear.Buy.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self:OpenSubShop "Fear"
 	end)
 
 	mainUI.Gems.Buy.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self:OpenSubShop "Gems"
 	end)
 
@@ -109,26 +113,31 @@ function RobuxShop:_initialize(): ()
 	end)
 
 	self._ui.Boosts.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self._ui.Background.BoostsFrame.Visible = true
 		self:_closeFramesWithExclude(self._ui.Background.BoostsFrame)
 	end)
 
 	self._ui.Fear.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self._ui.Background.FearFrame.Visible = true
 		self:_closeFramesWithExclude(self._ui.Background.FearFrame)
 	end)
 
 	self._ui.Gamepasses.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self._ui.Background.GamepassesFrame.Visible = true
 		self:_closeFramesWithExclude(self._ui.Background.GamepassesFrame)
 	end)
 
 	self._ui.Gems.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self._ui.Background.GemsFrame.Visible = true
 		self:_closeFramesWithExclude(self._ui.Background.GemsFrame)
 	end)
 
 	self._ui.Pets.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self._ui.Background.PetsFrame.Visible = true
 		self:_closeFramesWithExclude(self._ui.Background.PetsFrame)
 	end)
@@ -137,6 +146,7 @@ function RobuxShop:_initialize(): ()
 		local gamepassIDInstance = gamepassIDs:FindFirstChild(buttonDisplay.Name)
 		if gamepassIDInstance then
 			buttonDisplay.Purchase.Activated:Connect(function()
+				playSoundEffect "UIButton"
 				MarketplaceService:PromptGamePassPurchase(player, gamepassIDInstance.Value)
 			end)
 
@@ -152,6 +162,7 @@ function RobuxShop:_initialize(): ()
 		local productIDInstance = petProductIDs:FindFirstChild(buttonDisplay.Name)
 		if productIDInstance then
 			buttonDisplay.Purchase.Activated:Connect(function()
+				playSoundEffect "UIButton"
 				MarketplaceService:PromptProductPurchase(player, productIDInstance.Value)
 			end)
 		end
@@ -162,6 +173,7 @@ function RobuxShop:_initialize(): ()
 			local packIDInstance = packProductIDs.Gems:FindFirstChild(buttonDisplay.Name)
 			if packIDInstance then
 				buttonDisplay.Purchase.Activated:Connect(function()
+					playSoundEffect "UIButton"
 					MarketplaceService:PromptProductPurchase(player, packIDInstance.Value)
 				end)
 			end
@@ -173,6 +185,7 @@ function RobuxShop:_initialize(): ()
 			local packIDInstance = packProductIDs.Fear:FindFirstChild(buttonDisplay.Name)
 			if packIDInstance then
 				buttonDisplay.Purchase.Activated:Connect(function()
+					playSoundEffect "UIButton"
 					MarketplaceService:PromptProductPurchase(player, packIDInstance.Value)
 				end)
 			end
@@ -184,6 +197,7 @@ function RobuxShop:_initialize(): ()
 			if not purchaseButton.Name:match "Purchase" then
 				if purchaseButton.Name:match "Use" then
 					purchaseButton.Activated:Connect(function()
+						playSoundEffect "UIButton"
 						local boostDuration = purchaseButton.Name:match "(%d*%.?%d+)"
 						if
 							not selectors.getBoostCount(
@@ -203,6 +217,7 @@ function RobuxShop:_initialize(): ()
 				boostProductIDs:FindFirstChild(buttonDisplay.Name .. purchaseButton.Name:match "(%d*%.?%d+)")
 
 			purchaseButton.Activated:Connect(function()
+				playSoundEffect "UIButton"
 				MarketplaceService:PromptProductPurchase(player, boostIDInstance.Value)
 			end)
 		end

@@ -9,6 +9,7 @@ local doubleFearMeterID = ReplicatedStorage.Config.GamepassData.IDs["2xFearMeter
 local Client = StarterPlayer.StarterPlayerScripts.Client
 local player = Players.LocalPlayer
 
+local playSoundEffect = require(Client.GameAtmosphere.SoundEffects)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
@@ -89,6 +90,7 @@ playerStatePromise:andThen(function()
 	end
 
 	fearMeter.Background.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		MarketplaceService:PromptGamePassPurchase(player, doubleFearMeterID)
 	end)
 
@@ -134,8 +136,14 @@ playerStatePromise:andThen(function()
 		end
 	end)
 
-	fearMeter.Enable.Activated:Connect(revealFearMeter)
-	fearMeter.Disable.Activated:Connect(hideFearMeter)
+	fearMeter.Enable.Activated:Connect(function()
+		playSoundEffect "UIButton"
+		revealFearMeter()
+	end)
+	fearMeter.Disable.Activated:Connect(function()
+		playSoundEffect "UIButton"
+		hideFearMeter()
+	end)
 
 	RunService.RenderStepped:Connect(function()
 		local secondsSinceLastScared = os.time() - selectors.getStat(currentState, player.Name, "LastScaredTimestamp")

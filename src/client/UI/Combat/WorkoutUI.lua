@@ -9,6 +9,7 @@ local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local player = Players.LocalPlayer
 local workoutSpeed = ReplicatedStorage.Config.Workout.WorkoutSpeed.Value
@@ -94,10 +95,12 @@ playerStatePromise:andThen(function()
 end)
 
 WorkoutUI.Passes["2xStrength"].Activated:Connect(function()
+	playSoundEffect "UIButton"
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xStrength"].Value)
 end)
 
 WorkoutUI.Passes["3xWorkoutSpeed"].Activated:Connect(function()
+	playSoundEffect "UIButton"
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["3xWorkoutSpeed"].Value)
 end)
 

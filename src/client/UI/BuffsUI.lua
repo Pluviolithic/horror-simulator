@@ -10,6 +10,7 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local player = Players.LocalPlayer
 
@@ -108,15 +109,18 @@ for _, buffDisplay in buffTray.Frame:GetChildren() do
 		continue
 	end
 	buffDisplay.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		RobuxShop:OpenSubShop "Boosts"
 	end)
 end
 
 buffTray.Frame.DamageDebuff.Activated:Connect(function()
+	playSoundEffect "UIButton"
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xAttackSpeed"].Value)
 end)
 
 buffTray.Frame.SpeedDebuff.Activated:Connect(function()
+	playSoundEffect "UIButton"
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xSpeed"].Value)
 end)
 

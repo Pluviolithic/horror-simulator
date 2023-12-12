@@ -9,6 +9,7 @@ local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local player = Players.LocalPlayer
 
@@ -29,6 +30,7 @@ end
 
 function StrengthMeters:_initialize(): ()
 	player.PlayerGui:WaitForChild("Rank").Open.Activated:Connect(function()
+		playSoundEffect "UIButton"
 		self:setEnabled(not self._isOpen)
 	end)
 

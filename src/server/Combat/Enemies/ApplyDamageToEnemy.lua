@@ -43,7 +43,11 @@ return function(player, enemy, info, janitor)
 	if weaponName ~= "Fists" then
 		local weaponAccessory = weapons[weaponName]:Clone()
 		player.Character.Humanoid:AddAccessory(weaponAccessory)
-		janitor:Add(weaponAccessory)
+		janitor:Add(function()
+			task.delay(1, function()
+				weaponAccessory:Destroy()
+			end)
+		end, true)
 	end
 
 	task.spawn(function()
