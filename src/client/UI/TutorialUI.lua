@@ -1,47 +1,373 @@
 local Players = game:GetService "Players"
+local TweenService = game:GetService "TweenService"
 local StarterPlayer = game:GetService "StarterPlayer"
+local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
--- local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
+local step = 1
+local connection
 local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local TutorialUI = player.PlayerGui:WaitForChild "Tutorial"
+local starterStrength = ReplicatedStorage.Config.Workout.Strength.Value
+local rolloutSpeed = ReplicatedStorage.Config.Text.MissionTextRolloutSpeed.Value
 
-local function handleTutorialStep(state)
-	local step = selectors.getTutorialStep(state, player.Name)
-
-	if step == 1 and selectors.getStat(state, player.Name, "Kills") > 1 then
-		Remotes.Client:Get("IncrementTutorialStep"):FireServer()
-	elseif step == 2 then
-		local starterStrength = selectors.getStat(state, player.Name, "Strength")
-		local connection
-		connection = store.changed:connect(function(newState)
-			local newStrength = selectors.getStat(newState, player.Name, "Strength")
-			if newStrength - starterStrength >= 20 then
-				connection:Disconnect()
-				Remotes.Client:Get("IncrementTutorialStep"):FireServer()
-			end
-		end)
-	elseif step == 3 then
-		print "step 3 is here"
-	end
-end
-
-playerStatePromise:andThen(function()
-	local tutorialStep = selectors.getTutorialStep(store:getState(), player.Name)
-	if tutorialStep > 10 then
+local rolloutFinished = false
+local function rolloutTutorialText(text)
+	if TutorialUI.TutorialText.Visible then
+		if rolloutFinished then
+			TutorialUI.TutorialText.Text = text
+		end
 		return
 	end
-	handleTutorialStep(store:getState())
-	store.changed:connect(function(newState, oldState)
-		local newTutorialStep = selectors.getTutorialStep(newState, player.Name)
-		local oldTutorialStep = selectors.getTutorialStep(oldState, player.Name)
-		if newTutorialStep ~= oldTutorialStep then
-			handleTutorialStep(newState)
+	rolloutFinished = false
+	TutorialUI.TutorialText.Visible = true
+	for i = 1, #text do
+		TutorialUI.TutorialText.Text = text:sub(1, i)
+		task.wait(rolloutSpeed)
+	end
+	rolloutFinished = true
+end
+
+local subStep = 1
+local stepLocked = false
+local tutorialFunctions
+tutorialFunctions = {
+	function()
+		local kills = selectors.getStat(store:getState(), player.Name, "Kills")
+		if kills < 2 then
+			rolloutTutorialText(`Defeat enemies to gain Fear! ({kills}/2)`)
+		else
+			step += 1
+			Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+			tutorialFunctions[step]()
 		end
+	end,
+	function()
+		local strength = selectors.getStat(store:getState(), player.Name, "Strength")
+		if strength - starterStrength < 20 then
+			if not workspace.Beams.TutorialWorkout.Beam.Attachment1 then
+				workspace.Beams.TutorialWorkout.Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
+			end
+			rolloutTutorialText(`Turn your Fear into Strength by Working Out! ({strength - starterStrength}/20)`)
+		else
+			step += 1
+			Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+			tutorialFunctions[step]()
+		end
+	end,
+	function()
+		if subStep == 1 then
+			rolloutTutorialText "You are now stronger! Try defeating an enemy!"
+			subStep += 1
+			return
+		end
+
+		if stepLocked then
+			return
+		end
+
+		if
+			selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
+			>= selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+		then
+			local meterDisplayText = "This is your Fear Meter. When it is maxed you get scared!"
+			stepLocked = true
+			rolloutTutorialText "You got scared by an enemy!"
+
+			task.wait(3)
+
+			Remotes.Client:Get("ResetTutorialFearMeter"):SendToServer()
+
+			TutorialUI.DarkScreen.Visible = true
+			TutorialUI.DisplayOrder = 1
+			TutorialUI.TutorialText.Visible = false
+			TutorialUI.MeterText.Visible = true
+			TutorialUI.MeterArrow.Visible = true
+
+			for i = 1, #meterDisplayText do
+				TutorialUI.MeterText.Text = meterDisplayText:sub(1, i)
+				task.wait(rolloutSpeed)
+			end
+
+			task.wait(5)
+
+			TutorialUI.DarkScreen.Visible = false
+			TutorialUI.MeterText.Visible = false
+			TutorialUI.MeterArrow.Visible = false
+
+			step += 1
+			subStep = 1
+			stepLocked = false
+			Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+
+			tutorialFunctions[step]()
+		end
+	end,
+	function()
+		rolloutTutorialText "When you are scared you attack and move slower!"
+		step += 1
+		Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+		tutorialFunctions[step]()
+	end,
+	function()
+		local rankText = "Click Strength Rank to see all the ranks!"
+		if stepLocked then
+			return
+		end
+		stepLocked = true
+
+		task.wait(4)
+
+		TutorialUI.DarkScreen.Visible = true
+		TutorialUI.DisplayOrder = 3
+		TutorialUI.TutorialText.Visible = false
+		TutorialUI.RankText.Visible = true
+		TutorialUI.RankArrow.Visible = true
+
+		task.spawn(function()
+			repeat
+				TutorialUI.RankArrow:TweenPosition(
+					UDim2.fromScale(0.157, 0.879),
+					Enum.EasingDirection.Out,
+					Enum.EasingStyle.Quad,
+					0.5,
+					true,
+					function()
+						TutorialUI.RankArrow:TweenPosition(
+							UDim2.fromScale(0.163, 0.879),
+							Enum.EasingDirection.In,
+							Enum.EasingStyle.Quad,
+							0.5,
+							true
+						)
+					end
+				)
+			until step ~= 5
+		end)
+
+		for i = 1, #rankText do
+			TutorialUI.RankText.Text = rankText:sub(1, i)
+			task.wait(rolloutSpeed)
+		end
+
+		player.PlayerGui.Rank.Open.Activated:Wait()
+
+		step += 1
+		stepLocked = false
+		Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+		tutorialFunctions[step]()
+	end,
+	function()
+		local strengthText = "Increase your rank by working out to get more fear meter!"
+		if stepLocked then
+			return
+		end
+		stepLocked = true
+
+		TutorialUI.RankText.Visible = false
+		TutorialUI.RankArrow.Visible = false
+		TutorialUI.StrengthText.Visible = true
+
+		for i = 1, #strengthText do
+			TutorialUI.StrengthText.Text = strengthText:sub(1, i)
+			task.wait(rolloutSpeed)
+		end
+
+		task.wait(5)
+
+		TutorialUI.DarkScreen.Visible = false
+		TutorialUI.StrengthText.Visible = false
+
+		step += 1
+		stepLocked = false
+		Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+		tutorialFunctions[step]()
+	end,
+	function()
+		if stepLocked then
+			return
+		end
+		stepLocked = true
+
+		rolloutTutorialText "Use the AFK area to gain fear while you're away!"
+
+		camera.CameraType = Enum.CameraType.Scriptable
+		local tween = TweenService:Create(camera, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			CFrame = workspace.Cutscenes.AFKCutscene.CFrame,
+		})
+		tween:Play()
+		tween.Completed:Wait()
+		tween:Destroy()
+
+		step += 1
+		stepLocked = false
+		Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+		tutorialFunctions[step]()
+	end,
+	function()
+		local bossText1 = "Defeating bosses gives you lots of gems!"
+		local bossText2 = "They are strong, so fight them with other players!"
+		if stepLocked then
+			return
+		end
+		stepLocked = true
+
+		task.wait(4)
+
+		TutorialUI.TutorialText.Visible = false
+
+		local tween =
+			TweenService:Create(camera, TweenInfo.new(1.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				CFrame = workspace.Cutscenes.Boss1Cutscene.CFrame,
+			})
+		tween:Play()
+		tween.Completed:Wait()
+		tween:Destroy()
+
+		tween = TweenService:Create(camera, TweenInfo.new(1.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			CFrame = workspace.Cutscenes.Boss2Cutscene.CFrame,
+		})
+		tween:Play()
+		tween.Completed:Wait()
+		tween:Destroy()
+
+		TutorialUI.BossText1.Visible = true
+		for i = 1, #bossText1 do
+			TutorialUI.BossText1.Text = bossText1:sub(1, i)
+			task.wait(rolloutSpeed)
+		end
+
+		task.wait(1)
+
+		TutorialUI.BossText2.Visible = true
+		for i = 1, #bossText2 do
+			TutorialUI.BossText2.Text = bossText2:sub(1, i)
+			task.wait(rolloutSpeed)
+		end
+
+		step += 1
+		stepLocked = false
+		Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+		tutorialFunctions[step]()
+	end,
+	function()
+		local portalText1 = "Once you are strong enough you"
+		local portalText2 = "can advance to the next area!"
+		if stepLocked then
+			return
+		end
+		stepLocked = true
+
+		TutorialUI.BossText1.Visible = false
+		TutorialUI.BossText2.Visible = false
+
+		local tween = TweenService:Create(camera, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			CFrame = workspace.Cutscenes.PortalCutscene.CFrame,
+		})
+		tween:Play()
+		tween.Completed:Wait()
+		tween:Destroy()
+
+		TutorialUI.PortalText1.Visible = true
+		for i = 1, #portalText1 do
+			TutorialUI.PortalText1.Text = portalText1:sub(1, i)
+			task.wait(rolloutSpeed)
+		end
+
+		TutorialUI.PortalText2.Visible = true
+		for i = 1, #portalText2 do
+			TutorialUI.PortalText2.Text = portalText2:sub(1, i)
+			task.wait(rolloutSpeed)
+		end
+
+		step += 1
+		stepLocked = false
+		Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+		tutorialFunctions[step]()
+	end,
+	function()
+		local missionText1 = "Talk to the Police Officer for missions that give gems!"
+		local missionText2 = "Gems can buy pets & Weapons!"
+		if stepLocked then
+			return
+		end
+		stepLocked = true
+
+		TutorialUI.PortalText1.Visible = false
+		TutorialUI.PortalText2.Visible = false
+
+		local tween =
+			TweenService:Create(camera, TweenInfo.new(1.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				CFrame = workspace.Cutscenes.Boss1Cutscene.CFrame,
+			})
+		tween:Play()
+		tween.Completed:Wait()
+		tween:Destroy()
+
+		tween = TweenService:Create(camera, TweenInfo.new(1.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			CFrame = workspace.Cutscenes.MissionCutscene.CFrame,
+		})
+		tween:Play()
+		tween.Completed:Wait()
+		tween:Destroy()
+
+		TutorialUI.MissionText1.Visible = true
+		for i = 1, #missionText1 do
+			TutorialUI.MissionText1.Text = missionText1:sub(1, i)
+			task.wait(rolloutSpeed)
+		end
+
+		TutorialUI.MissionText2.Visible = true
+		for i = 1, #missionText2 do
+			TutorialUI.MissionText2.Text = missionText2:sub(1, i)
+			task.wait(rolloutSpeed)
+		end
+
+		task.wait(2)
+
+		camera.CameraSubject = player.Character.Humanoid
+		camera.CameraType = Enum.CameraType.Custom
+
+		workspace.Beams.TutorialMission.Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
+
+		step += 1
+		stepLocked = false
+		Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
+		tutorialFunctions[step]()
+	end,
+}
+
+playerStatePromise:andThen(function()
+	step = selectors.getTutorialStep(store:getState(), player.Name)
+	if step > 10 then
+		return
+	end
+	task.spawn(tutorialFunctions[step])
+	connection = store.changed:connect(function(newState)
+		local currentTarget = selectors.getCurrentTarget(newState, player.Name)
+		if currentTarget and CollectionService:HasTag(currentTarget, "PunchingBag") then
+			TutorialUI.TutorialText.Visible = false
+			if workspace.Beams.TutorialWorkout.Beam.Attachment1 then
+				workspace.Beams.TutorialWorkout.Beam.Attachment1 = nil
+			end
+			return
+		end
+
+		if
+			selectors.getMissionData(newState, player.Name).Active and workspace.Beams.TutorialMission.Beam.Attachment1
+		then
+			TutorialUI.TutorialText.Visible = false
+			workspace.Beams.TutorialMission.Beam.Attachment1 = nil
+			connection:disconnect()
+			return
+		end
+		task.spawn(tutorialFunctions[step])
 	end)
 end)
 

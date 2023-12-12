@@ -1,5 +1,5 @@
 require(script.Shops)
---require(script.TutorialUI)
+require(script.TutorialUI)
 require(script.Combat)
 require(script.MainUI)
 require(script.Displays)

@@ -12,4 +12,10 @@ Remotes.Server:Get("IncrementTutorialStep"):Connect(function(player)
 	end
 end)
 
+Remotes.Server:Get("ResetTutorialFearMeter"):Connect(function(player)
+	if selectors.getTutorialStep(store:getState(), player.Name) == 3 then
+		store:dispatch(actions.setPlayerStat(player.Name, "CurrentFearMeter", 0))
+	end
+end)
+
 return 0
