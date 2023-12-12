@@ -87,7 +87,7 @@ tutorialFunctions = {
 			stepLocked = true
 			rolloutTutorialText "You got scared by an enemy!"
 
-			task.wait(3)
+			task.wait(4)
 
 			Remotes.Client:Get("SetTutorialFearMeterPercent"):SendToServer(0)
 
