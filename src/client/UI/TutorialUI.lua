@@ -19,7 +19,7 @@ local TutorialUI = player.PlayerGui:WaitForChild "Tutorial"
 local starterStrength = ReplicatedStorage.Config.Workout.Strength.Value
 local rolloutSpeed = ReplicatedStorage.Config.Text.MissionTextRolloutSpeed.Value
 
-if permissionList.Admins[player.UserId] then
+if permissionList.TutorialExempt[player.UserId] then
 	return 0
 end
 
