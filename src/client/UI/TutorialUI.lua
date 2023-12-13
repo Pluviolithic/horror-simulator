@@ -375,23 +375,23 @@ playerStatePromise:andThen(function()
 			task.spawn(tutorialFunctions[step])
 		end
 	end)
-end)
 
-local connections = {}
-for _, missionPrompt in CollectionService:GetTagged "MissionPrompt" do
-	table.insert(
-		connections,
-		missionPrompt.Triggered:Connect(function(source)
-			if source == player and step == 11 then
-				for _, missionConnection in connections do
-					missionConnection:Disconnect()
+	local connections = {}
+	for _, missionPrompt in CollectionService:GetTagged "MissionPrompt" do
+		table.insert(
+			connections,
+			missionPrompt.Triggered:Connect(function(source)
+				if source == player and step == 11 then
+					for _, missionConnection in connections do
+						missionConnection:Disconnect()
+					end
+					connection:disconnect()
+					TutorialUI.Enabled = false
+					workspace.Beams.TutorialMission.Beam.Attachment1 = nil
 				end
-				connection:disconnect()
-				TutorialUI.Enabled = false
-				workspace.Beams.TutorialMission.Beam.Attachment1 = nil
-			end
-		end)
-	)
-end
+			end)
+		)
+	end
+end)
 
 return 0
