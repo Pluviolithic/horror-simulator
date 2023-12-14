@@ -12,8 +12,8 @@ local permissionList = require(ReplicatedStorage.Common.PermissionList)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 
 local globalLeaderboardStores = {
-	Kills = DataStoreService:GetOrderedDataStore "Kills",
-	Strength = DataStoreService:GetOrderedDataStore "Strength",
+	Kills = DataStoreService:GetOrderedDataStore "GlobalKills",
+	Strength = DataStoreService:GetOrderedDataStore "GlobalStrength",
 	--Rebirths = DataStoreService:GetOrderedDataStore "Rebirths",
 }
 
@@ -54,6 +54,7 @@ local function updateGlobalLeaderboardStores(): ()
 			not profiles[player.Name]
 			or permissionList.Admins[player.UserId]
 			or not selectors.isPlayerLoaded(store:getState(), player.Name)
+			or player.UserId < 0
 		then
 			continue
 		end
@@ -68,7 +69,7 @@ local function updateGlobalLeaderboardStores(): ()
 	end
 end
 
-task.spawn(function()
+task.delay(10, function()
 	while true do
 		task.spawn(updateGlobalLeaderboardDisplays)
 		task.spawn(updateGlobalLeaderboardStores)
