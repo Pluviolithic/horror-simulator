@@ -14,6 +14,7 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
+local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
@@ -37,6 +38,9 @@ local function handleMissionStatusUI(statusUI, areaName)
 		local currentMissionRequirements = missionRequirements[areaName][tostring(missionData.CurrentMissionNumber)]
 		if missionData.Active then
 			if missionData.CurrentMissionProgress == currentMissionRequirements.Requirements.Value then
+				if not frame.Completed.Visible then
+					PopupUI("Mission Completed!", Color3.fromRGB(250, 250, 250))
+				end
 				frame.Mission.Visible = false
 				frame.Completed.Visible = true
 			end

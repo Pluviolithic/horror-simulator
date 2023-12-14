@@ -91,6 +91,7 @@ return {
 	},
 
 	SavedSettings = {
+		Tips = true,
 		VipChatTag = false,
 		VipNameTag = false,
 		JumpscareCooldown = true,
