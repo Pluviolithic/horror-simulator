@@ -142,6 +142,7 @@ function TeleportUI:_initialize()
 			if not player.Character or not player.Character:FindFirstChild "HumanoidRootPart" then
 				return
 			end
+			self:setEnabled(false)
 			teleportPlayer {
 				target = getAreaTeleporter(area.Name),
 			}

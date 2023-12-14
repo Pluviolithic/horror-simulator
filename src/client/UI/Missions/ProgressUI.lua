@@ -8,7 +8,6 @@ local Client = StarterPlayer.StarterPlayerScripts.Client
 local store = require(Client.State.Store)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
-local regionUtils = require(ReplicatedStorage.Common.Utils.Player.RegionUtils)
 
 local missionRequirements = ReplicatedStorage.Missions
 
@@ -71,21 +70,19 @@ end
 
 playerStatePromise:andThen(function()
 	local progressUI = player.PlayerGui:WaitForChild "ProgressUI"
-	for regionName, zone in regionUtils.getRegions() do
-		if zone:findLocalPlayer() then
-			enteredRegion(regionName, progressUI)
-		end
-		zone.localPlayerEntered:Connect(function()
-			enteredRegion(regionName, progressUI)
-		end)
-	end
 	store.changed:connect(function(newState, oldState)
+		local newPrimarySoundRegion = selectors.getAudioData(newState, player.Name).PrimarySoundRegion
+		local oldPrimarySoundRegion = selectors.getAudioData(oldState, player.Name).PrimarySoundRegion
 		local newMissionData = selectors.getMissionData(newState, player.Name)
 		local oldMissionData = selectors.getMissionData(oldState, player.Name)
-		if newMissionData == oldMissionData then
+		if newMissionData == oldMissionData and newPrimarySoundRegion == oldPrimarySoundRegion then
 			return
 		end
-		enteredRegion(regionUtils.getPlayerLocationName(player.Name), progressUI)
+		if not newPrimarySoundRegion then
+			progressUI.Enabled = false
+			return
+		end
+		enteredRegion(newPrimarySoundRegion, progressUI)
 	end)
 end)
 

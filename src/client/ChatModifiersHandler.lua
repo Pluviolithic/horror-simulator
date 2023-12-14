@@ -14,7 +14,7 @@ local tips = {
 	"Fight weaker enemies for easy gems!",
 	"Missions and bosses are the best way to get gems!",
 	"Stronger areas give more strength when you workout!",
-	"You can wait 2 minutes to reset your fear meter while scared!",
+	"When you're scared you can wait 2 minutes to reset your fear meter!",
 	"Deal more damage by buying stronger weapons!",
 	"Bosses are strong, so fight them with other players!",
 	"Follow _ProdigyStudios for codes!",
