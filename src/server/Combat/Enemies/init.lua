@@ -16,6 +16,7 @@ local applyPlayerAnimations = require(script.ApplyPlayerAnimations)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 
+local gemVisualPart = ReplicatedStorage.GemVisualPart
 local bossRespawnRate = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
 local enemyRespawnRate = ReplicatedStorage.Config.Combat.EnemyRespawnRate.Value
 local maxFearFromBossPercentage = ReplicatedStorage.Config.Combat.BossFearPercentage.Value
@@ -127,6 +128,9 @@ local function handleEnemy(enemy)
 				store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", gemsToSend, enemy.Name))
 
 				Remotes.Server:Get("SpawnRewardPart"):SendToPlayer(player, fearToSend, gemsToSend)
+				Remotes.Server
+					:Get("DropGems")
+					:SendToPlayer(player, rootPart.CFrame, gemVisualPart, enemy.Configuration.GemVisualCount.Value)
 			end
 			enemyJanitor:Cleanup()
 			enemyJanitor:Add(enemy)

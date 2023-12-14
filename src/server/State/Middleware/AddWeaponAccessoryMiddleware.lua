@@ -27,14 +27,10 @@ end
 local function modifyAccessories(player, action, equippedWeaponAccessory)
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild "Humanoid"
-	if action.type == "combatBegan" or action.type == "unequipWeapon" then
+	if action.type == "unequipWeapon" then
 		local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
 		if oldEquippedWeaponAccessory then
 			oldEquippedWeaponAccessory:Destroy()
-		end
-	elseif action.type == "switchPlayerEnemy" then
-		if not findFirstChildWithTag(player.Character, "WeaponAccessory") then
-			humanoid:AddAccessory(equippedWeaponAccessory:Clone())
 		end
 	elseif action.type == "equipWeapon" then
 		local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")

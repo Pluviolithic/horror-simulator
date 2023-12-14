@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local currencyDroppingUtils = require(ReplicatedStorage.Common.Utils.Player.CurrencyDroppingUtils)
 local getMultiplierAdjustedStat =
 	require(ReplicatedStorage.Common.Utils.Player.MultiplierUtils).getMultiplierAdjustedStat
 
@@ -57,5 +58,7 @@ Remotes.Client:Get("SpawnRewardPart"):Connect(function(fear, gems)
 		end
 	)
 end)
+
+Remotes.Client:Get("DropGems"):Connect(currencyDroppingUtils.dropCurrency)
 
 return 0

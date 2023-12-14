@@ -5,7 +5,10 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local CollectionService = game:GetService "CollectionService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local store = require(ServerScriptService.Server.State.Store)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
+local permissionList = require(ReplicatedStorage.Common.PermissionList)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 
 local globalLeaderboardStores = {
@@ -47,7 +50,11 @@ end
 
 local function updateGlobalLeaderboardStores(): ()
 	for _, player in Players:GetPlayers() do
-		if not profiles[player.Name] then
+		if
+			not profiles[player.Name]
+			or permissionList.Admins[player.UserId]
+			or not selectors.isPlayerLoaded(store:getState(), player.Name)
+		then
 			continue
 		end
 		for statName, globalLeaderboard in globalLeaderboardStores do
@@ -55,7 +62,7 @@ local function updateGlobalLeaderboardStores(): ()
 				globalLeaderboard.SetAsync,
 				globalLeaderboard,
 				tostring(player.UserId),
-				profiles[player.Name].Data[statName]
+				selectors.getStat(store:getState(), player.Name, statName)
 			)
 		end
 	end
@@ -64,8 +71,8 @@ end
 task.spawn(function()
 	while true do
 		task.spawn(updateGlobalLeaderboardDisplays)
-		task.wait(180)
 		task.spawn(updateGlobalLeaderboardStores)
+		task.wait(100)
 	end
 end)
 

@@ -12,7 +12,7 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(Client.State.Store)
 local camera = workspace.CurrentCamera
 
-local jumpscareGap = 5
+local jumpscareGap = ReplicatedStorage.Config.Combat.JumpscareCooldown.Value
 local lastJumpscared = -1
 
 local function isScared(state)

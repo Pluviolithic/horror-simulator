@@ -6,7 +6,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(ServerScriptService.Server.State.Store)
-local actions = require(ServerScriptService.Server.State.Actions)
+--local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils)
@@ -14,6 +14,24 @@ local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils
 local random = Random.new()
 local weapons = ReplicatedStorage.Weapons
 local damageIndicatorTemplate = ReplicatedStorage.DamageTemplate
+
+local function findFirstChildWithTag(parent: Instance?, tag: string, recursive: boolean?): Instance?
+	if not parent then
+		return nil
+	end
+	for _, child in parent:GetChildren() do
+		if CollectionService:HasTag(child, tag) then
+			return child
+		end
+		if recursive then
+			local result = findFirstChildWithTag(child, tag, recursive)
+			if result then
+				return result
+			end
+		end
+	end
+	return nil
+end
 
 local function canAttack(player, enemy, info)
 	if not enemy:IsDescendantOf(game) then
@@ -38,14 +56,29 @@ return function(player, enemy, info, janitor)
 		enabled = false
 	end, true)
 
-	store:dispatch(actions.combatBegan(player.Name))
+	--store:dispatch(actions.combatBegan(player.Name))
+	local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
+	if oldEquippedWeaponAccessory then
+		oldEquippedWeaponAccessory:Destroy()
+	end
 
 	if weaponName ~= "Fists" then
 		local weaponAccessory = weapons[weaponName]:Clone()
 		player.Character.Humanoid:AddAccessory(weaponAccessory)
 		janitor:Add(function()
+			local equippedWeaponAccessory = weapons.BodyAccessory:FindFirstChild(weaponName)
+			if info.HealthValue.Value > 0 then
+				weaponAccessory:Destroy()
+				if not findFirstChildWithTag(player.Character, "WeaponAccessory") then
+					player.Character.Humanoid:AddAccessory(equippedWeaponAccessory:Clone())
+				end
+				return
+			end
 			task.delay(1, function()
 				weaponAccessory:Destroy()
+				if not findFirstChildWithTag(player.Character, "WeaponAccessory") then
+					player.Character.Humanoid:AddAccessory(equippedWeaponAccessory:Clone())
+				end
 			end)
 		end, true)
 	end
