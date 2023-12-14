@@ -48,24 +48,6 @@ local function orientEnemy(rootPart, playerPosition)
 	)
 end
 
-local function findFirstChildWithTag(parent: Instance?, tag: string, recursive: boolean?): Instance?
-	if not parent then
-		return nil
-	end
-	for _, child in parent:GetChildren() do
-		if CollectionService:HasTag(child, tag) then
-			return child
-		end
-		if recursive then
-			local result = findFirstChildWithTag(child, tag, recursive)
-			if result then
-				return result
-			end
-		end
-	end
-	return nil
-end
-
 local function handleEnemy(enemy)
 	local info = {
 		HealthValue = enemy.Configuration.FearHealth,
@@ -214,11 +196,6 @@ local function handleEnemy(enemy)
 		store:dispatch(actions.switchPlayerEnemy(player.Name, enemy))
 
 		humanoid:MoveTo(enemy.Hitbox.Position + (humanoid.RootPart.Position - enemy.Hitbox.Position).Unit * fightRange)
-
-		local oldEquippedWeaponModel = findFirstChildWithTag(player.Character, "WeaponModel")
-		if oldEquippedWeaponModel then
-			oldEquippedWeaponModel:Destroy()
-		end
 
 		playerJanitor:Add(
 			store.changed:connect(function(newState)

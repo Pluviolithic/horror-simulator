@@ -48,6 +48,9 @@ local function jumpscarePlayer(enemyName)
 				task.wait(sound.Duration.Value)
 				sound:Stop()
 			end
+			if sound.IsPlaying then
+				sound.Ended:Wait()
+			end
 			sound.TimePosition = timePosition
 		end)
 	end

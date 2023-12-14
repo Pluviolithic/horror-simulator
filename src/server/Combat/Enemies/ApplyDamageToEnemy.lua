@@ -62,11 +62,6 @@ return function(player, enemy, info, janitor)
 		oldEquippedWeaponAccessory:Destroy()
 	end
 
-	local oldEquippedWeaponModel = findFirstChildWithTag(player.Character, "WeaponModel")
-	if oldEquippedWeaponModel then
-		oldEquippedWeaponModel:Destroy()
-	end
-
 	if weaponName ~= "Fists" then
 		local weaponAccessory = weapons[weaponName]:Clone()
 		player.Character.Humanoid:AddAccessory(weaponAccessory)
@@ -80,9 +75,6 @@ return function(player, enemy, info, janitor)
 				return
 			end
 			task.delay(1, function()
-				if selectors.getCurrentTarget(store:getState(), player.Name) then
-					return
-				end
 				weaponAccessory:Destroy()
 				if not findFirstChildWithTag(player.Character, "WeaponAccessory") then
 					player.Character.Humanoid:AddAccessory(equippedWeaponAccessory:Clone())
@@ -103,6 +95,11 @@ return function(player, enemy, info, janitor)
 
 			if enemy.Parent == nil then
 				break
+			end
+
+			oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
+			if oldEquippedWeaponAccessory then
+				oldEquippedWeaponAccessory:Destroy()
 			end
 
 			task.spawn(function()

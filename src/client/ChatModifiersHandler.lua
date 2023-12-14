@@ -7,12 +7,12 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 
+local random = Random.new()
 local player = Players.LocalPlayer
 local tips = {
 	"Don't forget to open and evolve pets for more fear!",
 	"Fight weaker enemies for easy gems!",
 	"Missions and bosses are the best way to get gems!",
-	"Remember to buy weapons to do more damage!",
 	"Stronger areas give more strength when you workout!",
 	"You can wait 2 minutes to reset your fear meter while scared!",
 	"Deal more damage by buying stronger weapons!",
@@ -42,8 +42,9 @@ Remotes.Client:Get("LegendaryUnboxed"):Connect(function(playerName, petName)
 end)
 
 task.delay(120, function()
-	for _, tip in tips do
+	while #tips > 0 do
 		if selectors.getSetting(store:getState(), player.Name, "Tips") then
+			local tip = table.remove(tips, random:NextInteger(1, #tips))
 			TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage(
 				`<font color= 'rgb(255, 255, 255)'>Tip: {tip}</font>`
 			)
