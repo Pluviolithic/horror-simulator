@@ -57,9 +57,9 @@ function WeaponShop:_initialize(): ()
 	store.changed:connect(function(newState, oldState)
 		if
 			selectors.getStat(newState, player.Name, "Gems") >= currentTargetPrice
+			and selectors.isPlayerLoaded(oldState, player.Name)
 			and currentTargetPrice > selectors.getStat(oldState, player.Name, "Gems")
 			and os.time() - lastCanAffordNotification > 180
-			and selectors.isPlayerLoaded(oldState, player.Name)
 		then
 			lastCanAffordNotification = os.time()
 			canAffordNotificationUIOnTween:Play()

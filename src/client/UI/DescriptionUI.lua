@@ -47,7 +47,10 @@ return function(button, description, text)
 		description.Visible = false
 	end)
 
-	button.TouchTap:Connect(function()
+	button.Activated:Connect(function(inputObject)
+		if inputObject.UserInputType ~= Enum.UserInputType.Touch then
+			return
+		end
 		handleDescription(description, text)
 	end)
 end

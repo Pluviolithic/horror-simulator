@@ -1,6 +1,5 @@
 local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
-local UserInputService = game:GetService "UserInputService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
@@ -9,6 +8,7 @@ local clockUtils = require(ReplicatedStorage.Common.Utils.ClockUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
+local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
@@ -60,50 +60,12 @@ local function updateBuffTray(state)
 	end
 end
 
-local currentOpenDescription, countdownActive
-local lastDescriptionTapped = -1
-
-local function countdownDescriptionDisplayTime()
-	lastDescriptionTapped = os.time()
-	if countdownActive then
-		return
-	end
-	countdownActive = true
-	while lastDescriptionTapped + 10 > os.time() do
-		task.wait(0.25)
-	end
-	currentOpenDescription.Visible = false
-	currentOpenDescription = nil
-	countdownActive = false
-end
-
 for _, buffDisplay in buffTray.Frame:GetChildren() do
 	if not buffDisplay:IsA "GuiButton" then
 		continue
 	end
 
-	buffDisplay.MouseEnter:Connect(function()
-		if not UserInputService.MouseEnabled then
-			return
-		end
-		buffDisplay.Description.Visible = true
-	end)
-
-	buffDisplay.MouseLeave:Connect(function()
-		if not UserInputService.MouseEnabled then
-			return
-		end
-		buffDisplay.Description.Visible = false
-	end)
-
-	buffDisplay.TouchTap:Connect(function()
-		if currentOpenDescription and currentOpenDescription ~= buffDisplay.Description then
-			currentOpenDescription.Visible = false
-			buffDisplay.Description.Visible = true
-		end
-		currentOpenDescription = buffDisplay.Description
-		countdownDescriptionDisplayTime()
-	end)
+	DescriptionUI(buffDisplay, buffDisplay.Frame)
 
 	if not buffDisplay.Name:match "Boost" then
 		continue
