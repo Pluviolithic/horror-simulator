@@ -14,7 +14,8 @@ ReplicatedStorage.Config.Audio.SoundEffects:Clone().Parent = workspace
 
 local function playSoundEffect(soundName: string)
 	if
-		not selectors.getSetting(store:getState(), player.Name, "SoundEffects")
+		not selectors.isPlayerLoaded(store:getState(), player.Name)
+		or not selectors.getSetting(store:getState(), player.Name, "SoundEffects")
 		or (workspace.SoundEffects[soundName].IsPlaying and soundName ~= "Gems")
 	then
 		return

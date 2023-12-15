@@ -53,31 +53,32 @@ WeaponShop._itemButtons = WeaponShop._ui.LeftBackground.ScrollingFrame:GetChildr
 function WeaponShop:_initialize(): ()
 	playerStatePromise:andThen(function()
 		self:Refresh()
-	end)
-	store.changed:connect(function(newState, oldState)
-		if
-			selectors.getStat(newState, player.Name, "Gems") >= currentTargetPrice
-			and selectors.isPlayerLoaded(oldState, player.Name)
-			and currentTargetPrice > selectors.getStat(oldState, player.Name, "Gems")
-			and os.time() - lastCanAffordNotification > 180
-		then
-			lastCanAffordNotification = os.time()
-			canAffordNotificationUIOnTween:Play()
-		end
+		store.changed:connect(function(newState, oldState)
+			if
+				selectors.getStat(newState, player.Name, "Gems") >= currentTargetPrice
+				and selectors.isPlayerLoaded(oldState, player.Name)
+				and currentTargetPrice > selectors.getStat(oldState, player.Name, "Gems")
+				and os.time() - lastCanAffordNotification > 180
+			then
+				lastCanAffordNotification = os.time()
+				canAffordNotificationUIOnTween:Play()
+			end
 
-		if not self._isOpen then
-			return
-		end
+			if not self._isOpen then
+				return
+			end
 
-		if
-			selectors.getEquippedWeapon(newState, player.Name) ~= selectors.getEquippedWeapon(oldState, player.Name)
-			or not Table.ShallowIsEqual(
-				selectors.getOwnedWeapons(newState, player.Name),
-				selectors.getOwnedWeapons(oldState, player.Name)
-			)
-		then
-			WeaponShop:Refresh()
-		end
+			if
+				selectors.getEquippedWeapon(newState, player.Name)
+					~= selectors.getEquippedWeapon(oldState, player.Name)
+				or not Table.ShallowIsEqual(
+					selectors.getOwnedWeapons(newState, player.Name),
+					selectors.getOwnedWeapons(oldState, player.Name)
+				)
+			then
+				WeaponShop:Refresh()
+			end
+		end)
 	end)
 
 	mainUI.WeaponShop.Activated:Connect(function()
