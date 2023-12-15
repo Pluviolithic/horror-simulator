@@ -139,6 +139,7 @@ local Remotes = Net.CreateDefinitions {
 		Net.Middleware.TypeChecking(t.number),
 	},
 
+	JumpscarePlayer = Net.Definitions.ServerToClientEvent(),
 	DropGems = Net.Definitions.ServerToClientEvent(),
 	SpawnRewardPart = Net.Definitions.ServerToClientEvent(),
 	SendPopupMessage = Net.Definitions.ServerToClientEvent(),

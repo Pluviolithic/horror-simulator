@@ -3,14 +3,14 @@ local StarterPlayer = game:GetService "StarterPlayer"
 local ContentProvider = game:GetService "ContentProvider"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
-local player = Players.LocalPlayer
-local Client = StarterPlayer.StarterPlayerScripts.Client
-
-local jumpscares = workspace:WaitForChild "Jumpscares"
-local playerStatePromise = require(Client.State.PlayerStatePromise)
+local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
-local store = require(Client.State.Store)
+local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
+
+local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
+local jumpscares = workspace:WaitForChild "Jumpscares"
 
 local jumpscareGap = ReplicatedStorage.Config.Combat.JumpscareCooldown.Value
 local lastJumpscared = -1
@@ -101,5 +101,9 @@ for _, jumpscare in jumpscares:GetChildren() do
 end
 
 task.spawn(ContentProvider.PreloadAsync, ContentProvider, jumpscareAnimations)
+
+Remotes.Client:Get("JumpscarePlayer"):Connect(function(enemyName)
+	jumpscarePlayer(enemyName)
+end)
 
 return 0
