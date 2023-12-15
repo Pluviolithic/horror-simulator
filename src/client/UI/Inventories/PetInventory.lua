@@ -334,7 +334,7 @@ function PetInventory:_setFocusedDisplay()
 	self:_clearFocusedDisplay()
 	self._focusedDestructor = Janitor.new()
 
-	if not self._focusedTemplate then
+	if not self._focusedTemplate or not self._focusedTemplate:FindFirstChild "PetName" then
 		return
 	end
 
@@ -407,8 +407,10 @@ function PetInventory:_setFocusedDisplay()
 			end
 			return
 		end
-		self._focusedTemplate.Equipped.Visible = not details.Equipped
-		self._focusedTemplate.Lock.Visible = details.Locked
+		pcall(function()
+			self._focusedTemplate.Equipped.Visible = not details.Equipped
+			self._focusedTemplate.Lock.Visible = details.Locked
+		end)
 		self:_setFocusedDisplay()
 	end))
 

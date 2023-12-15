@@ -1,4 +1,3 @@
-local TweenService = game:GetService "TweenService"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
@@ -6,14 +5,12 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local random = Random.new()
 local server = ServerScriptService.Server
 local animations = ReplicatedStorage.CombatAnimations
-local damageIndicatorTemplate = ReplicatedStorage.DamageTemplate
 local fistSound = ReplicatedStorage.Config.Audio.SoundEffects.Fists
 local playerAttackSpeed = ReplicatedStorage.Config.Combat.PlayerAttackSpeed.Value
 
 local store = require(server.State.Store)
 local actions = require(server.State.Actions)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
-local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local function getSortedAnimationInstances(animationInstances)
@@ -167,23 +164,6 @@ local function handleDummy(dummy)
 			store:dispatch(
 				actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear * premiumMultiplier, dummy.Name)
 			)
-			task.spawn(function()
-				local damageIndicator = damageIndicatorTemplate:Clone()
-				local tween = TweenService:Create(damageIndicator.Amount, TweenInfo.new(0.5), { TextTransparency = 1 })
-
-				damageIndicator.Position = UDim2.fromScale(random:NextNumber(0, 0.7), random:NextNumber(0.01, 0.85))
-				damageIndicator.Rotation = random:NextNumber(-7, 7)
-				damageIndicator.Amount.Text = "-" .. formatter.formatNumberWithSuffix(fear * premiumMultiplier)
-				damageIndicator.Parent = dummy.Hitbox.DamageIndicators.Frame
-
-				damageIndicator.Amount:TweenPosition(UDim2.fromScale(0.05, -1), "Out", "Quad", 1, true)
-				task.wait(0.5)
-
-				tween:Play()
-				tween.Completed:Wait()
-				tween:Destroy()
-				damageIndicator:Destroy()
-			end)
 			if
 				selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
 				== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")

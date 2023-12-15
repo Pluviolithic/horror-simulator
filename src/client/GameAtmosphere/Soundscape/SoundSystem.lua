@@ -10,9 +10,15 @@ local volumeKnobs, switches =
 local player = Players.LocalPlayer
 
 store.changed:connect(function(newState, oldState)
-	local newPrimarySoundRegion = selectors.getAudioData(newState, player.Name).PrimarySoundRegion
-	local newBackgroundMusicSetting = selectors.getSetting(newState, player.Name, "BackgroundMusic")
-	local oldBackgroundMusicSetting = selectors.getSetting(oldState, player.Name, "BackgroundMusic")
+	local newPrimarySoundRegion = if selectors.isPlayerLoaded(newState, player.Name)
+		then selectors.getAudioData(newState, player.Name).PrimarySoundRegion
+		else "Clown Town"
+	local newBackgroundMusicSetting = if selectors.isPlayerLoaded(newState, player.Name)
+		then selectors.getSetting(newState, player.Name, "BackgroundMusic")
+		else true
+	local oldBackgroundMusicSetting = if selectors.isPlayerLoaded(oldState, player.Name)
+		then selectors.getSetting(oldState, player.Name, "BackgroundMusic")
+		else true
 
 	if not newBackgroundMusicSetting then
 		volumeKnobs.on[newPrimarySoundRegion]:Cancel()
@@ -29,8 +35,12 @@ store.changed:connect(function(newState, oldState)
 end)
 
 store.changed:connect(function(newState, oldState)
-	local oldPrimarySoundRegion = selectors.getAudioData(oldState, player.Name).PrimarySoundRegion
-	local newPrimarySoundRegion = selectors.getAudioData(newState, player.Name).PrimarySoundRegion
+	local oldPrimarySoundRegion = if selectors.isPlayerLoaded(oldState, player.Name)
+		then selectors.getAudioData(oldState, player.Name).PrimarySoundRegion
+		else "Clown Town"
+	local newPrimarySoundRegion = if selectors.isPlayerLoaded(newState, player.Name)
+		then selectors.getAudioData(newState, player.Name).PrimarySoundRegion
+		else "Clown Town"
 
 	if oldPrimarySoundRegion ~= newPrimarySoundRegion then
 		if newPrimarySoundRegion then
