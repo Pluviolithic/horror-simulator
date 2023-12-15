@@ -66,6 +66,7 @@ return function(confirmationUI, message, callback, interfaceToSkip)
 
 	destructor:Add(function()
 		confirmationUI.Visible = false
+		currentConfirmationUI = nil
 	end, true)
 
 	return destructor
