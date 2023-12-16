@@ -1,20 +1,25 @@
 local Players = game:GetService "Players"
 local StarterPlayer = game:GetService "StarterPlayer"
+local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local getStatAdjustedMultiplier =
 	require(ReplicatedStorage.Common.Utils.Player.MultiplierUtils).getMultiplierAdjustedStat
 
+local originalCFrame = nil
+local alreadyRotated = false
 local player = Players.LocalPlayer
 local BossUI = player.PlayerGui:WaitForChild "BossUI"
 local maxFearFromBossPercentage = ReplicatedStorage.Config.Combat.BossFearPercentage.Value
 
 Remotes.Client:Get("SendFightInfo"):Connect(function(info)
-	if not info.IsBoss then
+	local enemy = selectors.getCurrentTarget(store:getState(), player.Name)
+	if not info.IsBoss or not enemy then
 		return
 	end
 
@@ -40,17 +45,53 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 	BossUI.Background.FearCounter.Text = "Fear: " .. formatter.formatNumberWithSuffix(fearToDisplay) .. maxAddon
 	BossUI.Background.DamageCounter.Text = "Damage: " .. formatter.formatNumberWithSuffix(info.DamageDealtByPlayer)
 	BossUI.Background.GemsCounter.Text = "Gems: " .. formatter.formatNumberWithSuffix(gemsToDisplay)
+
+	if alreadyRotated then
+		return
+	end
+	alreadyRotated = true
+
+	if not CollectionService:HasTag(enemy, "RotatingBoss") then
+		return
+	end
+
+	local rootPart = if enemy.Humanoid.RootPart then enemy.Humanoid.RootPart else enemy:FindFirstChild "RootPart"
+	local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
+	if humanoid and rootPart then
+		originalCFrame = rootPart.CFrame
+		rootPart.CFrame = CFrame.lookAt(
+			rootPart.Position,
+			humanoid.RootPart.Position * Vector3.new(1, 0, 1) + rootPart.Position.Y * Vector3.new(0, 1, 0)
+		)
+	end
 end)
 
-store.changed:connect(function(newState)
-	local currentEnemy = selectors.getCurrentTarget(newState, player.Name)
-	if not currentEnemy and BossUI.Enabled then
-		BossUI.Enabled = false
-		BossUI.Background.FearCounter.Text = ""
-		BossUI.Background.DamageCounter.Text = ""
-		BossUI.Background.GemsCounter.Text = ""
-		BossUI.Background.Frame.HP.Text = ""
-	end
+playerStatePromise:andThen(function()
+	store.changed:connect(function(newState, oldState)
+		local currentEnemy = selectors.getCurrentTarget(newState, player.Name)
+		if not currentEnemy and BossUI.Enabled then
+			BossUI.Enabled = false
+			BossUI.Background.FearCounter.Text = ""
+			BossUI.Background.DamageCounter.Text = ""
+			BossUI.Background.GemsCounter.Text = ""
+			BossUI.Background.Frame.HP.Text = ""
+		end
+
+		if not selectors.isPlayerLoaded(oldState, player.Name) then
+			return
+		end
+
+		local oldEnemy = selectors.getCurrentTarget(oldState, player.Name)
+		if not currentEnemy and CollectionService:HasTag(oldEnemy, "RotatingBoss") then
+			local rootPart = if oldEnemy.Humanoid.RootPart
+				then oldEnemy.Humanoid.RootPart
+				else oldEnemy:FindFirstChild "RootPart"
+			if rootPart and originalCFrame then
+				rootPart.CFrame = originalCFrame
+			end
+			alreadyRotated = false
+		end
+	end)
 end)
 
 return 0

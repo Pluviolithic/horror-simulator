@@ -6,11 +6,9 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
-local applyDamageToEnemy = require(script.ApplyDamageToEnemy)
 local store = require(ServerScriptService.Server.State.Store)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local actions = require(ServerScriptService.Server.State.Actions)
-local applyDamageToPlayers = require(script.ApplyDamageToPlayers)
 local applyEnemyAnimations = require(script.ApplyEnemyAnimations)
 local applyPlayerAnimations = require(script.ApplyPlayerAnimations)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -135,9 +133,6 @@ local function handleEnemy(enemy)
 			enemyJanitor:Cleanup()
 			enemyJanitor:Add(enemy)
 
-			-- destroy npc ui
-			-- fade out enemy
-
 			enemy:FindFirstChild("NPCUI", true).Enabled = false
 			for _, descendant in enemy:GetDescendants() do
 				if
@@ -180,14 +175,19 @@ local function handleEnemy(enemy)
 		end
 
 		debounces[player] = true
-		task.delay(1, function()
+		task.delay(0.5, function()
 			debounces[player] = nil
 		end)
 
-		if
-			selectors.getCurrentTarget(store:getState(), player.Name) == enemy
-			or CollectionService:HasTag(selectors.getCurrentTarget(store:getState(), player.Name), "PunchingBag")
-		then
+		if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
+			if Janitor.Is(info.Janitors[player]) then
+				info.Janitors[player]:Destroy()
+			end
+			humanoid:MoveTo(humanoid.RootPart.Position + humanoid.RootPart.CFrame.LookVector)
+			return
+		end
+
+		if CollectionService:HasTag(selectors.getCurrentTarget(store:getState(), player.Name), "PunchingBag") then
 			return
 		end
 
@@ -237,6 +237,7 @@ local function handleEnemy(enemy)
 		end, true)
 
 		local runServiceJanitor = Janitor.new()
+		playerJanitor:Add(runServiceJanitor)
 		runServiceJanitor:Add(RunService.Stepped:Connect(function()
 			humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
 			if not humanoid then
@@ -270,12 +271,9 @@ local function handleEnemy(enemy)
 				end
 
 				applyEnemyAnimations(enemy, info, enemyAnimationJanitor)
-				applyPlayerAnimations(player, playerJanitor)
-				applyDamageToPlayers(enemy, info, enemyAnimationJanitor)
-				applyDamageToEnemy(player, enemy, info, playerJanitor)
+				applyPlayerAnimations(player, enemy, info, playerJanitor)
 			end
 		end))
-		playerJanitor:Add(runServiceJanitor)
 	end)
 end
 
