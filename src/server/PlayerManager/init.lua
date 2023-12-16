@@ -90,6 +90,7 @@ require(script.GlobalLeaderboards)
 require(script.SoftShutdown)
 require(script.Settings)
 require(script.Tutorial)
+require(script.Badges)
 --require(script.NoobSpawnFix)
 
 return 0
