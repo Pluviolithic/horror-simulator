@@ -1,5 +1,4 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
-local MarketplaceService = game:GetService "MarketplaceService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local rarities = require(script.Rarities)
@@ -124,13 +123,7 @@ Remotes.Server:Get("HatchEggs"):SetCallback(function(player: Player, count: numb
 		return results
 	end
 
-	local success, message =
-		pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, tripleHatchGamepassID)
-
-	if not success then
-		warn("Failed to verify 3x gamepass ownership: " .. message)
-		return nil
-	elseif not message then
+	if not selectors.hasGamepass(store:getState(), player.Name, tripleHatchGamepassID) then
 		return nil
 	end
 
