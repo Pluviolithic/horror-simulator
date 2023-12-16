@@ -8,6 +8,7 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local permissionList = require(ReplicatedStorage.Common.PermissionList)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local fearMeter = require(StarterPlayer.StarterPlayerScripts.Client.UI.Combat.FearMeter)
 local strengthMeters = require(StarterPlayer.StarterPlayerScripts.Client.UI.Combat.StrengthMeters)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
@@ -56,11 +57,11 @@ tutorialFunctions = {
 	end,
 	function() -- step 2
 		local strength = selectors.getStat(store:getState(), player.Name, "Strength")
-		if strength - starterStrength < 20 then
+		if strength - starterStrength < 10 then
 			if not workspace.Beams.TutorialWorkout.Beam.Attachment1 then
 				workspace.Beams.TutorialWorkout.Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
 			end
-			rolloutTutorialText(`Turn your Fear into Strength by Working Out! ({strength - starterStrength}/20)`)
+			rolloutTutorialText(`Turn your Fear into Strength by Working Out! ({strength - starterStrength}/10)`)
 		else
 			step = 3
 			Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
@@ -90,6 +91,7 @@ tutorialFunctions = {
 			task.wait(4)
 
 			Remotes.Client:Get("SetTutorialFearMeterPercent"):SendToServer(0)
+			fearMeter(true)
 
 			TutorialUI.DarkScreen.Visible = true
 			TutorialUI.DisplayOrder = 1
@@ -363,7 +365,7 @@ playerStatePromise:andThen(function()
 	task.spawn(tutorialFunctions[step])
 	connection = store.changed:connect(function(newState)
 		local currentTarget = selectors.getCurrentTarget(newState, player.Name)
-		if currentTarget and CollectionService:HasTag(currentTarget, "PunchingBag") then
+		if currentTarget and CollectionService:HasTag(currentTarget, "PunchingBag") and step == 2 then
 			TutorialUI.TutorialText.Visible = false
 			if workspace.Beams.TutorialWorkout.Beam.Attachment1 then
 				workspace.Beams.TutorialWorkout.Beam.Attachment1 = nil
