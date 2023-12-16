@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local ServerScriptService = game:GetService "ServerScriptService"
 
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(ServerScriptService.Server.State.Store)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils)
@@ -44,7 +45,11 @@ return function(player, janitor)
 				local sounds = player.Character[weapon]:FindFirstChild "Sounds"
 				while not sounds do
 					task.wait()
-					sounds = player.Character[weapon]:FindFirstChild "Sounds"
+					local weaponObject = player.Character:FindFirstChild(weapon)
+					if not weaponObject then
+						return
+					end
+					sounds = weaponObject:FindFirstChild "Sounds"
 				end
 				for _, sound in sounds:GetChildren() do
 					task.spawn(function()
@@ -72,17 +77,19 @@ return function(player, janitor)
 		end
 	end)
 
-	janitor:Add(function()
-		runAnimations = false
-		if loadedIdleAnimation.IsPlaying then
-			loadedIdleAnimation:Stop()
-		end
-		loadedIdleAnimation:Destroy()
-		if animationTrack.IsPlaying then
-			task.spawn(function()
-				animationTrack.Stopped:Wait()
-				animationTrack:Destroy()
-			end)
-		end
-	end, true)
+	if Janitor.Is(janitor) then
+		janitor:Add(function()
+			runAnimations = false
+			if loadedIdleAnimation.IsPlaying then
+				loadedIdleAnimation:Stop()
+			end
+			loadedIdleAnimation:Destroy()
+			if animationTrack.IsPlaying then
+				task.spawn(function()
+					animationTrack.Stopped:Wait()
+					animationTrack:Destroy()
+				end)
+			end
+		end, true)
+	end
 end

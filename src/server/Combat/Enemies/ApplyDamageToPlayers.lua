@@ -5,6 +5,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local bossAttackSpeed = ReplicatedStorage.Config.Combat.BossAttackSpeed.Value
 local enemyAttackSpeed = ReplicatedStorage.Config.Combat.EnemyAttackSpeed.Value
 
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -43,8 +44,10 @@ return function(enemy, info, janitor)
 		end
 	end)
 
-	janitor:Add(function()
-		info.DamageActive = nil
-		damagePlayers = false
-	end, true)
+	if Janitor.Is(janitor) then
+		janitor:Add(function()
+			info.DamageActive = nil
+			damagePlayers = false
+		end, true)
+	end
 end

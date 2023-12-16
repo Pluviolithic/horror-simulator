@@ -78,6 +78,9 @@ return Rodux.createReducer({}, {
 				if petUtils.getPet(petName):FindFirstChild "PermaLock" and not action.force then
 					continue
 				end
+				if not draft[action.playerName].LockedPets[petName] then
+					continue
+				end
 				draft[action.playerName].LockedPets[petName] -= quantity
 				if draft[action.playerName].LockedPets[petName] < 1 then
 					draft[action.playerName].LockedPets[petName] = nil

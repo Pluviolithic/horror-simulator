@@ -211,7 +211,9 @@ local function handleEnemy(enemy)
 			"disconnect"
 		)
 		playerJanitor:Add(humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
-			playerJanitor:Destroy()
+			if Janitor.Is(playerJanitor) then
+				playerJanitor:Destroy()
+			end
 		end))
 		playerJanitor:Add(function()
 			local playerIndex = table.find(info.EngagedPlayers, player)
@@ -228,14 +230,22 @@ local function handleEnemy(enemy)
 				orientEnemy(rootPart, info.EngagedPlayers[1].Character.HumanoidRootPart.Position)
 			elseif #info.EngagedPlayers == 0 then
 				lastInCombat = os.time()
-				enemyAnimationJanitor:Cleanup()
+				if Janitor.Is(enemyAnimationJanitor) then
+					enemyAnimationJanitor:Cleanup()
+				end
 			end
 		end, true)
 
 		local runServiceJanitor = Janitor.new()
 		runServiceJanitor:Add(RunService.Stepped:Connect(function()
-			local oldPosition = player.Character.Humanoid.RootPart.Position
-			task.wait(0.05)
+			humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
+			if not humanoid then
+				runServiceJanitor:Destroy()
+				return
+			end
+			local oldPosition = humanoid.RootPart.Position
+			task.wait(0.1)
+			humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
 			if not Janitor.Is(playerJanitor) and Janitor.Is(runServiceJanitor) then
 				runServiceJanitor:Destroy()
 				return
@@ -243,7 +253,8 @@ local function handleEnemy(enemy)
 				return
 			end
 			if
-				player.Character.Humanoid.RootPart.Position == oldPosition
+				humanoid
+				and humanoid.RootPart.Position == oldPosition
 				and player:DistanceFromCharacter(rootPart.Position) <= fightRange + 5
 			then
 				runServiceJanitor:Destroy()

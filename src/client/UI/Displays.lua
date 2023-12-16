@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local RunService = game:GetService "RunService"
 local StarterGui = game:GetService "StarterGui"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
@@ -92,11 +93,30 @@ end):andThen(function(interfaces)
 	}
 
 	playerStatePromise:andThen(function()
-		StarterGui:SetCore("ResetButtonCallback", false)
 		updateDisplays(displays)
 		store.changed:connect(function()
 			updateDisplays(displays)
 		end)
+
+		-- implementation taken from https://devforum.roblox.com/t/resetbuttoncallback-has-not-been-registered-by-the-corescripts/78470/6
+		local coreCall
+		do
+			local MAX_RETRIES = 8
+
+			function coreCall(method, ...)
+				local result = {}
+				for _ = 1, MAX_RETRIES do
+					result = { pcall(StarterGui[method], StarterGui, ...) }
+					if result[1] then
+						break
+					end
+					RunService.Stepped:Wait()
+				end
+				return unpack(result)
+			end
+		end
+
+		coreCall("SetCore", "ResetButtonCallback", false)
 	end)
 end)
 

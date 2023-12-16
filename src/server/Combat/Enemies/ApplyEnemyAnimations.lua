@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local CollectionService = game:GetService "CollectionService"
 
+local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils)
 
 local random = Random.new()
@@ -8,7 +9,7 @@ local bossAttackSpeed = ReplicatedStorage.Config.Combat.BossAttackSpeed.Value
 local enemyAttackSpeed = ReplicatedStorage.Config.Combat.EnemyAttackSpeed.Value
 
 return function(enemy, info, janitor)
-	if info.AnimationsActive then
+	if info.AnimationsActive or not enemy:FindFirstChild "Configuration" then
 		return
 	end
 	info.AnimationsActive = true
@@ -22,7 +23,7 @@ return function(enemy, info, janitor)
 	local currentIndex, animationTrack, animation = 0, nil, nil
 
 	task.spawn(function()
-		while runAnimations do
+		while runAnimations and enemy:FindFirstChild "Humanoid" do
 			currentIndex, animation = animationUtilities.getNextIndexAndAnimationTrack(animationInstances, currentIndex)
 			animationTrack = enemy.Humanoid:LoadAnimation(animation)
 			animationTrack.Priority = Enum.AnimationPriority.Action
@@ -51,11 +52,13 @@ return function(enemy, info, janitor)
 		end
 	end)
 
-	janitor:Add(function()
-		runAnimations = false
-		info.AnimationsActive = nil
-		if animationTrack.IsPlaying then
-			animationTrack:Stop()
-		end
-	end, true)
+	if Janitor.Is(janitor) then
+		janitor:Add(function()
+			runAnimations = false
+			info.AnimationsActive = nil
+			if animationTrack.IsPlaying then
+				animationTrack:Stop()
+			end
+		end, true)
+	end
 end
