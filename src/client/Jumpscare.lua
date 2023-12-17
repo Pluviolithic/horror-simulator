@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local TweenService = game:GetService "TweenService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ContentProvider = game:GetService "ContentProvider"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
@@ -37,7 +38,19 @@ local function jumpscarePlayer(enemyName)
 	end
 
 	camera.CameraType = Enum.CameraType.Scriptable
-	camera.CFrame = jumpscare.Camera.CFrame
+
+	if jumpscare:FindFirstChild "Camera1" then
+		local tween = TweenService:Create(
+			camera,
+			TweenInfo.new(0.5, Enum.EasingStyle.Elastic),
+			{ CFrame = jumpscare.Camera2.CFrame }
+		)
+		camera.CFrame = jumpscare.Camera1.CFrame
+		tween:Play()
+	else
+		camera.CFrame = jumpscare.Camera.CFrame
+	end
+
 	lastJumpscared = os.time()
 
 	for _, sound in jumpscare.Enemy.Configuration.Sounds:GetChildren() do

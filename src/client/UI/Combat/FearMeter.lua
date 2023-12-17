@@ -5,10 +5,12 @@ local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
+local hideFearMeter, revealFearMeter
 local doubleFearMeterID = ReplicatedStorage.Config.GamepassData.IDs["2xFearMeter"].Value
 local Client = StarterPlayer.StarterPlayerScripts.Client
 local player = Players.LocalPlayer
 
+local scaredReverb = require(Client.GameAtmosphere.Soundscape.ScaredReverb)
 local playSoundEffect = require(Client.GameAtmosphere.SoundEffects)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -61,7 +63,7 @@ playerStatePromise:andThen(function()
 	local bar = fearMeter.Background.Bar
 	local fearMeterHidden = false
 
-	local function hideFearMeter()
+	function hideFearMeter()
 		fearMeterHidden = true
 		fearMeter.Fear.Visible = false
 		fearMeter.Icon.Visible = false
@@ -72,7 +74,7 @@ playerStatePromise:andThen(function()
 		fearMeter.Background.Visible = false
 	end
 
-	local function revealFearMeter()
+	function revealFearMeter()
 		fearMeterHidden = false
 		fearMeter.Icon.Visible = true
 		fearMeter.Image.Visible = true
@@ -164,9 +166,16 @@ playerStatePromise:andThen(function()
 				fearMeter.ScaredText.Visible = false
 				fearMeter.ScaredTextTimer.Visible = false
 				vignette.Enabled = false
+				scaredReverb(workspace:WaitForChild "AudioInstances", false)
 			end
 		end
 	end)
 end)
 
-return 0
+return function(enabled)
+	if enabled then
+		revealFearMeter()
+	else
+		hideFearMeter()
+	end
+end
