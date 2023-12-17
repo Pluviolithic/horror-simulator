@@ -10,6 +10,7 @@ local doubleFearMeterID = ReplicatedStorage.Config.GamepassData.IDs["2xFearMeter
 local Client = StarterPlayer.StarterPlayerScripts.Client
 local player = Players.LocalPlayer
 
+local scaredReverb = require(Client.GameAtmosphere.Soundscape.ScaredReverb)
 local playSoundEffect = require(Client.GameAtmosphere.SoundEffects)
 local playerStatePromise = require(Client.State.PlayerStatePromise)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -165,6 +166,7 @@ playerStatePromise:andThen(function()
 				fearMeter.ScaredText.Visible = false
 				fearMeter.ScaredTextTimer.Visible = false
 				vignette.Enabled = false
+				scaredReverb(workspace:WaitForChild "AudioInstances", false)
 			end
 		end
 	end)
