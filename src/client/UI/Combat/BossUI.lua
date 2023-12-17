@@ -82,7 +82,11 @@ playerStatePromise:andThen(function()
 		end
 
 		local oldEnemy = selectors.getCurrentTarget(oldState, player.Name)
-		if not currentEnemy and CollectionService:HasTag(oldEnemy, "RotatingBoss") then
+		if
+			not currentEnemy
+			and CollectionService:HasTag(oldEnemy, "RotatingBoss")
+			and oldEnemy:FindFirstChild "Humanoid"
+		then
 			local rootPart = if oldEnemy.Humanoid.RootPart
 				then oldEnemy.Humanoid.RootPart
 				else oldEnemy:FindFirstChild "RootPart"

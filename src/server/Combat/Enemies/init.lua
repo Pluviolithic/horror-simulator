@@ -175,7 +175,7 @@ local function handleEnemy(enemy)
 		end
 
 		debounces[player] = true
-		task.delay(0.5, function()
+		task.delay(1, function()
 			debounces[player] = nil
 		end)
 

@@ -98,7 +98,6 @@ return function(enemy, info, janitor)
 			end
 		end, true)
 	else
-		print "oh dear, we have a problem"
 		damagePlayers = false
 		info.DamageActive = nil
 		info.AnimationsActive = nil
