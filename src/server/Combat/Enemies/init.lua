@@ -227,6 +227,12 @@ local function handleEnemy(enemy)
 				table.remove(info.EngagedPlayers, playerIndex)
 			end
 			if #info.EngagedPlayers == 1 and not isBoss then
+				if not info.EngagedPlayers[1].Character then
+					lastInCombat = os.time()
+					if Janitor.Is(enemyAnimationJanitor) then
+						enemyAnimationJanitor:Cleanup()
+					end
+				end
 				orientEnemy(rootPart, info.EngagedPlayers[1].Character.HumanoidRootPart.Position)
 			elseif #info.EngagedPlayers == 0 then
 				lastInCombat = os.time()

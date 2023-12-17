@@ -102,7 +102,7 @@ return function(player, enemy, info, janitor)
 			local equippedWeaponAccessory = weapons.BodyAccessory:FindFirstChild(weaponName)
 			if info.HealthValue.Value > 0 then
 				weaponAccessory:Destroy()
-				if not findFirstChildWithTag(player.Character, "WeaponAccessory") then
+				if player.Character and not findFirstChildWithTag(player.Character, "WeaponAccessory") then
 					player.Character.Humanoid:AddAccessory(equippedWeaponAccessory:Clone())
 				end
 				return
@@ -223,7 +223,7 @@ return function(player, enemy, info, janitor)
 				loadedIdleAnimation:Stop()
 			end
 			loadedIdleAnimation:Destroy()
-			if animationTrack.IsPlaying then
+			if animationTrack and animationTrack.IsPlaying then
 				task.spawn(function()
 					animationTrack.Stopped:Wait()
 					animationTrack:Destroy()

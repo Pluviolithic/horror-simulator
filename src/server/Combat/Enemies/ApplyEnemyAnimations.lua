@@ -20,6 +20,9 @@ local function dealDamageToPlayers(enemy, info)
 		if selectors.getActiveBoosts(store:getState(), player.Name)["FearlessBoost"] then
 			continue
 		end
+		if not enemy:FindFirstChild "Configuration" then
+			continue
+		end
 		local fearMeterGoal = math.min(
 			selectors.getStat(store:getState(), player.Name, "CurrentFearMeter") + enemy.Configuration.Damage.Value,
 			selectors.getStat(store:getState(), player.Name, "MaxFearMeter")

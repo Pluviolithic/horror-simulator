@@ -362,7 +362,8 @@ function PetInventory:_setFocusedDisplay()
 
 	self._ui.RightBackground.PetName.Text = details.PetName
 	self._ui.RightBackground.PetImage.Image = details.PetImage
-	self._ui.RightBackground.Multiplier.Text = "x" .. details.Multiplier
+	self._ui.RightBackground.Multiplier.Text = "x"
+		.. (if details.Multiplier < 1 then details.Multiplier + 1 else details.Multiplier)
 
 	if details.Evolved then
 		self._ui.RightBackground.PetName.TextColor3 = evolvedColor
