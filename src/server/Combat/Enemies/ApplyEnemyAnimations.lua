@@ -45,8 +45,6 @@ return function(enemy, info, janitor)
 	local isBoss = CollectionService:HasTag(enemy, "Boss")
 	local attackDelay = if isBoss then bossAttackSpeed else enemyAttackSpeed
 
-	local sounds = enemy.Hitbox:FindFirstChild "Sounds"
-
 	local animationInstances =
 		animationUtilities.filterAndSortAnimationInstances(enemy.Configuration.AttackAnims:GetChildren())
 	local currentIndex, animationTrack, animation = 0, nil, nil
@@ -59,27 +57,27 @@ return function(enemy, info, janitor)
 
 			animationTrack:Play()
 
-			if sounds then
-				for _, sound in sounds:GetChildren() do
-					if sound.Name == "Impact" then
-						task.delay(sound.Delay.Value - 0.1, function()
-							dealDamageToPlayers(enemy, info)
-						end)
-					end
-					task.spawn(function()
-						if sound:FindFirstChild "Delay" and sound.Delay.Value ~= 0 then
-							task.wait(sound.Delay.Value)
-						end
-						sound.PlaybackSpeed = random:NextNumber(0.9, 1.1)
-						sound:Play()
-						if sound:FindFirstChild "Duration" then
-							task.wait(sound.Duration.Value)
-							sound:Stop()
-						end
+			for _, sound in enemy.Hitbox:GetChildren() do
+				if not sound:IsA "Sound" or sound.Name == "DeathSFX" then
+					continue
+				end
+				if sound.Name == "Impact" then
+					local delayTime = if sound.Delay.Value > 0.1 then sound.Delay.Value - 0.1 else 0.1
+					task.delay(delayTime, function()
+						dealDamageToPlayers(enemy, info)
 					end)
 				end
-			else
-				task.delay(0.1, dealDamageToPlayers, enemy, info)
+				task.spawn(function()
+					if sound:FindFirstChild "Delay" and sound.Delay.Value ~= 0 then
+						task.wait(sound.Delay.Value)
+					end
+					sound.PlaybackSpeed = random:NextNumber(0.9, 1.1)
+					sound:Play()
+					if sound:FindFirstChild "Duration" then
+						task.wait(sound.Duration.Value)
+						sound:Stop()
+					end
+				end)
 			end
 
 			animationTrack.Stopped:Wait()
