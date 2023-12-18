@@ -1,5 +1,6 @@
 local Players = game:GetService "Players"
 local RunService = game:GetService "RunService"
+local BadgeService = game:GetService "BadgeService"
 local TweenService = game:GetService "TweenService"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
@@ -14,6 +15,7 @@ local applyPlayerAnimations = require(script.ApplyPlayerAnimations)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local HealthBar = require(ReplicatedStorage.Common.Utils.HealthBar)
 
+local badgeIDs = ReplicatedStorage.Config.Badges
 local gemVisualPart = ReplicatedStorage.GemVisualPart
 local bossRespawnRate = ReplicatedStorage.Config.Combat.BossRespawnRate.Value
 local enemyRespawnRate = ReplicatedStorage.Config.Combat.EnemyRespawnRate.Value
@@ -40,10 +42,17 @@ local function orientPlayer(player, rootPart)
 end
 
 local function orientEnemy(rootPart, playerPosition)
-	rootPart.CFrame = CFrame.lookAt(
-		rootPart.Position,
-		playerPosition * Vector3.new(1, 0, 1) + rootPart.Position.Y * Vector3.new(0, 1, 0)
-	)
+	local tween = TweenService:Create(rootPart, TweenInfo.new(0.3), {
+		CFrame = CFrame.lookAt(
+			rootPart.Position,
+			playerPosition * Vector3.new(1, 0, 1) + rootPart.Position.Y * Vector3.new(0, 1, 0)
+		),
+	})
+	tween:Play()
+	task.spawn(function()
+		tween.Completed:Wait()
+		tween:Destroy()
+	end)
 end
 
 local function handleEnemy(enemy)
@@ -117,6 +126,17 @@ local function handleEnemy(enemy)
 					local fear = math.clamp(damage, 0, info.MaxHealth * maxFearFromBossPercentage / 100)
 					fearToSend = fear
 					store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", fear, enemy.Name))
+
+					task.spawn(function()
+						local badgeID = if badgeIDs:FindFirstChild(enemy.Name) then badgeIDs[enemy.Name].Value else nil
+						if
+							badgeID
+							and damage >= info.MaxHealth * 0.2
+							and not BadgeService:UserHasBadgeAsync(player.UserId, badgeID)
+						then
+							BadgeService:AwardBadge(player.UserId, badgeID)
+						end
+					end)
 				else
 					store:dispatch(actions.incrementPlayerStat(player.Name, "Fear", damage, enemy.Name))
 				end
@@ -212,6 +232,11 @@ local function handleEnemy(enemy)
 		)
 		playerJanitor:Add(humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
 			if Janitor.Is(playerJanitor) then
+				playerJanitor:Destroy()
+			end
+		end))
+		playerJanitor:Add(Players.PlayerRemoving:Connect(function(leavingPlayer)
+			if leavingPlayer == player then
 				playerJanitor:Destroy()
 			end
 		end))

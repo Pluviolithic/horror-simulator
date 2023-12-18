@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local TweenService = game:GetService "TweenService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local CollectionService = game:GetService "CollectionService"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
@@ -59,10 +60,15 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 	local humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
 	if humanoid and rootPart then
 		originalCFrame = rootPart.CFrame
-		rootPart.CFrame = CFrame.lookAt(
-			rootPart.Position,
-			humanoid.RootPart.Position * Vector3.new(1, 0, 1) + rootPart.Position.Y * Vector3.new(0, 1, 0)
-		)
+		local tween = TweenService:Create(rootPart, TweenInfo.new(0.3), {
+			CFrame = CFrame.lookAt(
+				rootPart.Position,
+				humanoid.RootPart.Position * Vector3.new(1, 0, 1) + rootPart.Position.Y * Vector3.new(0, 1, 0)
+			),
+		})
+		tween:Play()
+		tween.Completed:Wait()
+		tween:Destroy()
 	end
 end)
 
@@ -83,7 +89,7 @@ playerStatePromise:andThen(function()
 
 		local oldEnemy = selectors.getCurrentTarget(oldState, player.Name)
 		if
-			not currentEnemy
+			(not currentEnemy or not CollectionService:HasTag(currentEnemy, "RotatingBoss"))
 			and CollectionService:HasTag(oldEnemy, "RotatingBoss")
 			and oldEnemy:FindFirstChild "Humanoid"
 		then
@@ -91,7 +97,12 @@ playerStatePromise:andThen(function()
 				then oldEnemy.Humanoid.RootPart
 				else oldEnemy:FindFirstChild "RootPart"
 			if rootPart and originalCFrame then
-				rootPart.CFrame = originalCFrame
+				local tween = TweenService:Create(rootPart, TweenInfo.new(0.3), { CFrame = originalCFrame })
+				tween:Play()
+				task.spawn(function()
+					tween.Completed:Wait()
+					tween:Destroy()
+				end)
 			end
 			alreadyRotated = false
 		end
