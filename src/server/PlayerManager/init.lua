@@ -17,15 +17,15 @@ local function initializeLeaderboard(player: Player, data)
 	local leaderstats = Instance.new "Folder"
 	leaderstats.Name = "leaderstats"
 
-	local rank = Instance.new "StringValue"
-	rank.Name = "Rank"
-	rank.Value = formatter.formatNumberWithSuffix(data.Stats.Rank)
-	rank.Parent = leaderstats
-
 	local strength = Instance.new "StringValue"
 	strength.Name = "Strength"
 	strength.Value = formatter.formatNumberWithSuffix(data.Stats.Strength)
 	strength.Parent = leaderstats
+
+	local rank = Instance.new "StringValue"
+	rank.Name = "Rank"
+	rank.Value = formatter.formatNumberWithSuffix(data.Stats.Rank)
+	rank.Parent = leaderstats
 
 	local kills = Instance.new "StringValue"
 	kills.Name = "Kills"
