@@ -12,23 +12,19 @@ local random = Random.new()
 local bossAttackSpeed = ReplicatedStorage.Config.Combat.BossAttackSpeed.Value
 local enemyAttackSpeed = ReplicatedStorage.Config.Combat.EnemyAttackSpeed.Value
 
-local function dealDamageToPlayers(enemy, info)
-	for _, player in info.EngagedPlayers do
+local function dealDamageToPlayers(engagedPlayers, damageToDeal)
+	for _, player in engagedPlayers do
 		if not selectors.isPlayerLoaded(store:getState(), player.Name) then
 			continue
 		end
 		if selectors.getActiveBoosts(store:getState(), player.Name)["FearlessBoost"] then
 			continue
 		end
-		if not enemy:FindFirstChild "Configuration" then
-			continue
-		end
 		local fearMeterGoal = math.min(
-			selectors.getStat(store:getState(), player.Name, "CurrentFearMeter") + enemy.Configuration.Damage.Value,
+			selectors.getStat(store:getState(), player.Name, "CurrentFearMeter") + damageToDeal,
 			selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 		)
 		local fearMeterAddendum = fearMeterGoal - selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
-
 		if fearMeterAddendum ~= 0 then
 			store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", fearMeterAddendum))
 		end
@@ -50,6 +46,7 @@ return function(enemy, info, janitor)
 	local currentIndex, animationTrack, animation = 0, nil, nil
 
 	task.spawn(function()
+		local engagedPlayers = table.clone(info.EngagedPlayers)
 		while damagePlayers and enemy:FindFirstChild "Humanoid" do
 			currentIndex, animation = animationUtilities.getNextIndexAndAnimationTrack(animationInstances, currentIndex)
 			animationTrack = enemy.Humanoid:LoadAnimation(animation)
@@ -63,8 +60,9 @@ return function(enemy, info, janitor)
 				end
 				if sound.Name == "Impact" then
 					local delayTime = if sound.Delay.Value > 0.1 then sound.Delay.Value - 0.1 else 0.1
+					local damageToDeal = enemy.Configuration.Damage.Value
 					task.delay(delayTime, function()
-						dealDamageToPlayers(enemy, info)
+						dealDamageToPlayers(engagedPlayers, damageToDeal)
 					end)
 				end
 				task.spawn(function()
@@ -91,7 +89,7 @@ return function(enemy, info, janitor)
 			damagePlayers = false
 			info.DamageActive = nil
 			info.AnimationsActive = nil
-			if animationTrack.IsPlaying then
+			if animationTrack then
 				animationTrack:Stop()
 			end
 		end, true)
@@ -99,7 +97,7 @@ return function(enemy, info, janitor)
 		damagePlayers = false
 		info.DamageActive = nil
 		info.AnimationsActive = nil
-		if animationTrack.IsPlaying then
+		if animationTrack then
 			animationTrack:Stop()
 		end
 	end
