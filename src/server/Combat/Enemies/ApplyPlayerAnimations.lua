@@ -6,6 +6,7 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(ServerScriptService.Server.State.Store)
+local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils)
@@ -94,6 +95,8 @@ return function(player, enemy, info, janitor)
 	if oldEquippedWeaponAccessory then
 		oldEquippedWeaponAccessory:Destroy()
 	end
+
+	store:dispatch(actions.combatBegan(player.Name))
 
 	if weaponName ~= "Fists" then
 		local weaponAccessory = weapons[weaponName]:Clone()
@@ -194,6 +197,10 @@ return function(player, enemy, info, janitor)
 
 			animationTrack.Stopped:Wait()
 			animationTrack:Destroy()
+
+			if info.HealthValue.Value <= 0 then
+				break
+			end
 
 			loadedIdleAnimation:Play()
 
