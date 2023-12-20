@@ -14,13 +14,14 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 
 local step = 1
 local connection
+local deletedEnemyBeam = false
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local TutorialUI = player.PlayerGui:WaitForChild "Tutorial"
 local starterStrength = ReplicatedStorage.Config.Workout.Strength.Value
 local rolloutSpeed = ReplicatedStorage.Config.Text.MissionTextRolloutSpeed.Value
 
-if permissionList.TutorialExempt[player.UserId] then
+if permissionList.TutorialExempt[player.UserId] and not ReplicatedStorage.Config.Misc.TutorialTesting.Value then
 	return 0
 end
 
@@ -49,6 +50,13 @@ tutorialFunctions = {
 		local kills = selectors.getStat(store:getState(), player.Name, "Kills")
 		if kills < 2 then
 			rolloutTutorialText(`Defeat enemies to gain Fear! ({kills}/2)`)
+
+			if not workspace.Beams.TutorialEnemy.Beam.Attachment1 and not deletedEnemyBeam then
+				local rootPart = if player.Character then player.Character:FindFirstChild "HumanoidRootPart" else nil
+				if rootPart then
+					workspace.Beams.TutorialEnemy.Beam.Attachment1 = rootPart.RootAttachment
+				end
+			end
 		else
 			step = 2
 			Remotes.Client:Get("IncrementTutorialStep"):SendToServer()
@@ -394,6 +402,16 @@ playerStatePromise:andThen(function()
 			end)
 		)
 	end
+
+	table.insert(
+		connections,
+		Remotes.Client:Get("SendRoduxAction"):Connect(function(action)
+			if action.type == "combatBegan" and workspace.Beams.TutorialEnemy.Beam.Attachment1 then
+				deletedEnemyBeam = true
+				workspace.Beams.TutorialEnemy.Beam.Attachment1 = nil
+			end
+		end)
+	)
 end)
 
 return 0
