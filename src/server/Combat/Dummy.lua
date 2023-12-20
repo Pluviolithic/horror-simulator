@@ -145,7 +145,9 @@ local function handleDummy(dummy)
 				return
 			end
 			runAnimations = false
-			currentTrack:Stop()
+			if currentTrack then
+				currentTrack:Stop()
+			end
 			store:dispatch(actions.switchPlayerEnemy(player.Name, nil))
 		end)
 
