@@ -14,6 +14,7 @@ local player = Players.LocalPlayer
 
 local multiplierLevelDetails = {}
 local obliterator = Janitor.new()
+local clickCleaner = Janitor.new()
 
 local setComboMeterLevel = Remotes.Client:Get "SetComboMeterLevel"
 local decayRate = ReplicatedStorage.Config.Combat.ComboLevels.DecayRate.Value
@@ -174,6 +175,10 @@ playerStatePromise:andThen(function()
 		enabled = true
 		comboMeterUI.Enabled = true
 
+		obliterator:Add(function()
+			clickCleaner:Cleanup()
+		end, true)
+
 		if
 			selectors.hasGamepass(store:getState(), player.Name, "AutoClicker")
 			and selectors.getSetting(store:getState(), player.Name, "AutoClicker")
@@ -184,7 +189,7 @@ playerStatePromise:andThen(function()
 			end
 		else
 			local debounce = false
-			obliterator:Add(comboMeterUI.Click.Activated:Connect(function()
+			clickCleaner:Add(comboMeterUI.Click.Activated:Connect(function()
 				if debounce then
 					return
 				end
@@ -197,8 +202,57 @@ playerStatePromise:andThen(function()
 		end
 	end)
 
+	if selectors.hasGamepass(store:getState(), player.Name, "AutoClicker") then
+		comboMeterUI.Passes.AutoClicker.Visible = false
+		comboMeterUI.Background.Position = UDim2.fromScale(0.391, 0.8)
+		comboMeterUI.Click.Position = UDim2.fromScale(0.56, 0.811)
+	end
+
 	store.changed:connect(function(newState, oldState)
-		comboMeterUI.Passes.AutoClicker.Visible = not selectors.hasGamepass(newState, player.Name, "AutoClicker")
+		if
+			selectors.hasGamepass(newState, player.Name, "AutoClicker")
+			and selectors.isPlayerLoaded(oldState, player.Name)
+			and not selectors.hasGamepass(oldState, player.Name, "AutoClicker")
+		then
+			comboMeterUI.Passes.AutoClicker.Visible = false
+			comboMeterUI.Background.Position = UDim2.fromScale(0.391, 0.8)
+			comboMeterUI.Click.Position = UDim2.fromScale(0.56, 0.811)
+			clickCleaner:Cleanup()
+			task.spawn(function()
+				while enabled do
+					handleClick()
+					task.wait(0.1)
+				end
+			end)
+		end
+
+		if
+			selectors.getSetting(newState, player.Name, "AutoClicker")
+			~= selectors.getSetting(oldState, player.Name, "AutoClicker")
+		then
+			if selectors.getSetting(newState, player.Name, "AutoClicker") then
+				clickCleaner:Cleanup()
+				task.spawn(function()
+					while enabled do
+						handleClick()
+						task.wait(0.1)
+					end
+				end)
+			else
+				local debounce = false
+				clickCleaner:Add(comboMeterUI.Click.Activated:Connect(function()
+					if debounce then
+						return
+					end
+					debounce = true
+					task.delay(0.2, function()
+						debounce = false
+					end)
+					handleClick()
+				end))
+			end
+		end
+
 		if
 			(
 				not selectors.getCurrentTarget(newState, player.Name)
