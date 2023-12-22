@@ -5,6 +5,7 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local actions = require(ServerScriptService.Server.State.Actions)
 local store = require(ServerScriptService.Server.State.Store)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
 local teleporterPrices = ReplicatedStorage.Config.Teleports
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
@@ -30,6 +31,12 @@ Remotes.Server:Get("PurchaseTeleporter"):Connect(function(player, areaName)
 	store:dispatch(actions.givePlayerTeleporter(player.Name, areaName))
 
 	return 0
+end)
+
+Remotes.Server:Get("AchievedMilestone"):Connect(function(player, milestoneName)
+	if typeof(defaultStates.MilestonesData[milestoneName]) ~= nil then
+		store:dispatch(actions.achievedMilestone(player.Name, milestoneName))
+	end
 end)
 
 return 0

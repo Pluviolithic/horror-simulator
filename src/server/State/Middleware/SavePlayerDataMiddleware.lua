@@ -16,6 +16,7 @@ local function getFilteredState(playerName, state)
 		SavedSettings = selectors.getSavedSettings(state, playerName),
 		ChestTimers = selectors.getChestTimers(state, playerName),
 		TutorialData = selectors.getTutorialData(state, playerName),
+		MilestonesData = selectors.getMilestonesData(state, playerName),
 	}
 	for field, entry in filteredState do
 		for key in entry do

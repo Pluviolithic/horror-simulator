@@ -116,4 +116,8 @@ return {
 	TutorialData = {
 		CurrentStep = 1,
 	},
+
+	MilestonesData = {
+		["100MStrength"] = false,
+	},
 }

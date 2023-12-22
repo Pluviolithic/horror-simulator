@@ -11,5 +11,6 @@ require(script.FixRichText)
 require(script.Inventories)
 require(script.ChestTimerUI)
 require(script.BillboardShops)
+require(script.NotificationUI)
 
 return 0

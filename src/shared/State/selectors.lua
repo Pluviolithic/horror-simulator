@@ -110,4 +110,10 @@ return {
 	getTutorialStep = function(state, playerName)
 		return state.TutorialData[playerName].CurrentStep
 	end,
+	achievedMilestone = function(state, playerName, milestone)
+		return state.MilestonesData[playerName][milestone]
+	end,
+	getMilestonesData = function(state, playerName)
+		return state.MilestonesData[playerName]
+	end,
 }
