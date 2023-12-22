@@ -204,8 +204,8 @@ playerStatePromise:andThen(function()
 
 	if selectors.hasGamepass(store:getState(), player.Name, "AutoClicker") then
 		comboMeterUI.Passes.AutoClicker.Visible = false
-		comboMeterUI.Background.Position = UDim2.fromScale(0.391, 0.8)
-		comboMeterUI.Click.Position = UDim2.fromScale(0.56, 0.811)
+		comboMeterUI.Background.Position = UDim2.fromScale(0.405, 0.8)
+		comboMeterUI.Click.Position = UDim2.fromScale(0.552, 0.811)
 	end
 
 	store.changed:connect(function(newState, oldState)
@@ -215,8 +215,8 @@ playerStatePromise:andThen(function()
 			and not selectors.hasGamepass(oldState, player.Name, "AutoClicker")
 		then
 			comboMeterUI.Passes.AutoClicker.Visible = false
-			comboMeterUI.Background.Position = UDim2.fromScale(0.391, 0.8)
-			comboMeterUI.Click.Position = UDim2.fromScale(0.56, 0.811)
+			comboMeterUI.Background.Position = UDim2.fromScale(0.405, 0.8)
+			comboMeterUI.Click.Position = UDim2.fromScale(0.552, 0.811)
 			clickCleaner:Cleanup()
 			task.spawn(function()
 				while enabled do
