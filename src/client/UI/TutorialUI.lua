@@ -15,6 +15,7 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local step = 1
 local connection
 local deletedEnemyBeam = false
+local tutorialInProgress = false
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local TutorialUI = player.PlayerGui:WaitForChild "Tutorial"
@@ -22,7 +23,9 @@ local starterStrength = ReplicatedStorage.Config.Workout.Strength.Value
 local rolloutSpeed = ReplicatedStorage.Config.Text.MissionTextRolloutSpeed.Value
 
 if permissionList.TutorialExempt[player.UserId] and not ReplicatedStorage.Config.Misc.TutorialTesting.Value then
-	return 0
+	return function()
+		return false
+	end
 end
 
 local rolloutFinished = false
@@ -370,6 +373,7 @@ playerStatePromise:andThen(function()
 	if step > 10 then
 		return
 	end
+	tutorialInProgress = true
 	task.spawn(tutorialFunctions[step])
 	connection = store.changed:connect(function(newState)
 		local currentTarget = selectors.getCurrentTarget(newState, player.Name)
@@ -398,6 +402,7 @@ playerStatePromise:andThen(function()
 					connection:disconnect()
 					TutorialUI.Enabled = false
 					workspace.Beams.TutorialMission.Beam.Attachment1 = nil
+					tutorialInProgress = false
 				end
 			end)
 		)
@@ -414,4 +419,6 @@ playerStatePromise:andThen(function()
 	)
 end)
 
-return 0
+return function()
+	return tutorialInProgress
+end

@@ -16,7 +16,7 @@ return {
 		LastScaredTimestamp = -1,
 
 		LogInCount = 0,
-		HoursPlayed = 0,
+		TimePlayed = 0,
 
 		VIPChestAwardIndex = 1,
 		GroupChestAwardIndex = 1,

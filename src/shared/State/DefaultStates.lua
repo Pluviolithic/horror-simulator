@@ -16,7 +16,7 @@ return {
 		LastScaredTimestamp = -1,
 
 		LogInCount = 0,
-		HoursPlayed = 0,
+		TimePlayed = 0,
 
 		MaxPetCount = 30,
 		CurrentPetCount = 0,
