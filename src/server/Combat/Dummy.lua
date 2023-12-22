@@ -109,6 +109,10 @@ local function handleDummy(dummy)
 				and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
 				and player:DistanceFromCharacter(goalPosition) <= fightRange + 5
 			do
+				store:dispatch(
+					actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear * premiumMultiplier, dummy.Name)
+				)
+
 				currentIndex = (currentIndex % maxIndex) + 1
 				currentAnimation = animationInstances[currentIndex]:Clone()
 				currentTrack = humanoid:LoadAnimation(currentAnimation)
@@ -121,6 +125,14 @@ local function handleDummy(dummy)
 
 				currentTrack.Stopped:Wait()
 				currentTrack:Destroy()
+
+				if
+					not runAnimations
+					or not selectors.isPlayerLoaded(store:getState(), player.Name)
+					or selectors.getCurrentTarget(store:getState(), player.Name) ~= dummy
+				then
+					return
+				end
 
 				loadedIdleAnimation:Play()
 
@@ -156,25 +168,6 @@ local function handleDummy(dummy)
 		Remotes.Server:Get("SendFightInfo"):SendToPlayer(player, {
 			IsDummy = true,
 		})
-		while
-			runAnimations
-			and humanoid:IsDescendantOf(game)
-			and selectors.isPlayerLoaded(store:getState(), player.Name)
-			and selectors.getCurrentTarget(store:getState(), player.Name) == dummy
-			and player:DistanceFromCharacter(goalPosition) <= fightRange + 5
-		do
-			store:dispatch(
-				actions.incrementPlayerStat(humanoid.Parent.Name, "Fear", fear * premiumMultiplier, dummy.Name)
-			)
-			if
-				selectors.getStat(store:getState(), player.Name, "CurrentFearMeter")
-				== selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
-			then
-				task.wait(getPlayerAttackSpeed(player) * 2)
-			else
-				task.wait(getPlayerAttackSpeed(player))
-			end
-		end
 	end)
 end
 
