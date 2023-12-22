@@ -39,7 +39,7 @@ playerStatePromise:andThen(function()
 		end
 
 		local currentEnemy = selectors.getCurrentTarget(newState, player.Name)
-		if not currentEnemy and DummyUI.Enabled then
+		if (not currentEnemy or not CollectionService:HasTag(currentEnemy, "Dummy")) and DummyUI.Enabled then
 			DummyUI.Enabled = false
 			DummyUI.Counter.Text = ""
 			preAFKFear = selectors.getStat(newState, player.Name, "Fear")

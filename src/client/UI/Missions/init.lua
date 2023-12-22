@@ -276,7 +276,7 @@ function MissionsUI:OnOpen()
 
 		task.spawn(function()
 			self:RolloutDialogue(
-				'You have completed all the missions in Clown Town! You have received a Permanent <font color= "rgb(255, 207, 56)">+10% Fear Boost</font>!',
+				`You have completed all the missions in {playerRegion}! You have received a Permanent <font color= "rgb(255, 207, 56)">+10% Fear Boost</font>!`,
 				currentMissionRequirements.Gems.Value
 			)
 			pending = false

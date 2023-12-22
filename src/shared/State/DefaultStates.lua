@@ -105,6 +105,7 @@ return {
 		SoundEffects = true,
 		ShowOtherPets = true,
 		Jumpscares = true,
+		AutoClicker = true,
 	},
 
 	ChestTimers = {
@@ -114,5 +115,9 @@ return {
 
 	TutorialData = {
 		CurrentStep = 1,
+	},
+
+	MilestonesData = {
+		["100MStrength"] = false,
 	},
 }

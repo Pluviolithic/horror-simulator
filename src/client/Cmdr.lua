@@ -2,6 +2,13 @@ local Players = game:GetService "Players"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
+local permissionList = require(ReplicatedStorage.Common.PermissionList)
+
+local player = Players.LocalPlayer
+
+if not permissionList.Admins[player.UserId] then
+	return 0
+end
 
 Promise.new(function(resolve)
 	local Cmdr = require(ReplicatedStorage:WaitForChild "CmdrClient")

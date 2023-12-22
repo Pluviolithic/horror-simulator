@@ -6,7 +6,6 @@ local ServerScriptService = game:GetService "ServerScriptService"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local store = require(ServerScriptService.Server.State.Store)
-local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local animationUtilities = require(ReplicatedStorage.Common.Utils.AnimationUtils)
@@ -96,7 +95,7 @@ return function(player, enemy, info, janitor)
 		oldEquippedWeaponAccessory:Destroy()
 	end
 
-	store:dispatch(actions.combatBegan(player.Name))
+	Remotes.Server:Get("CombatBegan"):SendToPlayer(player)
 
 	if weaponName ~= "Fists" then
 		local weaponAccessory = weapons[weaponName]:Clone()
@@ -121,8 +120,10 @@ return function(player, enemy, info, janitor)
 
 	task.spawn(function()
 		while canAttack(player, enemy, info) and enabled do
+			local comboMultiplier = selectors.getMultiplierData(store:getState(), player.Name).ComboMultiplier
+			comboMultiplier = if comboMultiplier then comboMultiplier + 1 else 1
 			local damageToDeal = math.clamp(
-				selectors.getStat(store:getState(), player.Name, "Strength") * damageMultiplier,
+				selectors.getStat(store:getState(), player.Name, "Strength") * damageMultiplier * comboMultiplier,
 				0,
 				info.HealthValue.Value
 			)

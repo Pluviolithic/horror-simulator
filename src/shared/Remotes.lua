@@ -138,7 +138,20 @@ local Remotes = Net.CreateDefinitions {
 		},
 		Net.Middleware.TypeChecking(t.number),
 	},
+	SetComboMeterLevel = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 120,
+		},
+		Net.Middleware.TypeChecking(t.number),
+	},
+	AchievedMilestone = Net.Definitions.ClientToServerEvent {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 120,
+		},
+		Net.Middleware.TypeChecking(t.string),
+	},
 
+	CombatBegan = Net.Definitions.ServerToClientEvent(),
 	JumpscarePlayer = Net.Definitions.ServerToClientEvent(),
 	DropGems = Net.Definitions.ServerToClientEvent(),
 	SpawnRewardPart = Net.Definitions.ServerToClientEvent(),
