@@ -82,6 +82,9 @@ local function jumpscarePlayer(enemyName)
 		camera.CameraType = Enum.CameraType.Custom
 
 		for gui, enabled in pairs(preservedUIState) do
+			if gui.Name == "ComboMeter" and not selectors.getCurrentTarget(store:getState(), player.Name) then
+				continue
+			end
 			gui.Enabled = enabled
 		end
 	end)

@@ -15,9 +15,4 @@ return {
 			currentPunchingBag = bag,
 		}
 	end),
-	combatBegan = makeActionCreator("combatBegan", function(playerName: string)
-		return {
-			playerName = playerName,
-		}
-	end),
 }

@@ -405,8 +405,8 @@ playerStatePromise:andThen(function()
 
 	table.insert(
 		connections,
-		Remotes.Client:Get("SendRoduxAction"):Connect(function(action)
-			if action.type == "combatBegan" and workspace.Beams.TutorialEnemy.Beam.Attachment1 then
+		Remotes.Client:Get("CombatBegan"):Connect(function()
+			if workspace.Beams.TutorialEnemy.Beam.Attachment1 then
 				deletedEnemyBeam = true
 				workspace.Beams.TutorialEnemy.Beam.Attachment1 = nil
 			end
