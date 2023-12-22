@@ -105,6 +105,7 @@ return {
 		SoundEffects = true,
 		ShowOtherPets = true,
 		Jumpscares = true,
+		AutoClicker = true,
 	},
 
 	ChestTimers = {

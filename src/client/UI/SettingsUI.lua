@@ -19,8 +19,13 @@ local SettingsUI = CentralUI.new(player.PlayerGui:WaitForChild "Settings")
 local function shouldRefresh(newState, oldState)
 	return selectors.getTempSettings(newState, player.Name) ~= selectors.getTempSettings(oldState, player.Name)
 		or selectors.getSavedSettings(newState, player.Name) ~= selectors.getSavedSettings(oldState, player.Name)
-		or selectors.hasGamepass(newState, player.Name, "2xSpeed")
-			and not selectors.hasGamepass(oldState, player.Name, "2xSpeed")
+		or selectors.hasGamepass(newState, player.Name, "2xSpeed") and not selectors.hasGamepass(
+			oldState,
+			player.Name,
+			"2xSpeed"
+		)
+		or selectors.hasGamepass(newState, player.Name, "AutoClicker")
+			and not selectors.hasGamepass(oldState, player.Name, "AutoClicker")
 end
 
 function SettingsUI:_initialize(): ()
@@ -42,6 +47,13 @@ function SettingsUI:_initialize(): ()
 				settingSwitch.Name:match "Speed" and not selectors.hasGamepass(store:getState(), player.Name, "2xSpeed")
 			then
 				MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xSpeed"].Value)
+				return
+			end
+			if
+				settingSwitch.Name:match "AutoClicker"
+				and not selectors.hasGamepass(store:getState(), player.Name, "AutoClicker")
+			then
+				MarketplaceService:PromptGamePassPurchase(player, gamepassIDs.AutoClicker.Value)
 				return
 			end
 			Remotes.Client:Get("SwitchSetting"):SendToServer(settingSwitch.Name)
@@ -72,6 +84,14 @@ function SettingsUI:Refresh(): ()
 		end
 		local settingValue = selectors.getSetting(store:getState(), player.Name, settingSwitch.Name)
 		if settingSwitch.Name == "2xSpeed" and not selectors.hasGamepass(store:getState(), player.Name, "2xSpeed") then
+			settingSwitch.On.Visible = false
+			settingSwitch.Off.Visible = true
+			continue
+		end
+		if
+			settingSwitch.Name:match "AutoClicker"
+			and not selectors.hasGamepass(store:getState(), player.Name, "AutoClicker")
+		then
 			settingSwitch.On.Visible = false
 			settingSwitch.Off.Visible = true
 			continue

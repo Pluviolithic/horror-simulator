@@ -63,6 +63,7 @@ return {
 	[IDs["3xHatch"].Value] = true,
 	[IDs["AutoHatch"].Value] = true,
 	[IDs["FasterHatch"].Value] = true,
+	[IDs["AutoClicker"].Value] = true,
 	[IDs["2xAttackSpeed"].Value] = true,
 	[IDs["3xWorkoutSpeed"].Value] = true,
 	[IDs.FreeTeleporters.Value] = true,
