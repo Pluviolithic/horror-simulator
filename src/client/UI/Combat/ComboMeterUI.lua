@@ -7,6 +7,7 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local tutorialActive = require(StarterPlayer.StarterPlayerScripts.Client.UI.TutorialUI)
 local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
@@ -166,7 +167,7 @@ playerStatePromise:andThen(function()
 	end)
 
 	Remotes.Client:Get("CombatBegan"):Connect(function()
-		if enabled then
+		if enabled or tutorialActive() then
 			return
 		end
 
@@ -189,7 +190,7 @@ playerStatePromise:andThen(function()
 			end
 		else
 			local debounce = false
-			clickCleaner:Add(comboMeterUI.Click.Activated:Connect(function()
+			clickCleaner:Add(comboMeterUI.ClickBackground.Click.Activated:Connect(function()
 				if debounce then
 					return
 				end
@@ -205,7 +206,7 @@ playerStatePromise:andThen(function()
 	if selectors.hasGamepass(store:getState(), player.Name, "AutoClicker") then
 		comboMeterUI.Passes.AutoClicker.Visible = false
 		comboMeterUI.Background.Position = UDim2.fromScale(0.405, 0.8)
-		comboMeterUI.Click.Position = UDim2.fromScale(0.552, 0.811)
+		comboMeterUI.ClickBackground.Position = UDim2.fromScale(0.552, 0.811)
 	end
 
 	store.changed:connect(function(newState, oldState)
@@ -216,7 +217,7 @@ playerStatePromise:andThen(function()
 		then
 			comboMeterUI.Passes.AutoClicker.Visible = false
 			comboMeterUI.Background.Position = UDim2.fromScale(0.405, 0.8)
-			comboMeterUI.Click.Position = UDim2.fromScale(0.552, 0.811)
+			comboMeterUI.ClickBackground.Position = UDim2.fromScale(0.552, 0.811)
 			clickCleaner:Cleanup()
 			task.spawn(function()
 				while enabled do
@@ -240,7 +241,7 @@ playerStatePromise:andThen(function()
 				end)
 			else
 				local debounce = false
-				clickCleaner:Add(comboMeterUI.Click.Activated:Connect(function()
+				clickCleaner:Add(comboMeterUI.ClickBackground.Click.Activated:Connect(function()
 					if debounce then
 						return
 					end
