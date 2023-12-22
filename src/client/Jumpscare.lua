@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
+local tutorialActive = require(StarterPlayer.StarterPlayerScripts.Client.UI.TutorialUI)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local player = Players.LocalPlayer
@@ -103,7 +104,7 @@ playerStatePromise:andThen(function()
 				newState,
 				player.Name,
 				"JumpscareCooldown"
-			))
+			) or tutorialActive())
 			and selectors.getSetting(newState, player.Name, "Jumpscares")
 		then
 			jumpscarePlayer(if lastEnemyFought then lastEnemyFought.Name else "Evil Clown")
