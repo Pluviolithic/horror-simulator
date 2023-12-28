@@ -86,7 +86,9 @@ end):andThen(function(interfaces)
 			first = interfaces.StrengthRanks.Background.Background.MaxMeterText,
 			second = function()
 				return 'Max Meter: <font color="rgb(222, 124, 4)">'
-					.. selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+					.. formatter.formatNumberWithSuffix(
+						selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
+					)
 					.. "</font>"
 			end,
 		},
