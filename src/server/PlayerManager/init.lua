@@ -66,6 +66,19 @@ local function onPlayerAdded(player: Player)
 		store:dispatch(actions.addPlayer(player.Name, profile.Data))
 		store:dispatch(actions.incrementPlayerStat(player.Name, "LogInCount"))
 	end
+
+	for _, existingPlayer in Players:GetPlayers() do
+		if existingPlayer == player then
+			continue
+		end
+
+		task.spawn(function()
+			if existingPlayer:IsFriendsWith(player.UserId) then
+				store:dispatch(actions.addFriend(existingPlayer.Name, player.Name))
+				store:dispatch(actions.addFriend(player.Name, existingPlayer.Name))
+			end
+		end)
+	end
 end
 
 for _, player in Players:GetPlayers() do
@@ -80,6 +93,18 @@ Players.PlayerRemoving:Connect(function(player)
 		profile:Release()
 	end
 	store:dispatch(actions.removePlayer(player.Name))
+
+	for _, existingPlayer in Players:GetPlayers() do
+		if existingPlayer == player then
+			continue
+		end
+
+		task.spawn(function()
+			if existingPlayer:IsFriendsWith(player.UserId) then
+				store:dispatch(actions.removeFriend(existingPlayer.Name, player.Name))
+			end
+		end)
+	end
 end)
 
 Remotes.Server:Get("GetGlobalState"):SetCallback(function()

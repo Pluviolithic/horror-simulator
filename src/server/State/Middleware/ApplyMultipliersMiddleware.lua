@@ -6,6 +6,7 @@ local server = ServerScriptService.Server
 local actions = require(server.State.Actions)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local Count = require(ReplicatedStorage.Common.lib.Sift).Dictionary.count
 
 local applyMultiplierToNegativeWhitelist = {}
 
@@ -28,6 +29,10 @@ return function(nextDispatch, store)
 
 					multiplier += sourceMultiplier
 					multiplierCount += sourceMultiplierCount
+				end
+
+				if action.statName == "Fear" then
+					multiplier += 0.15 * Count(multiplierData.ActiveFriendsWhoJoined)
 				end
 
 				local boostData = action.statName ~= "Luck"

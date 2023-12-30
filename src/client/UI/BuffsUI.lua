@@ -1,14 +1,18 @@
 local Players = game:GetService "Players"
+local SocialService = game:GetService "SocialService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local clockUtils = require(ReplicatedStorage.Common.Utils.ClockUtils)
+local Count = require(ReplicatedStorage.Common.lib.Sift).Dictionary.count
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
+local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local RobuxShop = require(StarterPlayer.StarterPlayerScripts.Client.UI.Shops.RobuxShop)
 local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.DescriptionUI)
+local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
@@ -16,6 +20,7 @@ local player = Players.LocalPlayer
 
 local buffTray = player.PlayerGui:WaitForChild "Buffs"
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
+local InviteUI = CentralUI.new(player.PlayerGui:WaitForChild "InvitePrompt")
 
 local function isScared(state)
 	if selectors.getActiveBoosts(state, player.Name)["FearlessBoost"] then
@@ -26,11 +31,27 @@ local function isScared(state)
 		and (os.time() - selectors.getStat(state, player.Name, "LastScaredTimestamp")) < 121
 end
 
+-- taken from the docs: https://create.roblox.com/docs/reference/engine/classes/SocialService#CanSendGameInviteAsync
+local function canSendGameInvite(sendingPlayer)
+	local success, canSend = pcall(function()
+		return SocialService:CanSendGameInviteAsync(sendingPlayer)
+	end)
+
+	return success and canSend
+end
+
 local function updateBuffTray(state)
 	local activeBoosts = selectors.getActiveBoosts(state, player.Name)
 	for _, buffDisplay in buffTray.Frame:GetChildren() do
 		if not buffDisplay.Name:match "Boost" then
-			if buffDisplay:IsA "GuiButton" then
+			if not buffDisplay:IsA "GuiButton" then
+				continue
+			end
+			if buffDisplay.Name == "FriendBuff" then
+				local friendCount = Count(selectors.getActiveFriendsWhoJoined(state, player.Name))
+				buffDisplay.Visible = friendCount > 0
+				buffDisplay.Amount.Text = `{15 * friendCount}%`
+			else
 				buffDisplay.Visible = isScared(state)
 				buffDisplay.Timer.Text = clockUtils.getFormattedRemainingTime(
 					selectors.getStat(state, player.Name, "LastScaredTimestamp"),
@@ -86,7 +107,28 @@ buffTray.Frame.SpeedDebuff.Activated:Connect(function()
 	MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["2xSpeed"].Value)
 end)
 
+buffTray.Frame.FriendBuff.Activated:Connect(function()
+	playSoundEffect "UIButton"
+	if canSendGameInvite(player) then
+		pcall(SocialService.PromptGameInvite, SocialService, player)
+	end
+end)
+
+interfaces[InviteUI] = true
+
 playerStatePromise:andThen(function()
+	player.PlayerGui:WaitForChild("MainUI").Invite.Activated:Connect(function()
+		playSoundEffect "UIButton"
+		InviteUI:setEnabled(not InviteUI._isOpen)
+	end)
+
+	InviteUI._ui.Background.Invite.Activated:Connect(function()
+		playSoundEffect "UIButton"
+		if canSendGameInvite(player) then
+			pcall(SocialService.PromptGameInvite, SocialService, player)
+		end
+	end)
+
 	updateBuffTray(store:getState())
 	store.changed:connect(updateBuffTray)
 	while true do

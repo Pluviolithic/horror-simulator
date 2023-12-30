@@ -116,4 +116,7 @@ return {
 	getMilestonesData = function(state, playerName)
 		return state.MilestonesData[playerName]
 	end,
+	getActiveFriendsWhoJoined = function(state, playerName)
+		return state.MultiplierData[playerName].ActiveFriendsWhoJoined
+	end,
 }
