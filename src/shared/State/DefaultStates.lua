@@ -21,6 +21,12 @@ return {
 		VIPChestAwardIndex = 1,
 		GroupChestAwardIndex = 1,
 
+		LastLogOn = -1,
+		LastLogOff = -1,
+
+		LastClaimedAGiftTimestamp = -1,
+		LastClaimedAllGiftsTimestamp = -1,
+
 		MaxPetCount = 30,
 		CurrentPetCount = 0,
 		MaxPetEquipCount = 3,
@@ -124,5 +130,9 @@ return {
 
 	MilestonesData = {
 		["100MStrength"] = false,
+	},
+
+	GiftData = {
+		ClaimedGifts = {},
 	},
 }

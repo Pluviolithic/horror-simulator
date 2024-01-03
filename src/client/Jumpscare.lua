@@ -28,7 +28,12 @@ end
 
 local function jumpscarePlayer(enemyName)
 	local preservedUIState = {}
-	local jumpscare = jumpscares[enemyName]
+	local jumpscare = jumpscares:FindFirstChild(enemyName)
+
+	if not jumpscare then
+		return
+	end
+
 	local animation = jumpscare.Enemy.Configuration.Anim
 
 	for _, gui in player.PlayerGui:GetChildren() do

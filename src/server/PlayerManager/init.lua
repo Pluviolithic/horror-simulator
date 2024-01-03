@@ -9,6 +9,7 @@ local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
+local selectors = require(ReplicatedStorage.Common.State.selectors)
 local PlayerStatusUI = require(ServerScriptService.Server.PlayerManager.PlayerStatusUI)
 
 local profileStore = ProfileService.GetProfileStore("PlayerData", profileTemplate)
@@ -65,6 +66,7 @@ local function onPlayerAdded(player: Player)
 		profiles[player.Name] = profile
 		store:dispatch(actions.addPlayer(player.Name, profile.Data))
 		store:dispatch(actions.incrementPlayerStat(player.Name, "LogInCount"))
+		store:dispatch(actions.setPlayerStat(player.Name, "LastLogOn", os.time()))
 	end
 
 	for _, existingPlayer in Players:GetPlayers() do
@@ -89,6 +91,14 @@ Players.PlayerAdded:Connect(onPlayerAdded)
 
 Players.PlayerRemoving:Connect(function(player)
 	local profile = profiles[player.Name]
+	store:dispatch(actions.setPlayerStat(player.Name, "LastLogOff", os.time()))
+	store:dispatch(
+		actions.incrementPlayerStat(
+			player.Name,
+			"TimePlayed",
+			os.time() - selectors.getStat(store:getState(), player.Name, "LastLogOn")
+		)
+	)
 	if profile ~= nil then
 		profile:Release()
 	end
@@ -116,6 +126,7 @@ require(script.SoftShutdown)
 require(script.Settings)
 require(script.Tutorial)
 require(script.Badges)
+require(script.Gifts)
 --require(script.NoobSpawnFix)
 
 return 0

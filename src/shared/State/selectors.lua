@@ -119,4 +119,10 @@ return {
 	getActiveFriendsWhoJoined = function(state, playerName)
 		return state.MultiplierData[playerName].ActiveFriendsWhoJoined
 	end,
+	getGiftData = function(state, playerName)
+		return state.GiftData[playerName]
+	end,
+	hasClaimedGift = function(state, playerName, giftName)
+		return state.GiftData[playerName].ClaimedGifts[giftName]
+	end,
 }

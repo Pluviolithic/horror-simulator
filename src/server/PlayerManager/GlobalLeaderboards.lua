@@ -65,6 +65,9 @@ local function updateGlobalLeaderboardStores(): ()
 				tostring(player.UserId),
 				selectors.getStat(store:getState(), player.Name, statName)
 			)
+			if not selectors.isPlayerLoaded(store:getState(), player.Name) then
+				continue
+			end
 		end
 	end
 end

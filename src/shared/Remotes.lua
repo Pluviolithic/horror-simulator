@@ -146,7 +146,13 @@ local Remotes = Net.CreateDefinitions {
 	},
 	AchievedMilestone = Net.Definitions.ClientToServerEvent {
 		Net.Middleware.RateLimit {
-			MaxRequestsPerMinute = 120,
+			MaxRequestsPerMinute = 60,
+		},
+		Net.Middleware.TypeChecking(t.string),
+	},
+	ClaimGift = Net.Definitions.ServerFunction {
+		Net.Middleware.RateLimit {
+			MaxRequestsPerMinute = 60,
 		},
 		Net.Middleware.TypeChecking(t.string),
 	},

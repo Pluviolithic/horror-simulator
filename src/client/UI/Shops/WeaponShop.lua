@@ -82,6 +82,10 @@ function WeaponShop:_initialize(): ()
 	end)
 
 	mainUI.WeaponShop.Activated:Connect(function()
+		if not selectors.getAudioData(store:getState(), player.Name) then
+			return
+		end
+
 		playSoundEffect "UIButton"
 		local primarySoundArea = selectors.getAudioData(store:getState(), player.Name).PrimarySoundRegion
 		local purchasedTeleporters = selectors.getPurchasedTeleporters(store:getState(), player.Name)
