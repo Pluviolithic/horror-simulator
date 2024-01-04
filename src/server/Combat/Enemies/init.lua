@@ -199,6 +199,10 @@ local function handleEnemy(enemy)
 			debounces[player] = nil
 		end)
 
+		if not selectors.isPlayerLoaded(store:getState(), player.Name) then
+			return
+		end
+
 		if selectors.getCurrentTarget(store:getState(), player.Name) == enemy then
 			if Janitor.Is(info.Janitors[player]) then
 				info.Janitors[player]:Destroy()

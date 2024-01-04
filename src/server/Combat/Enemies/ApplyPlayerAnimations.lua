@@ -166,7 +166,7 @@ return function(player, enemy, info, janitor)
 				local sounds = player.Character[weapon]:FindFirstChild "Sounds"
 				while not sounds do
 					task.wait()
-					local weaponObject = player.Character:FindFirstChild(weapon)
+					local weaponObject = if player.Character then player.Character:FindFirstChild(weapon) else nil
 					if not weaponObject then
 						return
 					end

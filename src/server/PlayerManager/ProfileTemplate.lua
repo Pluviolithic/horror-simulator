@@ -18,6 +18,12 @@ return {
 		LogInCount = 0,
 		TimePlayed = 0,
 
+		LastLogOn = -1,
+		LastLogOff = -1,
+
+		LastClaimedAGiftTimestamp = -1,
+		GiftCycleBeganTimestamp = -1,
+
 		VIPChestAwardIndex = 1,
 		GroupChestAwardIndex = 1,
 
@@ -100,5 +106,10 @@ return {
 
 	MilestonesData = {
 		["100MStrength"] = false,
+	},
+
+	GiftData = {
+		ClaimedGifts = {},
+		SkippedAll = false,
 	},
 }

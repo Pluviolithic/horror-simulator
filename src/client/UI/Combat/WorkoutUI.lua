@@ -71,12 +71,14 @@ playerStatePromise:andThen(function()
 			WorkoutUI.Enabled = false
 			return
 		elseif not currentTarget then
-			local hasTripleSpeed = selectors.hasGamepass(newState, player.Name, "3xWorkoutSpeed")
-			if hasTripleSpeed then
-				playerWorkoutSpeed = workoutSpeed / 3
-			else
-				playerWorkoutSpeed = workoutSpeed
+			local tempWorkoutSpeed = workoutSpeed
+			if selectors.hasGamepass(newState, player.Name, "3xWorkoutSpeed") then
+				tempWorkoutSpeed /= 3
 			end
+			if selectors.getActiveBoosts(store:getState(), player.Name)["WorkoutBoost"] then
+				tempWorkoutSpeed /= 3
+			end
+			playerWorkoutSpeed = tempWorkoutSpeed
 			return
 		end
 

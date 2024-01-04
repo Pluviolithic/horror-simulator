@@ -56,6 +56,10 @@ local function handleDummy(dummy)
 			debounceTable[player.UserId] = nil
 		end)
 
+		if not selectors.isPlayerLoaded(store:getState(), player.Name) then
+			return
+		end
+
 		if selectors.getCurrentTarget(store:getState(), player.Name) == dummy then
 			return
 		else

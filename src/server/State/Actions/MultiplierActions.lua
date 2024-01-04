@@ -25,4 +25,16 @@ return {
 			}
 		end
 	),
+	addFriend = makeActionCreator("addFriend", function(playerName: string, friendName: string)
+		return {
+			playerName = playerName,
+			friendName = friendName,
+		}
+	end),
+	removeFriend = makeActionCreator("removeFriend", function(playerName: string, friendName: string)
+		return {
+			playerName = playerName,
+			friendName = friendName,
+		}
+	end),
 }

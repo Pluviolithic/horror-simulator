@@ -12,5 +12,6 @@ require(script.Inventories)
 require(script.ChestTimerUI)
 require(script.BillboardShops)
 require(script.NotificationUI)
+require(script.GiftUI)
 
 return 0

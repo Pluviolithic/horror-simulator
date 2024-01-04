@@ -121,7 +121,17 @@ local function handlePunchingBag(bag: any)
 
 				loadedIdleAnimation:Play()
 
-				task.wait(workoutSpeed)
+				local newWorkoutSpeed = workoutSpeed
+
+				if selectors.hasGamepass(store:getState(), player.Name, tripleWorkoutSpeedPassID) then
+					newWorkoutSpeed /= 3
+				end
+
+				if selectors.getActiveBoosts(store:getState(), player.Name)["WorkoutBoost"] then
+					newWorkoutSpeed /= 3
+				end
+
+				task.wait(newWorkoutSpeed)
 
 				loadedIdleAnimation:Stop()
 			until cancelled
@@ -162,11 +172,17 @@ local function handlePunchingBag(bag: any)
 				store:dispatch(actions.incrementPlayerStat(player.Name, "CurrentFearMeter", reductionAmount))
 			end
 
+			local newWorkoutSpeed = workoutSpeed
+
 			if selectors.hasGamepass(store:getState(), player.Name, tripleWorkoutSpeedPassID) then
-				task.wait(workoutSpeed / 3)
-			else
-				task.wait(workoutSpeed)
+				newWorkoutSpeed /= 3
 			end
+
+			if selectors.getActiveBoosts(store:getState(), player.Name)["WorkoutBoost"] then
+				newWorkoutSpeed /= 3
+			end
+
+			task.wait(newWorkoutSpeed)
 		end
 
 		if connection.Connected then

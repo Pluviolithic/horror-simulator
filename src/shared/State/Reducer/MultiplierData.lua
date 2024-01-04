@@ -108,4 +108,14 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].FearMultiplierCount = multiplierWholePartCount
 		end)
 	end,
+	addFriend = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].ActiveFriendsWhoJoined[action.friendName] = true
+		end)
+	end,
+	removeFriend = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].ActiveFriendsWhoJoined[action.friendName] = nil
+		end)
+	end,
 })

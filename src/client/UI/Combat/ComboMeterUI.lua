@@ -29,6 +29,8 @@ for _, multiplierLevel in ReplicatedStorage.Config.Combat.ComboLevels:GetChildre
 	multiplierLevelDetails[tonumber(multiplierLevel.Name)] = {
 		Clicks = multiplierLevel.Clicks.Value,
 		Multiplier = multiplierLevel.Multiplier.Value,
+		Text = multiplierLevel.HypeText.Value,
+		TextColor = multiplierLevel.HypeText:GetAttribute "TextColor",
 	}
 end
 
@@ -54,6 +56,8 @@ local function decayComboMeter(comboMeterUI)
 		comboMeterUI.Background.Multiplier.Text = "Combo Multiplier: "
 			.. (multiplierLevelDetails[currentMultiplierLevel].Multiplier + 1)
 			.. "x"
+		comboMeterUI.Background.HypeText.TextColor3 = multiplierLevelDetails[currentMultiplierLevel].TextColor
+		comboMeterUI.Background.HypeText.Text = multiplierLevelDetails[currentMultiplierLevel].Text
 		setComboMeterLevel:SendToServer(currentMultiplierLevel)
 	end
 
@@ -65,6 +69,7 @@ local function decayComboMeter(comboMeterUI)
 
 		if newSizeX <= 0 then
 			if currentMultiplierLevel == 0 then
+				comboMeterUI.Background.HypeText.Text = ""
 				comboMeterUI.Background.Frame.Bar.Size = UDim2.fromScale(0, 0.85)
 				clickCount = 0
 				break
@@ -75,6 +80,8 @@ local function decayComboMeter(comboMeterUI)
 			comboMeterUI.Background.Multiplier.Text = "Combo Multiplier: "
 				.. (multiplierLevelDetails[currentMultiplierLevel].Multiplier + 1)
 				.. "x"
+			comboMeterUI.Background.HypeText.TextColor3 = multiplierLevelDetails[currentMultiplierLevel].TextColor
+			comboMeterUI.Background.HypeText.Text = multiplierLevelDetails[currentMultiplierLevel].Text
 			comboMeterUI.Background.Frame.Bar.Size = UDim2.fromScale(0.973, 0.85)
 		end
 
@@ -98,6 +105,7 @@ playerStatePromise:andThen(function()
 		decayCheckEnabled = false
 
 		comboMeterUI.Enabled = false
+		comboMeterUI.Background.HypeText.Text = ""
 		comboMeterUI.Background.Multiplier.Text = "Combo Multiplier: 1x"
 		comboMeterUI.Background.Frame.Bar.Size = UDim2.fromScale(0, 0.85)
 
@@ -145,6 +153,8 @@ playerStatePromise:andThen(function()
 			comboMeterUI.Background.Multiplier.Text = "Combo Multiplier: "
 				.. (multiplierLevelDetails[currentMultiplierLevel].Multiplier + 1)
 				.. "x"
+			comboMeterUI.Background.HypeText.TextColor3 = multiplierLevelDetails[currentMultiplierLevel].TextColor
+			comboMeterUI.Background.HypeText.Text = multiplierLevelDetails[currentMultiplierLevel].Text
 			setComboMeterLevel:SendToServer(currentMultiplierLevel)
 			return
 		end
@@ -205,8 +215,8 @@ playerStatePromise:andThen(function()
 
 	if selectors.hasGamepass(store:getState(), player.Name, "AutoClicker") then
 		comboMeterUI.Passes.AutoClicker.Visible = false
-		comboMeterUI.Background.Position = UDim2.fromScale(0.405, 0.8)
-		comboMeterUI.ClickBackground.Position = UDim2.fromScale(0.552, 0.811)
+		comboMeterUI.Background.Position = UDim2.fromScale(0.4, 0.791)
+		comboMeterUI.ClickBackground.Position = UDim2.fromScale(0.558, 0.803)
 	end
 
 	store.changed:connect(function(newState, oldState)
@@ -216,8 +226,8 @@ playerStatePromise:andThen(function()
 			and not selectors.hasGamepass(oldState, player.Name, "AutoClicker")
 		then
 			comboMeterUI.Passes.AutoClicker.Visible = false
-			comboMeterUI.Background.Position = UDim2.fromScale(0.405, 0.8)
-			comboMeterUI.ClickBackground.Position = UDim2.fromScale(0.552, 0.811)
+			comboMeterUI.Background.Position = UDim2.fromScale(0.4, 0.791)
+			comboMeterUI.ClickBackground.Position = UDim2.fromScale(0.558, 0.803)
 			clickCleaner:Cleanup()
 			task.spawn(function()
 				while enabled do

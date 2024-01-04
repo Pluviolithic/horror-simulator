@@ -31,6 +31,10 @@ end):andThen(function(petsModel)
 		for i, petModel in petsModel:GetChildren() do
 			local position, look = petUtils.calculatePosition(rootPart, numPets, i)
 
+			if not petModel.PrimaryPart then
+				continue
+			end
+
 			petModel.PrimaryPart.BodyPosition.Position = position
 			petModel.PrimaryPart.BodyGyro.CFrame = CFrame.lookAt(Vector3.new(), look * Vector3.new(1, 0, 1))
 		end

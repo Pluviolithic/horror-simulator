@@ -77,6 +77,9 @@ local productRewarders = {
 	[IDs["3Reaper"].Value] = function(player: Player)
 		awardPetsToPlayer(player, { Reaper = 3 })
 	end,
+	[IDs["SkipAll"].Value] = function(player: Player)
+		store:dispatch(actions.skipAllGiftTimers(player.Name))
+	end,
 }
 
 for _, pack in packs.Fear:GetChildren() do
@@ -93,6 +96,15 @@ for _, pack in packs.Gems:GetChildren() do
 		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
 		areaName = areaName:gsub(" ", "_")
 		store:dispatch(actions.incrementPlayerStat(player.Name, "Gems", pack:GetAttribute(areaName), "Pack", true))
+		notifyClientOfAward(player, pack.Name)
+	end
+end
+
+for _, pack in packs.StrengthPacks:GetChildren() do
+	productRewarders[pack.Value] = function(player: Player)
+		local areaName = rankUtils.getBestUnlockedArea(selectors.getStat(store:getState(), player.Name, "Strength"))
+		areaName = areaName:gsub(" ", "_")
+		store:dispatch(actions.incrementPlayerStat(player.Name, "Strength", pack:GetAttribute(areaName), "Pack", true))
 		notifyClientOfAward(player, pack.Name)
 	end
 end

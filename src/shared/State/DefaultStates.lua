@@ -18,6 +18,14 @@ return {
 		LogInCount = 0,
 		TimePlayed = 0,
 
+		VIPChestAwardIndex = 1,
+		GroupChestAwardIndex = 1,
+
+		LastLogOn = -1,
+		LastLogOff = -1,
+
+		LastClaimedAGiftTimestamp = -1,
+
 		MaxPetCount = 30,
 		CurrentPetCount = 0,
 		MaxPetEquipCount = 3,
@@ -28,6 +36,8 @@ return {
 		FearMultiplier = 0,
 		StrengthMultiplier = 0,
 		GemsMultiplier = 0,
+
+		ActiveFriendsWhoJoined = {},
 	},
 
 	PetData = {
@@ -119,5 +129,10 @@ return {
 
 	MilestonesData = {
 		["100MStrength"] = false,
+	},
+
+	GiftData = {
+		ClaimedGifts = {},
+		SkippedAll = false,
 	},
 }
