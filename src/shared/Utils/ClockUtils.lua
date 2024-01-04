@@ -28,4 +28,15 @@ return {
 
 		return string.format("%02d:%02d:%02d", hours, minutes, seconds)
 	end,
+	getFormattedGiftTime = function(timeLeft)
+		local hours = math.floor(timeLeft / 3600)
+		local minutes = math.floor((timeLeft - (hours * 3600)) / 60)
+		local seconds = timeLeft - (hours * 3600) - (minutes * 60)
+
+		if hours > 0 then
+			return string.format("%02d:%02d:%02d", hours, minutes, seconds)
+		else
+			return string.format("%02d:%02d", minutes, seconds)
+		end
+	end,
 }

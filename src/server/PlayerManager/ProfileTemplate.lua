@@ -22,7 +22,7 @@ return {
 		LastLogOff = -1,
 
 		LastClaimedAGiftTimestamp = -1,
-		LastClaimedAllGiftsTimestamp = -1,
+		GiftCycleBeganTimestamp = -1,
 
 		VIPChestAwardIndex = 1,
 		GroupChestAwardIndex = 1,
@@ -110,5 +110,6 @@ return {
 
 	GiftData = {
 		ClaimedGifts = {},
+		SkippedAll = false,
 	},
 }

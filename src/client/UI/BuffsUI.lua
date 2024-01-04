@@ -74,6 +74,8 @@ local function updateBuffTray(state)
 				multiplierAmount = "5x "
 			elseif buffDisplay.Name:match "Fearless" then
 				multiplierAmount = ""
+			elseif buffDisplay.Name:match "Workout" then
+				multiplierAmount = "3x "
 			end
 
 			PopupUI(`{multiplierAmount}{buffDisplay.Name:match "(%u.+)%u"} Boost Has Expired!`)

@@ -10,4 +10,16 @@ return {
 			shouldSave = true,
 		}
 	end),
+	skipAllGiftTimers = makeActionCreator("skipAllGiftTimers", function(playerName: string)
+		return {
+			playerName = playerName,
+			shouldSave = true,
+		}
+	end),
+	resetGifts = makeActionCreator("resetGifts", function(playerName: string)
+		return {
+			playerName = playerName,
+			shouldSave = true,
+		}
+	end),
 }

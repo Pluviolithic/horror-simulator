@@ -23,14 +23,19 @@ return Rodux.createReducer({}, {
 			draft[action.playerName] = table.clone(defaultStates.GiftData)
 		end)
 	end,
-	redeemGift = function(state, action)
+	claimGift = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName].ClaimedGifts[action.giftName] = true
 		end)
 	end,
 	resetGifts = function(state, action)
 		return produce(state, function(draft)
-			table.clear(draft[action.playerName].ClaimedGifts)
+			draft[action.playerName] = table.clone(defaultStates.GiftData)
+		end)
+	end,
+	skipAllGiftTimers = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].SkippedAll = true
 		end)
 	end,
 })

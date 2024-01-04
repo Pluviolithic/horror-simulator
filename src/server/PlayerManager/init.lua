@@ -65,6 +65,12 @@ local function onPlayerAdded(player: Player)
 	if player:IsDescendantOf(Players) then
 		profiles[player.Name] = profile
 		store:dispatch(actions.addPlayer(player.Name, profile.Data))
+
+		if os.time() - profile.Data.Stats.LastLogOff > 24 * 60 * 60 then
+			store:dispatch(actions.resetGifts(player.Name))
+		end
+
+		store:dispatch(actions.setPlayerStat(player.Name, "GiftCycleBeganTimestamp", os.time()))
 		store:dispatch(actions.incrementPlayerStat(player.Name, "LogInCount"))
 		store:dispatch(actions.setPlayerStat(player.Name, "LastLogOn", os.time()))
 	end

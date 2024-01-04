@@ -25,7 +25,6 @@ return {
 		LastLogOff = -1,
 
 		LastClaimedAGiftTimestamp = -1,
-		LastClaimedAllGiftsTimestamp = -1,
 
 		MaxPetCount = 30,
 		CurrentPetCount = 0,
@@ -134,5 +133,6 @@ return {
 
 	GiftData = {
 		ClaimedGifts = {},
+		SkippedAll = false,
 	},
 }

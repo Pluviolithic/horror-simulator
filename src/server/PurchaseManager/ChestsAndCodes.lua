@@ -36,6 +36,8 @@ local function awardItem(player, item)
 			multiplierAmount = "5x "
 		elseif item:match "Fearless" then
 			multiplierAmount = ""
+		elseif item:match "Workout" then
+			multiplierAmount = "3x "
 		end
 		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(
 			player,

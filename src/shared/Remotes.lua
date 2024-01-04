@@ -150,7 +150,7 @@ local Remotes = Net.CreateDefinitions {
 		},
 		Net.Middleware.TypeChecking(t.string),
 	},
-	ClaimGift = Net.Definitions.ServerFunction {
+	ClaimGift = Net.Definitions.ClientToServerEvent {
 		Net.Middleware.RateLimit {
 			MaxRequestsPerMinute = 60,
 		},

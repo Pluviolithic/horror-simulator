@@ -125,4 +125,10 @@ return {
 	hasClaimedGift = function(state, playerName, giftName)
 		return state.GiftData[playerName].ClaimedGifts[giftName]
 	end,
+	skippedGiftTimers = function(state, playerName)
+		return state.GiftData[playerName].SkippedAll
+	end,
+	getClaimedGifts = function(state, playerName)
+		return state.GiftData[playerName].ClaimedGifts
+	end,
 }
