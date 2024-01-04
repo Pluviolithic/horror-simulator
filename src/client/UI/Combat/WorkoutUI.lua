@@ -26,7 +26,7 @@ local function countdownTimer()
 		return
 	end
 	looping = true
-	WorkoutUI.Background.Frame.Timer.Text = playerWorkoutSpeed .. "s"
+	WorkoutUI.Background.Frame.Timer.Text = string.format("%.1fs", playerWorkoutSpeed)
 	repeat
 		task.wait()
 		local length = os.clock() - startTime
