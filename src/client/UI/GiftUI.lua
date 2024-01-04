@@ -78,7 +78,7 @@ function GiftUI:_initialize(): ()
 		MarketplaceService:PromptProductPurchase(player, skipAllID)
 	end)
 
-	playerStatePromise:andThen(function(playerState)
+	playerStatePromise:andThen(function()
 		while true do
 			self._counter = (self._counter + 1) % 2
 			self:Refresh(true)
