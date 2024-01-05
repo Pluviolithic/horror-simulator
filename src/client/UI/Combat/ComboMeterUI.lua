@@ -1,4 +1,5 @@
 local Players = game:GetService "Players"
+local TweenService = game:GetService "TweenService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
@@ -115,6 +116,21 @@ playerStatePromise:andThen(function()
 	obliterator:Add(mainCleanup, true)
 	obliterator:Cleanup()
 
+	local clickStartTween = TweenService:Create(
+		comboMeterUI.ClickBackground.Click.UIScale,
+		TweenInfo.new(0.1, Enum.EasingStyle.Quad),
+		{ Scale = 0.9 }
+	)
+	local clickEndTween = TweenService:Create(
+		comboMeterUI.ClickBackground.Click.UIScale,
+		TweenInfo.new(0.1, Enum.EasingStyle.Quad),
+		{ Scale = 1 }
+	)
+
+	clickStartTween.Completed:Connect(function()
+		clickEndTween:Play()
+	end)
+
 	local function handleClick()
 		if decayActive then
 			decayActive = false
@@ -205,6 +221,7 @@ playerStatePromise:andThen(function()
 					return
 				end
 				debounce = true
+				clickStartTween:Play()
 				task.delay(0.2, function()
 					debounce = false
 				end)
