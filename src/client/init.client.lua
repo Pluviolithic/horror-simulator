@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local client = StarterPlayer.StarterPlayerScripts.Client
 
 require(client.GameAtmosphere.Shutdowns)
+require(client.MobileBehavior)
 require(client.State.Store)
 require(client.UI)
 require(client.Cmdr)
