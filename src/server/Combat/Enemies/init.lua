@@ -271,9 +271,15 @@ local function handleEnemy(enemy)
 			end
 		end, true)
 
+		--local debounceCounter = 0
 		local runServiceJanitor = Janitor.new()
 		playerJanitor:Add(runServiceJanitor)
-		runServiceJanitor:Add(RunService.Stepped:Connect(function()
+		runServiceJanitor:Add(RunService.Stepped:Connect(function() -- dt)
+			-- if debounceCounter < 0.1 then
+			-- 	debounceCounter += dt
+			-- 	return
+			-- end
+			-- debounceCounter = 0
 			humanoid = if player.Character then player.Character:FindFirstChild "Humanoid" else nil
 			if not humanoid then
 				runServiceJanitor:Destroy()
