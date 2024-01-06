@@ -46,7 +46,6 @@ return function(enemy, info, janitor)
 	local currentIndex, animationTrack, animation = 0, nil, nil
 
 	task.spawn(function()
-		local engagedPlayers = table.clone(info.EngagedPlayers)
 		while damagePlayers and enemy:FindFirstChild "Humanoid" do
 			currentIndex, animation = animationUtilities.getNextIndexAndAnimationTrack(animationInstances, currentIndex)
 			animationTrack = enemy.Humanoid:LoadAnimation(animation)
@@ -62,7 +61,7 @@ return function(enemy, info, janitor)
 					local delayTime = if sound.Delay.Value > 0.1 then sound.Delay.Value - 0.1 else 0.1
 					local damageToDeal = enemy.Configuration.Damage.Value
 					task.delay(delayTime, function()
-						dealDamageToPlayers(engagedPlayers, damageToDeal)
+						dealDamageToPlayers(info.EngagedPlayers, damageToDeal)
 					end)
 				end
 				task.spawn(function()

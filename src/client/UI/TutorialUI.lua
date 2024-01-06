@@ -83,7 +83,7 @@ tutorialFunctions = {
 		if subStep == 1 then
 			rolloutTutorialText "You are now stronger! Try defeating an enemy!"
 			subStep += 1
-			Remotes.Client:Get("SetTutorialFearMeterPercent"):SendToServer(0.95)
+			Remotes.Client:Get("SetTutorialFearMeterPercent"):SendToServer(0.98)
 			return
 		end
 

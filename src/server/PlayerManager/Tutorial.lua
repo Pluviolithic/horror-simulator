@@ -13,7 +13,7 @@ Remotes.Server:Get("IncrementTutorialStep"):Connect(function(player)
 end)
 
 Remotes.Server:Get("SetTutorialFearMeterPercent"):Connect(function(player, amount)
-	if (amount == 0 or amount == 0.95) and selectors.getTutorialStep(store:getState(), player.Name) == 3 then
+	if (amount == 0 or amount == 0.98) and selectors.getTutorialStep(store:getState(), player.Name) == 3 then
 		store:dispatch(
 			actions.setPlayerStat(
 				player.Name,

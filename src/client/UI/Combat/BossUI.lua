@@ -75,7 +75,7 @@ end)
 playerStatePromise:andThen(function()
 	store.changed:connect(function(newState, oldState)
 		local currentEnemy = selectors.getCurrentTarget(newState, player.Name)
-		if not currentEnemy and BossUI.Enabled then
+		if (not currentEnemy or not CollectionService:HasTag(currentEnemy, "Boss")) and BossUI.Enabled then
 			BossUI.Enabled = false
 			BossUI.Background.FearCounter.Text = ""
 			BossUI.Background.DamageCounter.Text = ""
