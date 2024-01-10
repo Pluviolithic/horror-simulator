@@ -13,5 +13,6 @@ require(script.ChestTimerUI)
 require(script.BillboardShops)
 require(script.NotificationUI)
 require(script.GiftUI)
+require(script.RebirthUI)
 
 return 0

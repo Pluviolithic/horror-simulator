@@ -78,10 +78,9 @@ function PetInventory:_initialize(): ()
 
 	self._ui.Background.Storage.Buy.Activated:Connect(function()
 		playSoundEffect "UIButton"
-		local maxPetCount = selectors.getStat(store:getState(), player.Name, "MaxPetCount")
-		if maxPetCount == 30 or maxPetCount == 130 then
+		if not selectors.hasGamepass(store:getState(), player.Name, "50PetStorage") then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["50PetStorage"].Value)
-		else
+		elseif not selectors.hasGamepass(store:getState(), player.Name, "100PetStorage") then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["100PetStorage"].Value)
 		end
 	end)

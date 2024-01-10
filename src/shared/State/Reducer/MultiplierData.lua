@@ -43,6 +43,11 @@ return Rodux.createReducer({}, {
 				draft[action.playerName].MaxFearMeterMultiplier = 2
 				draft[action.playerName].MaxFearMeterMultiplierCount = 1
 			end
+
+			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xTokens"].Value] then
+				draft[action.playerName].RebirthTokensMultiplier = 2
+				draft[action.playerName].RebirthTokensMultiplierCount = 1
+			end
 		end)
 	end,
 	removePlayer = function(state, action)

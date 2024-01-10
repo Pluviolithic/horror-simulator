@@ -8,11 +8,11 @@ local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
+local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.TeleportPlayer)
 local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 
 local player = Players.LocalPlayer
-local mainUI = player.PlayerGui:WaitForChild "MainUI"
 
 local upgrades = ReplicatedStorage.Config.Rebirth.Upgrades
 local RebirthShop = CentralUI.new(player.PlayerGui:WaitForChild "RebirthShop")
@@ -24,16 +24,59 @@ local function shouldRefresh(newState, oldState)
 end
 
 function RebirthShop:_initialize()
-	mainUI.Rebirth.Activated:Connect(function()
-		playSoundEffect "UIButton"
-		self:setEnabled(true)
-	end)
+	for _, upgradeDisplay in self._ui.Background.ScrollingFrame:GetChildren() do
+		if not upgradeDisplay:IsA "ImageLabel" then
+			continue
+		end
+
+		local debounce = false
+		upgradeDisplay.Upgrade.Activated:Connect(function()
+			playSoundEffect "UIButton"
+			if debounce then
+				return
+			end
+
+			debounce = true
+
+			if
+				#upgrades[upgradeDisplay.Name]:GetChildren()
+				<= selectors.getRebirthUpgradeLevel(store:getState(), player.Name, upgradeDisplay.Name)
+			then
+				PopupUI "Maxxed!"
+				return
+			end
+
+			local cost = upgrades[upgradeDisplay.Name][selectors.getRebirthUpgradeLevel(
+				store:getState(),
+				player.Name,
+				upgradeDisplay.Name
+			) + 1].Value
+
+			if selectors.getStat(store:getState(), player.Name, "RebirthTokens") < cost then
+				PopupUI "You Do Not Have Enough Rebirth Tokens!"
+				return
+			end
+
+			Remotes.Client:Get("PurchaseRebirthUpgrade"):SendToServer(upgradeDisplay.Name)
+
+			task.wait(0.5)
+			debounce = false
+		end)
+	end
 
 	playerStatePromise:andThen(function()
 		self:Refresh()
 		store.changed:connect(function(newState, oldState)
 			if shouldRefresh(newState, oldState) then
 				self:Refresh()
+			end
+
+			if
+				selectors.getStat(newState, player.Name, "Rebirths") ~= 0
+				and selectors.getStat(oldState, player.Name, "Rebirths") == 0
+			then
+				teleportPlayer {}
+				workspace.Beams.RebirthShop.Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
 			end
 		end)
 	end)
@@ -59,9 +102,9 @@ function RebirthShop:Refresh()
 		upgradeDisplay.Level.Text = upgradeLevel .. "/" .. #upgrades[upgradeDisplay.Name]:GetChildren()
 
 		if upgrades[upgradeDisplay.Name]:FindFirstChild(upgradeLevel + 1) then
-			upgradeDisplay.Price.Text = upgrades[upgradeDisplay.Name][upgradeLevel + 1].Value .. " Tokens"
+			upgradeDisplay.CostUI.Cost.Text = upgrades[upgradeDisplay.Name][upgradeLevel + 1].Value .. " Tokens"
 		else
-			upgradeDisplay.Price.Text = "MAX"
+			upgradeDisplay.CostUI.Cost.Text = "MAX"
 		end
 	end
 end

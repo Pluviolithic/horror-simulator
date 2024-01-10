@@ -41,7 +41,10 @@ return Rodux.createReducer({}, {
 	end,
 	rebirthPlayer = function(state, action)
 		return produce(state, function(draft)
-			for weaponName, _ in pairs(draft[action.playerName].OwnedWeapons) do
+			for weaponName in pairs(draft[action.playerName].OwnedWeapons) do
+				if weaponName:sub(1, 1) == "_" then
+					continue
+				end
 				if not weapons[weaponName]:FindFirstChild "Price" then
 					draft[action.playerName].OwnedWeapons[weaponName] = nil
 				end

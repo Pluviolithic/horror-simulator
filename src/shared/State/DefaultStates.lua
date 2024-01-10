@@ -26,6 +26,7 @@ return {
 		LastLogOff = -1,
 
 		LastClaimedAGiftTimestamp = -1,
+		GiftCycleBeganTimestamp = -1,
 
 		MaxPetCount = 30,
 		CurrentPetCount = 0,

@@ -145,6 +145,9 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 			then hatchDisplayTime / 2.4651
 			else hatchDisplayTime
 
+		local rebirthBuff = selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "FasterHatch") * 0.1
+		modifiedHatchDisplayTime *= (1 - rebirthBuff)
+
 		hatchingUI.Enabled = true
 
 		displayAreaSubUI(hatchingUI.Single, currentPrimaryRegion)

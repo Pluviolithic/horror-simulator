@@ -10,7 +10,7 @@ local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 local upgrades = ReplicatedStorage.Config.Rebirth.Upgrades
 local exchangeAmount = ReplicatedStorage.Config.Rebirth.Exchange.Value
 
-Remotes.Server:Get("Rebirth"):SetCallback(function(player)
+Remotes.Server:Get("Rebirth"):Connect(function(player)
 	if selectors.getStat(store:getState(), player.Name, "Strength") < exchangeAmount then
 		return
 	end
@@ -34,14 +34,14 @@ Remotes.Server:Get("Rebirth"):SetCallback(function(player)
 	store:dispatch(actions.rebirthPlayer(player.Name))
 end)
 
-Remotes.Server:Get("PurchaseRebirthUpgrade"):SetCallback(function(player, upgradeName)
+Remotes.Server:Get("PurchaseRebirthUpgrade"):Connect(function(player, upgradeName)
 	if not defaultStates.PurchaseData.RebirthUpgrades[upgradeName] then
 		return
 	end
 
 	if
 		#upgrades[upgradeName]:GetChildren()
-		>= selectors.getRebirthUpgradeLevel(store:getState(), player.Name, upgradeName)
+		<= selectors.getRebirthUpgradeLevel(store:getState(), player.Name, upgradeName)
 	then
 		return
 	end
@@ -55,4 +55,14 @@ Remotes.Server:Get("PurchaseRebirthUpgrade"):SetCallback(function(player, upgrad
 
 	store:dispatch(actions.incrementPlayerStat(player.Name, "RebirthTokens", -cost))
 	store:dispatch(actions.incrementRebirthUpgradeLevel(player.Name, upgradeName))
+
+	if upgradeName == "ExtraPetStorage" then
+		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 5))
+	elseif upgradeName == "EquipMorePets" then
+		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount"))
+	elseif upgradeName == "Lucky" then
+		store:dispatch(actions.incrementPlayerStat(player.Name, "Luck", 5))
+	end
 end)
+
+return 0
