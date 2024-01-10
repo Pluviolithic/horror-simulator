@@ -65,4 +65,14 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].RedeemedCodes[action.code] = true
 		end)
 	end,
+	rebirthPlayer = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].PurchasedTeleporters = {}
+		end)
+	end,
+	incrementRebirthUpgradeLevel = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].RebirthUpgrades[action.upgradeName] += 1
+		end)
+	end,
 })

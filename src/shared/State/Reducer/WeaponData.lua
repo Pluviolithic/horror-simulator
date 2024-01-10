@@ -6,6 +6,7 @@ local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
 local produce = Immut.produce
+local weapons = ReplicatedStorage.Weapons
 
 return Rodux.createReducer({}, {
 	addPlayer = function(state, action)
@@ -36,6 +37,18 @@ return Rodux.createReducer({}, {
 	equipWeapon = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName].EquippedWeapon = action.weaponName
+		end)
+	end,
+	rebirthPlayer = function(state, action)
+		return produce(state, function(draft)
+			for weaponName, _ in pairs(draft[action.playerName].OwnedWeapons) do
+				if not weapons[weaponName]:FindFirstChild "Price" then
+					draft[action.playerName].OwnedWeapons[weaponName] = nil
+				end
+			end
+			if not draft[action.playerName].OwnedWeapons[draft[action.playerName].EquippedWeapon] then
+				draft[action.playerName].EquippedWeapon = "Fists"
+			end
 		end)
 	end,
 })

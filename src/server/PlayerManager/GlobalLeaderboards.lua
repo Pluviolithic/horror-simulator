@@ -14,7 +14,7 @@ local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 local globalLeaderboardStores = {
 	Kills = DataStoreService:GetOrderedDataStore "GlobalKills",
 	Strength = DataStoreService:GetOrderedDataStore "GlobalStrength",
-	--Rebirths = DataStoreService:GetOrderedDataStore "Rebirths",
+	Rebirths = DataStoreService:GetOrderedDataStore "Rebirths",
 }
 
 local leaderboardEntry = ServerStorage.Templates.LeaderboardEntry

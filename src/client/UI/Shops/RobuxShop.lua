@@ -78,20 +78,6 @@ function RobuxShop:Refresh()
 	end
 end
 
--- function RobuxShop:_countdownDescriptionDisplayTime()
--- 	self._lastDescriptionTapped = os.time()
--- 	if self._countdownActive then
--- 		return
--- 	end
--- 	self._countdownActive = true
--- 	self._ui.Background.GamepassesFrame.Description.Visible = true
--- 	while self._lastDescriptionTapped + 10 > os.time() do
--- 		task.wait(0.25)
--- 	end
--- 	self._ui.Background.GamepassesFrame.Description.Visible = false
--- 	self._countdownActive = false
--- end
-
 function RobuxShop:_initialize(): ()
 	mainUI.RobuxShop.Activated:Connect(function()
 		playSoundEffect "UIButton"

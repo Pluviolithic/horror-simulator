@@ -38,6 +38,7 @@ Promise.new(function(resolve)
 		WeaponShop = player.PlayerGui:WaitForChild "WeaponShop",
 		PetInventory = player.PlayerGui:WaitForChild "PetInventory",
 		StrengthRanks = player.PlayerGui:WaitForChild "StrengthRanks",
+		RebirthShop = player.PlayerGui:WaitForChild "RebirthShop",
 	}
 	resolve(interfaces)
 end):andThen(function(interfaces)
@@ -90,6 +91,14 @@ end):andThen(function(interfaces)
 						selectors.getStat(store:getState(), player.Name, "MaxFearMeter")
 					)
 					.. "</font>"
+			end,
+		},
+		{
+			first = interfaces.RebirthShop.Background.RebirthTokens.Amount,
+			second = function()
+				return formatter.formatNumberWithSuffix(
+					selectors.getStat(store:getState(), player.Name, "RebirthTokens")
+				)
 			end,
 		},
 	}

@@ -102,4 +102,11 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].CurrentPetEquipCount += removedPetEquipCount
 		end)
 	end,
+	rebirthPlayer = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].Strength = defaultStates.Stats.Strength
+			draft[action.playerName].Fear = defaultStates.Stats.Fear
+			draft[action.playerName].Gems = defaultStates.Stats.Gems
+		end)
+	end,
 })
