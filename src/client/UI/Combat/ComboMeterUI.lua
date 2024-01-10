@@ -41,7 +41,7 @@ local function decayComboMeter(comboMeterUI)
 	end
 	decayCheckEnabled = true
 
-	while tick() - lastClicked < 3 and enabled and decayCheckEnabled do
+	while tick() - lastClicked < 6 and enabled and decayCheckEnabled do
 		task.wait()
 	end
 
@@ -62,9 +62,9 @@ local function decayComboMeter(comboMeterUI)
 		setComboMeterLevel:SendToServer(currentMultiplierLevel)
 	end
 
-	while enabled and tick() - lastClicked >= 3 and decayActive do
+	while enabled and tick() - lastClicked >= 6 and decayActive do
 		local elapsedTime = tick() - lastClicked
-		local newSizeX = comboMeterUI.Background.Frame.Bar.Size.X.Scale - (decayRate * (elapsedTime - 3))
+		local newSizeX = comboMeterUI.Background.Frame.Bar.Size.X.Scale - (decayRate * (elapsedTime - 6))
 
 		comboMeterUI.Background.Frame.Bar.Size = UDim2.fromScale(newSizeX, 0.85)
 
@@ -216,7 +216,7 @@ playerStatePromise:andThen(function()
 			end
 		else
 			local debounce = false
-			clickCleaner:Add(comboMeterUI.ClickBackground.Click.Activated:Connect(function()
+			clickCleaner:Add(comboMeterUI.ClickBackground.Activated:Connect(function()
 				if debounce then
 					return
 				end
@@ -268,7 +268,7 @@ playerStatePromise:andThen(function()
 				end)
 			else
 				local debounce = false
-				clickCleaner:Add(comboMeterUI.ClickBackground.Click.Activated:Connect(function()
+				clickCleaner:Add(comboMeterUI.ClickBackground.Activated:Connect(function()
 					if debounce then
 						return
 					end

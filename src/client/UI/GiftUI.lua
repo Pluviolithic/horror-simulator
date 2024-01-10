@@ -24,11 +24,23 @@ local skipAllID = ReplicatedStorage.Config.DevProductData.IDs.SkipAll.Value
 
 local GiftUI = CentralUI.new(player.PlayerGui:WaitForChild "GiftUI")
 
+local giftTimersDictionary = {}
+for _, giftTimer in giftTimers:GetChildren() do
+	giftTimersDictionary[giftTimer.Name] = giftTimer.Value
+end
+
 function GiftUI:_initialize(): ()
 	player.PlayerGui:WaitForChild("MainUI").Gifts.Activated:Connect(function()
 		playSoundEffect "UIButton"
 		self:setEnabled(not self._isOpen)
 	end)
+
+	self._giftDisplays = self._ui.Background.Frame.ScrollingFrame:GetChildren()
+	for i = #self._giftDisplays, 1, -1 do
+		if not self._giftDisplays[i]:IsA "ImageButton" then
+			table.remove(self._giftDisplays, i)
+		end
+	end
 
 	self._shakeTweenStart = TweenService:Create(
 		player.PlayerGui.MainUI.Gifts.Icon,
@@ -94,11 +106,12 @@ end
 function GiftUI:Refresh(fromLoop: boolean?)
 	local firstTimerText = nil
 	local claimExists = false
-	for _, giftDisplay in self._ui.Background.Frame.ScrollingFrame:GetChildren() do
-		if not giftDisplay:IsA "ImageButton" then
-			continue
-		end
 
+	table.sort(self._giftDisplays, function(a, b)
+		return giftTimersDictionary[a.Name] < giftTimersDictionary[b.Name]
+	end)
+
+	for _, giftDisplay in self._giftDisplays do
 		if giftDisplay.Name:match "Pack" then
 			local statName = " STR"
 			local pack = packs:FindFirstChild(giftDisplay.Name, true)
@@ -129,11 +142,11 @@ function GiftUI:Refresh(fromLoop: boolean?)
 			giftDisplay.Claim.ImageColor3 = claimColors.Claimed.Value
 		elseif
 			os.time() - selectors.getStat(store:getState(), player.Name, "GiftCycleBeganTimestamp")
-				< giftTimers[giftDisplay.Name].Value * 60
+				< giftTimersDictionary[giftDisplay.Name] * 60
 			and not selectors.skippedGiftTimers(store:getState(), player.Name)
 		then
 			giftDisplay.Claim.Text.Text = clockUtils.getFormattedGiftTime(
-				giftTimers[giftDisplay.Name].Value * 60
+				giftTimersDictionary[giftDisplay.Name] * 60
 					- (os.time() - selectors.getStat(store:getState(), player.Name, "GiftCycleBeganTimestamp"))
 			)
 			giftDisplay.Claim.ImageColor3 = claimColors.Timer.Value
