@@ -52,9 +52,11 @@ local function handlePunchingBag(bag: any)
 			return
 		end
 
+		local startStrength = selectors.getStat(store:getState(), player.Name, "Strength")
+
 		if inUse or selectors.getCurrentTarget(store:getState(), player.Name) then
 			if selectors.getCurrentTarget(store:getState(), player.Name) == bag and not cancelled then
-				disableSwitch:Fire(player)
+				disableSwitch:Fire(player, startStrength)
 			end
 			return
 		end
@@ -147,7 +149,6 @@ local function handlePunchingBag(bag: any)
 			loadedIdleAnimation:Destroy()
 		end)
 
-		local startStrength = selectors.getStat(store:getState(), player.Name, "Strength")
 		while
 			selectors.isPlayerLoaded(store:getState(), player.Name)
 			and selectors.getStat(store:getState(), player.Name, "Fear") >= selectors.getStat(
