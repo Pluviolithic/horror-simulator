@@ -82,7 +82,7 @@ local function handlePunchingBag(bag: any)
 		loadedIdleAnimation.Priority = Enum.AnimationPriority.Idle
 
 		local connection
-		connection = disableSwitch.Event:Connect(function(disablingPlayer: Player)
+		connection = disableSwitch.Event:Connect(function(disablingPlayer: Player, startStrength: number)
 			if disablingPlayer == player then
 				cancelled = true
 				connection:Disconnect()
@@ -91,7 +91,11 @@ local function handlePunchingBag(bag: any)
 
 				prompt.ActionText = "Start Training"
 				inUse = false
-				humanoid.RootPart.CFrame = teleportPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
+
+				if selectors.getStat(store:getState(), player.Name, "Strength") >= startStrength then
+					humanoid.RootPart.CFrame = teleportPart.CFrame
+						+ Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
+				end
 
 				if Players:FindFirstChild(player.Name) then
 					store:dispatch(actions.setCurrentPunchingBag(player.Name, nil))
@@ -143,6 +147,7 @@ local function handlePunchingBag(bag: any)
 			loadedIdleAnimation:Destroy()
 		end)
 
+		local startStrength = selectors.getStat(store:getState(), player.Name, "Strength")
 		while
 			selectors.isPlayerLoaded(store:getState(), player.Name)
 			and selectors.getStat(store:getState(), player.Name, "Fear") >= selectors.getStat(
@@ -190,7 +195,7 @@ local function handlePunchingBag(bag: any)
 		end
 
 		if connection.Connected then
-			disableSwitch:Fire(player)
+			disableSwitch:Fire(player, startStrength)
 		end
 	end)
 end

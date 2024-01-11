@@ -77,12 +77,12 @@ function RebirthShop:_initialize()
 				> selectors.getStat(oldState, player.Name, "Rebirths")
 			then
 				teleportPlayer {}
-				if selectors.getStat(oldState, player.Name, "Rebirths") == 0 then
-					for _, beam in workspace.Beams:GetChildren() do
-						if beam.Beam.Attachment1 then
-							beam.Beam.Attachment1 = nil
-						end
+				for _, beam in workspace.Beams:GetChildren() do
+					if beam.Beam.Attachment1 then
+						beam.Beam.Attachment1 = nil
 					end
+				end
+				if selectors.getStat(oldState, player.Name, "Rebirths") == 0 then
 					workspace.Beams.RebirthShop.Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
 				end
 			end

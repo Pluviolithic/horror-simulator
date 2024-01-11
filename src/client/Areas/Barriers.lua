@@ -9,6 +9,7 @@ local teleportPlayer = require(StarterPlayer.StarterPlayerScripts.Client.Areas.T
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
+local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 
 local debounce = false
@@ -64,6 +65,9 @@ local function unlockAreas(oldWasLoaded)
 
 				if oldWasLoaded then
 					PopupUI("New Area Unlocked!", Color3.fromRGB(250, 250, 250))
+					if requirement.Name == rankUtils.getBestAreaName() then
+						PopupUI("You Can Now Rebirth!", Color3.fromRGB(250, 250, 250))
+					end
 				end
 
 				if workspace.Beams:FindFirstChild(requirement.Name) and oldWasLoaded then
@@ -122,6 +126,13 @@ end
 playerStatePromise:andThen(function()
 	unlockAreas(false)
 	store.changed:connect(function(newState, oldState)
+		if
+			selectors.getStat(newState, player.Name, "Rebirths") > selectors.getStat(oldState, player.Name, "Rebirths")
+		then
+			unlockedAreas = {
+				["Clown Town"] = true,
+			}
+		end
 		if
 			selectors.isPlayerLoaded(oldState, player.Name)
 			and selectors.getStat(newState, player.Name, "Strength") == selectors.getStat(

@@ -42,8 +42,9 @@ return Rodux.createReducer({}, {
 	rebirthPlayer = function(state, action)
 		return produce(state, function(draft)
 			local bestWeaponName, bestWeaponDamage = "Fists", 1
-			for weaponName in pairs(draft[action.playerName].OwnedWeapons) do
-				if weaponName:sub(1, 1) == "_" then
+			local ownedWeapons = table.clone(state[action.playerName].OwnedWeapons)
+			for weaponName in ownedWeapons do
+				if weaponName == "Fists" then
 					continue
 				end
 				if not weapons[weaponName]:FindFirstChild "Price" then
