@@ -3,9 +3,6 @@ local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 local MarketplaceService = game:GetService "MarketplaceService"
 
-local player = Players.LocalPlayer
-
-local Sift = require(ReplicatedStorage.Common.lib.Sift)
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -15,6 +12,8 @@ local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.Descr
 local interfaces = require(StarterPlayer.StarterPlayerScripts.Client.UI.CollidableInterfaces)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
+
+local player = Players.LocalPlayer
 
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local RobuxShop = CentralUI.new(player.PlayerGui:WaitForChild "RobuxShop")
@@ -31,10 +30,7 @@ local function shouldRefresh(newState, oldState): boolean
 		or rankUtils.getBestUnlockedArea(selectors.getStat(newState, player.Name, "Strength")) ~= rankUtils.getBestUnlockedArea(
 			selectors.getStat(oldState, player.Name, "Strength")
 		)
-		or not Sift.Dictionary.equalsDeep(
-			selectors.getPurchasedBoosts(newState, player.Name),
-			selectors.getPurchasedBoosts(oldState, player.Name)
-		)
+		or selectors.getPurchaseData(newState, player.Name) ~= selectors.getPurchaseData(oldState, player.Name)
 end
 
 function RobuxShop:_closeFramesWithExclude(exclude)
@@ -74,6 +70,22 @@ function RobuxShop:Refresh()
 			end
 			local boostName = buttonDisplay.Name .. useButton.Name:match "(%d*%.?%d+)"
 			useButton.Text = `Use ({selectors.getBoostCount(store:getState(), player.Name, boostName)})`
+		end
+	end
+	for _, gamepassDisplay in self._ui.Background.GamepassesFrame.ScrollingFrame:GetChildren() do
+		if gamepassDisplay:IsA "UIGridLayout" then
+			continue
+		end
+		if selectors.hasGamepass(store:getState(), player.Name, gamepassDisplay.Name) then
+			gamepassDisplay.BoughtImage.Visible = true
+			gamepassDisplay.Purchase.BoughtText.Visible = true
+			gamepassDisplay.Purchase.RobuxIcon.Visible = false
+			gamepassDisplay.Purchase.RobuxPrice.Visible = false
+		else
+			gamepassDisplay.BoughtImage.Visible = false
+			gamepassDisplay.Purchase.BoughtText.Visible = false
+			gamepassDisplay.Purchase.RobuxIcon.Visible = true
+			gamepassDisplay.Purchase.RobuxPrice.Visible = true
 		end
 	end
 end
