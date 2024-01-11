@@ -6,6 +6,7 @@ local MarketplaceService = game:GetService "MarketplaceService"
 local Remotes = require(ReplicatedStorage.Common.Remotes)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
+local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local PopupUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.PopupUI)
 local CentralUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.CentralUI)
@@ -17,8 +18,15 @@ local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAt
 
 local player = Players.LocalPlayer
 local mainUI = player.PlayerGui:WaitForChild "MainUI"
+local exchangeRate = ReplicatedStorage.Config.Rebirth.Exchange.Value
 local RebirthUI = CentralUI.new(player.PlayerGui:WaitForChild "Rebirth")
 local doubleTokensID = ReplicatedStorage.Config.GamepassData.IDs["2xTokens"].Value
+
+local function shouldRefresh(newState, oldState)
+	return selectors.getPurchaseData(newState, player.Name) ~= selectors.getPurchaseData(oldState, player.Name)
+		or selectors.getStat(newState, player.Name, "Strength")
+			~= selectors.getStat(oldState, player.Name, "Strength")
+end
 
 function RebirthUI:_initialize()
 	mainUI.Rebirth.Activated:Connect(function()
@@ -53,16 +61,10 @@ function RebirthUI:_initialize()
 	end)
 
 	playerStatePromise:andThen(function()
-		if selectors.hasGamepass(store:getState(), player.Name, "2xTokens") then
-			self._ui.Background.Passes["2xTokens"].Visible = false
-		else
-			self._ui.Background.Passes["2xTokens"].Visible = true
-		end
-		store.changed:connect(function(newState)
-			if selectors.hasGamepass(newState, player.Name, "2xTokens") then
-				self._ui.Background.Passes["2xTokens"].Visible = false
-			else
-				self._ui.Background.Passes["2xTokens"].Visible = true
+		self:Refresh()
+		store.changed:connect(function(newState, oldState)
+			if shouldRefresh(newState, oldState) then
+				self:Refresh()
 			end
 		end)
 	end)
@@ -71,6 +73,19 @@ end
 function RebirthUI:OnClose()
 	self._ui.Background.Visible = true
 	self._ui.Close.Visible = true
+end
+
+function RebirthUI:Refresh()
+	local tokenMultiplier = 1
+	local rebirths = math.floor(selectors.getStat(store:getState(), player.Name, "Strength") / exchangeRate)
+	if selectors.hasGamepass(store:getState(), player.Name, "2xTokens") then
+		tokenMultiplier = 2
+		self._ui.Background.Passes["2xTokens"].Visible = false
+	else
+		self._ui.Background.Passes["2xTokens"].Visible = true
+	end
+	self._ui.Background.Tokens.Text = `{formatter.formatNumberWithSuffix(rebirths * tokenMultiplier)} Rebirth Tokens`
+	self._ui.Background.Strength.Text = `{formatter.formatNumberWithCommas(1 + 0.1 * rebirths)}x Strength`
 end
 
 task.spawn(RebirthUI._initialize, RebirthUI)

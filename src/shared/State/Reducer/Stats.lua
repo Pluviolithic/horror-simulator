@@ -107,6 +107,10 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].Strength = defaultStates.Stats.Strength
 			draft[action.playerName].Fear = defaultStates.Stats.Fear
 			draft[action.playerName].Gems = defaultStates.Stats.Gems
+			draft[action.playerName].LastScaredTimestamp = defaultStates.Stats.LastScaredTimestamp
+			draft[action.playerName].MaxFearMeter = defaultStates.Stats.MaxFearMeter
+			draft[action.playerName].CurrentFearMeter = defaultStates.Stats.CurrentFearMeter
+			draft[action.playerName].RequiredFear = baseRequiredFear * defaultStates.Stats.Strength
 			draft[action.playerName].Rank = rankUtils.getRankFromStrength(defaultStates.Stats.Strength)
 		end)
 	end,

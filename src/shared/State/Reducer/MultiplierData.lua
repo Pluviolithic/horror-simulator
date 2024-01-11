@@ -20,12 +20,6 @@ return Rodux.createReducer({}, {
 				fearMultiplierWholePartCount += 1
 			end
 
-			for _, missionData in action.profileData.MissionData do
-				if missionData.ViewedRewardPopup then
-					fearMultiplier += 0.1
-				end
-			end
-
 			draft[action.playerName].FearMultiplier = fearMultiplier
 			draft[action.playerName].FearMultiplierCount = fearMultiplierWholePartCount
 

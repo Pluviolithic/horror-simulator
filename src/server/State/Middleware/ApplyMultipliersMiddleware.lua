@@ -33,6 +33,7 @@ return function(nextDispatch, store)
 
 				if action.statName == "Fear" then
 					multiplier += 0.15 * Count(multiplierData.ActiveFriendsWhoJoined)
+					multiplier += 0.1 * selectors.getStat(store:getState(), action.playerName, "MissionAreasCompleted")
 				end
 
 				if action.statName == "Strength" then
@@ -56,6 +57,10 @@ return function(nextDispatch, store)
 				end
 
 				if action.statName == "Strength" then
+					if multiplier == 0 then
+						multiplier = 1
+						multiplierCount = 1
+					end
 					multiplier *= (1 + 0.1 * selectors.getStat(store:getState(), action.playerName, "Rebirths"))
 				end
 

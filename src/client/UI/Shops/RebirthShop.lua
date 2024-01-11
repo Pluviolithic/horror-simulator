@@ -38,11 +38,15 @@ function RebirthShop:_initialize()
 
 			debounce = true
 
+			task.delay(0.5, function()
+				debounce = false
+			end)
+
 			if
 				#upgrades[upgradeDisplay.Name]:GetChildren()
 				<= selectors.getRebirthUpgradeLevel(store:getState(), player.Name, upgradeDisplay.Name)
 			then
-				PopupUI "Maxxed!"
+				PopupUI "No More Upgrades!"
 				return
 			end
 
@@ -58,9 +62,6 @@ function RebirthShop:_initialize()
 			end
 
 			Remotes.Client:Get("PurchaseRebirthUpgrade"):SendToServer(upgradeDisplay.Name)
-
-			task.wait(0.5)
-			debounce = false
 		end)
 	end
 
@@ -72,11 +73,18 @@ function RebirthShop:_initialize()
 			end
 
 			if
-				selectors.getStat(newState, player.Name, "Rebirths") ~= 0
-				and selectors.getStat(oldState, player.Name, "Rebirths") == 0
+				selectors.getStat(newState, player.Name, "Rebirths")
+				> selectors.getStat(oldState, player.Name, "Rebirths")
 			then
 				teleportPlayer {}
-				workspace.Beams.RebirthShop.Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
+				if selectors.getStat(oldState, player.Name, "Rebirths") == 0 then
+					for _, beam in workspace.Beams:GetChildren() do
+						if beam.Beam.Attachment1 then
+							beam.Beam.Attachment1 = nil
+						end
+					end
+					workspace.Beams.RebirthShop.Beam.Attachment1 = player.Character.HumanoidRootPart.RootAttachment
+				end
 			end
 		end)
 	end)
@@ -89,6 +97,12 @@ function RebirthShop:setEnabled(enabled)
 		return
 	end
 	setEnabled(self, enabled)
+end
+
+function RebirthShop:OnOpen()
+	if workspace.Beams.RebirthShop.Beam.Attachment1 then
+		workspace.Beams.RebirthShop.Beam.Attachment1 = nil
+	end
 end
 
 function RebirthShop:Refresh()

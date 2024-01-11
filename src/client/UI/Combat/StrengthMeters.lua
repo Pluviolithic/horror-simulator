@@ -54,7 +54,7 @@ function StrengthMeters:Refresh(): ()
 	local strength = selectors.getStat(store:getState(), player.Name, "Strength")
 	local newRank = selectors.getStat(store:getState(), player.Name, "Rank")
 
-	if self._currentRank and newRank ~= self._currentRank then
+	if self._currentRank and newRank > self._currentRank then
 		PopupUI(`You Leveled Up To Rank {newRank}!`, Color3.fromRGB(250, 250, 250))
 		PopupUI(
 			`Your Fear Meter Increased To {selectors.getStat(store:getState(), player.Name, "MaxFearMeter")}!`,
