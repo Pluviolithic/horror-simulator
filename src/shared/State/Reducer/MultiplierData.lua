@@ -15,7 +15,7 @@ return Rodux.createReducer({}, {
 
 			local fearMultiplier, fearMultiplierWholePartCount =
 				petUtils.getEquippedPetsMultiplier(action.profileData.PetData.EquippedPets, action.playerName)
-			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xFear"].Value] then
+			if action.profileData.PurchaseData.AwardedGamepasses[tostring(GamepassIDs["2xFear"].Value)] then
 				fearMultiplier += 2
 				fearMultiplierWholePartCount += 1
 			end
@@ -23,22 +23,22 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].FearMultiplier = fearMultiplier
 			draft[action.playerName].FearMultiplierCount = fearMultiplierWholePartCount
 
-			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xStrength"].Value] then
+			if action.profileData.PurchaseData.AwardedGamepasses[tostring(GamepassIDs["2xStrength"].Value)] then
 				draft[action.playerName].StrengthMultiplier = 2
 				draft[action.playerName].StrengthMultiplierCount = 1
 			end
 
-			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xGems"].Value] then
+			if action.profileData.PurchaseData.AwardedGamepasses[tostring(GamepassIDs["2xGems"].Value)] then
 				draft[action.playerName].GemsMultiplier = 2
 				draft[action.playerName].GemsMultiplierCount = 1
 			end
 
-			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xFearMeter"].Value] then
+			if action.profileData.PurchaseData.AwardedGamepasses[tostring(GamepassIDs["2xFearMeter"].Value)] then
 				draft[action.playerName].MaxFearMeterMultiplier = 2
 				draft[action.playerName].MaxFearMeterMultiplierCount = 1
 			end
 
-			if action.profileData.PurchaseData.AwardedGamepasses[GamepassIDs["2xTokens"].Value] then
+			if action.profileData.PurchaseData.AwardedGamepasses[tostring(GamepassIDs["2xTokens"].Value)] then
 				draft[action.playerName].RebirthTokensMultiplier = 2
 				draft[action.playerName].RebirthTokensMultiplierCount = 1
 			end
