@@ -30,7 +30,7 @@ end
 function Formatter.formatNumberWithCommas(n: number): string
 	local _, _, minus, int, fraction = tostring(n):find "([-]?)(%d+)([.]?%d*)"
 	int = int:reverse():gsub("(%d%d%d)", "%1,")
-	return minus .. int:reverse():gsub("^,", "") .. fraction
+	return minus .. int:reverse():gsub("^,", "") .. fraction:sub(1, 2)
 end
 
 local tweenBuffers = {}

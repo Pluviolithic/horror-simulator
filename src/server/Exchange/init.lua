@@ -52,9 +52,11 @@ local function handlePunchingBag(bag: any)
 			return
 		end
 
+		local startStrength = selectors.getStat(store:getState(), player.Name, "Strength")
+
 		if inUse or selectors.getCurrentTarget(store:getState(), player.Name) then
 			if selectors.getCurrentTarget(store:getState(), player.Name) == bag and not cancelled then
-				disableSwitch:Fire(player)
+				disableSwitch:Fire(player, startStrength)
 			end
 			return
 		end
@@ -82,7 +84,7 @@ local function handlePunchingBag(bag: any)
 		loadedIdleAnimation.Priority = Enum.AnimationPriority.Idle
 
 		local connection
-		connection = disableSwitch.Event:Connect(function(disablingPlayer: Player)
+		connection = disableSwitch.Event:Connect(function(disablingPlayer: Player, initialStrength: number)
 			if disablingPlayer == player then
 				cancelled = true
 				connection:Disconnect()
@@ -91,7 +93,11 @@ local function handlePunchingBag(bag: any)
 
 				prompt.ActionText = "Start Training"
 				inUse = false
-				humanoid.RootPart.CFrame = teleportPart.CFrame + Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
+
+				if selectors.getStat(store:getState(), player.Name, "Strength") >= initialStrength then
+					humanoid.RootPart.CFrame = teleportPart.CFrame
+						+ Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
+				end
 
 				if Players:FindFirstChild(player.Name) then
 					store:dispatch(actions.setCurrentPunchingBag(player.Name, nil))
@@ -122,6 +128,10 @@ local function handlePunchingBag(bag: any)
 				loadedIdleAnimation:Play()
 
 				local newWorkoutSpeed = workoutSpeed
+				local rebirthBuff = selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "WorkoutSpeed")
+					* 0.05
+
+				newWorkoutSpeed *= (1 - rebirthBuff)
 
 				if selectors.hasGamepass(store:getState(), player.Name, tripleWorkoutSpeedPassID) then
 					newWorkoutSpeed /= 3
@@ -173,6 +183,9 @@ local function handlePunchingBag(bag: any)
 			end
 
 			local newWorkoutSpeed = workoutSpeed
+			local rebirthBuff = selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "WorkoutSpeed") * 0.05
+
+			newWorkoutSpeed *= (1 - rebirthBuff)
 
 			if selectors.hasGamepass(store:getState(), player.Name, tripleWorkoutSpeedPassID) then
 				newWorkoutSpeed /= 3
@@ -186,7 +199,7 @@ local function handlePunchingBag(bag: any)
 		end
 
 		if connection.Connected then
-			disableSwitch:Fire(player)
+			disableSwitch:Fire(player, startStrength)
 		end
 	end)
 end

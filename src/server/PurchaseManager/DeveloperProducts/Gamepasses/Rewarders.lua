@@ -48,6 +48,9 @@ return {
 	[IDs["2xGems"].Value] = function(player: Player)
 		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "GemsMultiplier", 2))
 	end,
+	[IDs["2xTokens"].Value] = function(player: Player)
+		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "RebirthTokensMultiplier", 2))
+	end,
 	[IDs["2xFearMeter"].Value] = function(player: Player)
 		store:dispatch(
 			actions.setPlayerStat(

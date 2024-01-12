@@ -270,8 +270,12 @@ function MissionsUI:OnOpen()
 		local pending = true
 
 		if not currentMissionData.ViewedRewardPopup then
+			MissionFearRewardUI._ui.Background.BoostText.Text =
+				`Current Fear Boost From Missions: <font color= "rgb(255, 207, 56)">{math.floor(
+					100 * (0.1 * (1 + selectors.getStat(store:getState(), player.Name, "MissionAreasCompleted")))
+				)}%</font>`
 			disableMissionRewardPopup:SendToServer()
-			MissionFearRewardUI._ui.Enabled = true
+			MissionFearRewardUI:setEnabled(true)
 		end
 
 		task.spawn(function()

@@ -131,4 +131,7 @@ return {
 	getClaimedGifts = function(state, playerName)
 		return state.GiftData[playerName].ClaimedGifts
 	end,
+	getRebirthUpgradeLevel = function(state, playerName, upgradeName)
+		return state.PurchaseData[playerName].RebirthUpgrades[upgradeName]
+	end,
 }

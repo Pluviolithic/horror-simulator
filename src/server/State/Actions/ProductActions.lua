@@ -35,4 +35,15 @@ return {
 			shouldSave = true,
 		}
 	end),
+	incrementRebirthUpgradeLevel = makeActionCreator(
+		"incrementRebirthUpgradeLevel",
+		function(playerName: string, upgradeName: string, incrementAmount: number)
+			return {
+				playerName = playerName,
+				upgradeName = upgradeName,
+				incrementAmount = incrementAmount or 1,
+				shouldSave = true,
+			}
+		end
+	),
 }

@@ -157,7 +157,7 @@ function TeleportUI:Refresh()
 
 		self:_unlockArea(requirement.Name, shouldLock)
 
-		if selectors.hasTeleporter(store:getState(), player.Name, requirement.Name) then
+		if selectors.hasTeleporter(store:getState(), player.Name, requirement.Name) or shouldLock then
 			self._ui.Background.ScrollingFrame[requirement.Name].CostUI.Visible = false
 		elseif not shouldLock then
 			if selectors.hasGamepass(store:getState(), player.Name, "FreeTeleporters") then

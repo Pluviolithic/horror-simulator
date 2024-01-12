@@ -33,6 +33,27 @@ return function(nextDispatch, store)
 
 				if action.statName == "Fear" then
 					multiplier += 0.15 * Count(multiplierData.ActiveFriendsWhoJoined)
+					multiplier += 0.1 * selectors.getStat(store:getState(), action.playerName, "MissionAreasCompleted")
+				end
+
+				if action.statName == "Strength" then
+					multiplier += 0.1 * selectors.getRebirthUpgradeLevel(
+						store:getState(),
+						action.playerName,
+						"MoreStrength"
+					)
+				elseif action.statName == "Fear" then
+					multiplier += 0.1 * selectors.getRebirthUpgradeLevel(
+						store:getState(),
+						action.playerName,
+						"MoreFear"
+					)
+				elseif action.statName == "Gems" then
+					multiplier += 0.1 * selectors.getRebirthUpgradeLevel(
+						store:getState(),
+						action.playerName,
+						"MoreGems"
+					)
 				end
 
 				local boostData = action.statName ~= "Luck"
@@ -42,6 +63,14 @@ return function(nextDispatch, store)
 					action.incrementAmount *= (1 + multiplier) * (boostData and 2 or 1)
 				else
 					action.incrementAmount *= multiplier * (boostData and 2 or 1)
+				end
+
+				if action.statName == "Strength" then
+					action.incrementAmount *= (1 + 0.1 * selectors.getStat(
+						store:getState(),
+						action.playerName,
+						"Rebirths"
+					))
 				end
 			end
 		end

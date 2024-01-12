@@ -13,16 +13,21 @@ local devProductIDs = ReplicatedStorage.Config.DevProductData.IDs
 
 local function evolvePet(player, petName)
 	local petOwnedCount = selectors.getPetOwnedCount(store:getState(), player.Name, petName)
+	local amountToDeduct = 5
 
-	if not petOwnedCount or petOwnedCount < 5 or petName:match "Evolved" then
+	if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") > 0 then
+		amountToDeduct = 4
+	end
+
+	if not petOwnedCount or petOwnedCount < amountToDeduct or petName:match "Evolved" then
 		return 1
 	end
 
 	local unlockedPetCount = petOwnedCount - (selectors.getPetLockedCount(store:getState(), player.Name, petName) or 0)
 	local equippedPets = selectors.getEquippedPets(store:getState(), player.Name)
 
-	if unlockedPetCount < 5 then
-		local countToUnlock = 5 - unlockedPetCount
+	if unlockedPetCount < amountToDeduct then
+		local countToUnlock = amountToDeduct - unlockedPetCount
 		local lockedButNotEquipedCount = (selectors.getPetLockedCount(store:getState(), player.Name, petName) or 0)
 			- (equippedPets[petName] or 0)
 		local countToUnequip = countToUnlock - lockedButNotEquipedCount

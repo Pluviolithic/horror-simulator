@@ -35,7 +35,7 @@ Remotes.Server:Get("DisableMissionRewardPopup"):Connect(function(player: Player)
 	local areaName = regionUtils.getPlayerLocationName(player.Name)
 	if not selectors.getMissionData(store:getState(), player.Name)[areaName].ViewedRewardPopup then
 		store:dispatch(actions.disableMissionRewardPopup(player.Name, areaName))
-		store:dispatch(actions.incrementPlayerMultiplier(player.Name, "FearMultiplier", 0.1))
+		store:dispatch(actions.incrementPlayerStat(player.Name, "MissionAreasCompleted"))
 	end
 end)
 

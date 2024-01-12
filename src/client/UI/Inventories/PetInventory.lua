@@ -78,10 +78,9 @@ function PetInventory:_initialize(): ()
 
 	self._ui.Background.Storage.Buy.Activated:Connect(function()
 		playSoundEffect "UIButton"
-		local maxPetCount = selectors.getStat(store:getState(), player.Name, "MaxPetCount")
-		if maxPetCount == 30 or maxPetCount == 130 then
+		if not selectors.hasGamepass(store:getState(), player.Name, "50PetStorage") then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["50PetStorage"].Value)
-		else
+		elseif not selectors.hasGamepass(store:getState(), player.Name, "100PetStorage") then
 			MarketplaceService:PromptGamePassPurchase(player, gamepassIDs["100PetStorage"].Value)
 		end
 	end)
@@ -173,7 +172,8 @@ end
 
 function PetInventory:Refresh()
 	if
-		selectors.getStat(store:getState(), player.Name, "MaxPetCount") == 180
+		selectors.hasGamepass(store:getState(), player.Name, "50PetStorage")
+		and selectors.hasGamepass(store:getState(), player.Name, "100PetStorage")
 		and self._ui.Background.Storage:FindFirstChild "Buy"
 	then
 		self._ui.Background.Storage.Buy:Destroy()
@@ -181,7 +181,8 @@ function PetInventory:Refresh()
 	end
 
 	if
-		selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount") == 6
+		selectors.hasGamepass(store:getState(), player.Name, "1PetEquipped")
+		and selectors.hasGamepass(store:getState(), player.Name, "2PetEquipped")
 		and self._ui.Background.Equipped:FindFirstChild "Buy"
 	then
 		self._ui.Background.Equipped.Buy:Destroy()

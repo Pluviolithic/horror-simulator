@@ -4,9 +4,12 @@ local MarketplaceService = game:GetService "MarketplaceService"
 local ServerScriptService = game:GetService "ServerScriptService"
 
 local rewarders = require(script.Rewarders)
+local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+
+local gamepassNames = ReplicatedStorage.Config.GamepassData.GamepassNames
 
 local function checkIfObtainedRewards(player: Player)
 	if not selectors.isPlayerLoaded(store:getState(), player.Name) then
@@ -38,6 +41,13 @@ local function checkIfObtainedRewards(player: Player)
 			else
 				store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
 			end
+			Remotes.Server
+				:Get("SendPopupMessage")
+				:SendToPlayer(
+					player,
+					`You have Received {gamepassNames[gamepassID].Value}!`,
+					Color3.fromRGB(250, 250, 250)
+				)
 		end
 	end
 end
@@ -53,6 +63,10 @@ return function(player: Player, gamepassID: number): (boolean, string?)
 	if not rewarders[gamepassID] then
 		return false
 	end
+
+	Remotes.Server
+		:Get("SendPopupMessage")
+		:SendToPlayer(player, `You have Received {gamepassNames[gamepassID].Value}!`, Color3.fromRGB(250, 250, 250))
 
 	if typeof(rewarders[gamepassID]) == "function" then
 		store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))

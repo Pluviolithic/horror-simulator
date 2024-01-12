@@ -7,7 +7,6 @@ local MarketplaceService = game:GetService "MarketplaceService"
 local player = Players.LocalPlayer
 
 local Remotes = require(ReplicatedStorage.Common.Remotes)
-local Table = require(ReplicatedStorage.Common.Utils.Table)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
@@ -71,10 +70,8 @@ function WeaponShop:_initialize(): ()
 			if
 				selectors.getEquippedWeapon(newState, player.Name)
 					~= selectors.getEquippedWeapon(oldState, player.Name)
-				or not Table.ShallowIsEqual(
-					selectors.getOwnedWeapons(newState, player.Name),
-					selectors.getOwnedWeapons(oldState, player.Name)
-				)
+				or selectors.getOwnedWeapons(newState, player.Name)
+					~= selectors.getOwnedWeapons(oldState, player.Name)
 			then
 				WeaponShop:Refresh()
 			end
@@ -260,6 +257,7 @@ function WeaponShop:Refresh(): ()
 			-- this item is not unlocked
 			button.Locked.Visible = true
 			button.WeaponImage.ImageColor3 = Color3.fromRGB(0, 0, 0)
+			button.Icon.Visible = false
 			button.WeaponName.Visible = false
 			button.GemPrice.Visible = false
 		end

@@ -50,10 +50,15 @@ local defaultWalkSpeed = 14
 local walkSpeedFearDebuff = -4
 
 local function updatePlayerFearEffects(player, newState, oldState)
+	if not selectors.isPlayerLoaded(newState, player.Name) then
+		return
+	end
+
 	local hasDoubleSpeed = selectors.hasGamepass(newState, player.Name, "2xSpeed")
 		and selectors.getSetting(newState, player.Name, "2xSpeed")
 	local modifiedDebuff = walkSpeedFearDebuff * (hasDoubleSpeed and 2 or 1)
-	local newWalkSpeed = defaultWalkSpeed * (hasDoubleSpeed and 2 or 1)
+	local rebirthBuff = selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Sprint") * 0.05
+	local newWalkSpeed = defaultWalkSpeed * (1 + rebirthBuff) * (hasDoubleSpeed and 2 or 1)
 	if isScared(player.Name, newState) then
 		task.spawn(trackPlayerScaredStatus, player)
 		newWalkSpeed += modifiedDebuff

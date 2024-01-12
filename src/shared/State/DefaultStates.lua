@@ -8,6 +8,8 @@ return {
 		Luck = 0,
 		Gems = 0,
 		Rank = 1,
+		RebirthTokens = 0,
+		MissionAreasCompleted = 0,
 
 		RequiredFear = game:GetService("ReplicatedStorage").Config.Workout.RequiredFear.Value
 			* game:GetService("ReplicatedStorage").Config.Workout.Strength.Value,
@@ -25,6 +27,7 @@ return {
 		LastLogOff = -1,
 
 		LastClaimedAGiftTimestamp = -1,
+		GiftCycleBeganTimestamp = -1,
 
 		MaxPetCount = 30,
 		CurrentPetCount = 0,
@@ -65,6 +68,19 @@ return {
 		PurchasedBoosts = {},
 		ActiveBoosts = {},
 		RedeemedCodes = {},
+		RebirthUpgrades = {
+			EquipMorePets = 0,
+			Evolver = 0,
+			ExtraPetStorage = 0,
+			FasterHatch = 0,
+			Lucky = 0,
+			MoreDamage = 0,
+			MoreFear = 0,
+			MoreGems = 0,
+			MoreStrength = 0,
+			Sprint = 0,
+			WorkoutSpeed = 0,
+		},
 	},
 
 	MissionData = {

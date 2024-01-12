@@ -47,4 +47,10 @@ return {
 			shouldSave = true,
 		}
 	end),
+	rebirthPlayer = makeActionCreator("rebirthPlayer", function(playerName: string)
+		return {
+			playerName = playerName,
+			shouldSave = true,
+		}
+	end),
 }

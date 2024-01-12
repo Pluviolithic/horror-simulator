@@ -9,7 +9,7 @@ local selectors = require(ReplicatedStorage.Common.State.selectors)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local store = require(StarterPlayer.StarterPlayerScripts.Client.State.Store)
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
-local getStatAdjustedMultiplier =
+local getMultiplierAdjustedStat =
 	require(ReplicatedStorage.Common.Utils.Player.MultiplierUtils).getMultiplierAdjustedStat
 
 local originalCFrame = nil
@@ -32,8 +32,8 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 		BossUI.Enabled = true
 	end
 
-	gemsToDisplay = getStatAdjustedMultiplier(player, "Gems", gemsToDisplay)
-	fearToDisplay = getStatAdjustedMultiplier(player, "Fear", fearToDisplay)
+	gemsToDisplay = getMultiplierAdjustedStat(player, "Gems", gemsToDisplay)
+	fearToDisplay = getMultiplierAdjustedStat(player, "Fear", fearToDisplay)
 
 	BossUI.Background.Frame.Health:TweenSize(
 		UDim2.fromScale(1.013 * info.Health / info.MaxHealth, 1.104),

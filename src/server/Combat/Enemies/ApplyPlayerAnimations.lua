@@ -95,6 +95,8 @@ return function(player, enemy, info, janitor)
 		oldEquippedWeaponAccessory:Destroy()
 	end
 
+	damageMultiplier += 0.1 * selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "MoreDamage")
+
 	Remotes.Server:Get("CombatBegan"):SendToPlayer(player)
 
 	if weaponName ~= "Fists" then

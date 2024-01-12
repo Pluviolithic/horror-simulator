@@ -131,4 +131,9 @@ return Rodux.createReducer({}, {
 			end
 		end)
 	end,
+	rebirthPlayer = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName] = table.clone(defaultStates.MissionData)
+		end)
+	end,
 })
