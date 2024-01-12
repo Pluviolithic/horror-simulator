@@ -31,6 +31,7 @@ local hatchingUI = player.PlayerGui:WaitForChild "Hatching"
 
 -- eventually add most of these to a config folder
 --local hatchTime = 3
+local displayingResults = false
 local hatching = false
 local hatchDisplayTime = 4
 local maxActivationDistance = 15
@@ -259,6 +260,7 @@ function displayPurchaseResults(asyncResults, areaName: string, count: number, a
 	local canAffordThree = selectors.getStat(store:getState(), player.Name, "Gems") >= eggGemPrice * 3
 
 	configureHatchUI(asyncResults, count == 1 or not canAffordThree, areaName):andThen(function(failed: boolean?)
+		displayingResults = false
 		if failed then
 			hatching = false
 			return
@@ -311,7 +313,7 @@ local function handleShop(shop): ()
 			autoLastDisabled = os.time()
 		end
 
-		if hatching then
+		if hatching or displayingResults then
 			return
 		end
 
@@ -380,6 +382,7 @@ local function handleShop(shop): ()
 				hatching = false
 			end
 		end)
+		displayingResults = true
 		displayPurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName), areaName, count, auto)
 	end
 
