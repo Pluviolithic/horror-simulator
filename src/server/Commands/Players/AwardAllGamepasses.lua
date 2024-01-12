@@ -1,6 +1,6 @@
 return {
-	Name = "giveallgamepasses",
-	Aliases = { "gag" },
+	Name = "awardallgamepasses",
+	Aliases = { "aag" },
 	Description = "Gives a player all the gamepasses.",
 	Group = "DefaultAdmin",
 	Args = {

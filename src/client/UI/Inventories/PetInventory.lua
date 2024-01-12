@@ -371,9 +371,13 @@ function PetInventory:_setFocusedDisplay()
 		self._ui.RightBackground.Evolve.ImageColor3 = evolvedColor
 		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolved"
 	else
-		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolve (" .. details.Quantity .. "/5)"
+		local amountToEvolve = 5
+		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") then
+			amountToEvolve = 4
+		end
+		self._ui.RightBackground.Evolve.EvolveText.Text = `Evolve ({details.Quantity}/{amountToEvolve})`
 		self._ui.RightBackground.PetName.TextColor3 = unableToEvolveColor
-		if details.Quantity > 4 then
+		if details.Quantity >= amountToEvolve then
 			self._ui.RightBackground.Evolve.ImageColor3 = ableToEvolveColor
 		else
 			self._ui.RightBackground.Evolve.ImageColor3 = unableToEvolveColor
@@ -441,7 +445,11 @@ function PetInventory:_setFocusedDisplay()
 
 	self._focusedDestructor:Add(self._ui.RightBackground.Evolve.Activated:Connect(function()
 		playSoundEffect "UIButton"
-		if details.Quantity > 4 then
+		local amountToEvolve = 5
+		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") then
+			amountToEvolve = 4
+		end
+		if details.Quantity >= amountToEvolve then
 			Remotes.Client:Get("EvolvePet"):SendToServer(details.PetName)
 			self:_clearFocusedDisplay()
 			self._focusedTemplate = nil

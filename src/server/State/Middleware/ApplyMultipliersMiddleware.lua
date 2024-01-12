@@ -66,7 +66,7 @@ return function(nextDispatch, store)
 				end
 
 				if action.statName == "Strength" then
-					action.incrementAmount *= (1 + 0.1 * selectors.getStat(
+					action.incrementAmount *= (1 + 0.01 * selectors.getStat(
 						store:getState(),
 						action.playerName,
 						"Rebirths"
