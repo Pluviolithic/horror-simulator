@@ -257,6 +257,7 @@ function WeaponShop:Refresh(): ()
 			-- this item is not unlocked
 			button.Locked.Visible = true
 			button.WeaponImage.ImageColor3 = Color3.fromRGB(0, 0, 0)
+			button.Icon.Visible = false
 			button.WeaponName.Visible = false
 			button.GemPrice.Visible = false
 		end
