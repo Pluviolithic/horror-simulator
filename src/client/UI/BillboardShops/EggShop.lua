@@ -387,6 +387,14 @@ local function handleShop(shop): ()
 		for _, petUI in shop.Background.Pets:GetChildren() do
 			petUI.RarityText.Text = string.format("%.1f%%", ReplicatedStorage.Pets[areaName][petUI.Name].Rarity.Value)
 		end
+
+		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Lucky") > 0 then
+			if luck == 0 then
+				luck = 1
+			end
+			luck += 0.1 * selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Lucky")
+		end
+
 		if luck == 0 then
 			return
 		end
@@ -543,8 +551,12 @@ playerStatePromise:andThen(function()
 
 		if
 			selectors.getStat(newState, player.Name, "Luck") ~= selectors.getStat(oldState, player.Name, "Luck")
-			or selectors.getActiveBoosts(newState, player.Name)["LuckBoost"]
-				~= selectors.getActiveBoosts(oldState, player.Name)["LuckBoost"]
+			or selectors.getActiveBoosts(newState, player.Name)["LuckBoost"] ~= selectors.getActiveBoosts(
+				oldState,
+				player.Name
+			)["LuckBoost"]
+			or selectors.getRebirthUpgradeLevel(newState, player.Name, "Lucky")
+				~= selectors.getRebirthUpgradeLevel(oldState, player.Name, "Lucky")
 		then
 			updateRarityListeners(selectors.getStat(newState, player.Name, "Luck"))
 		end

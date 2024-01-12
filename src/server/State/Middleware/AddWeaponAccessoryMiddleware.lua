@@ -24,7 +24,7 @@ local function findFirstChildWithTag(parent: Instance?, tag: string, recursive: 
 	return nil
 end
 
-local function modifyAccessories(player, action, equippedWeaponAccessory)
+local function modifyAccessories(player, action, equippedWeaponAccessory, store)
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild "Humanoid"
 	if action.type == "unequipWeapon" then
@@ -39,6 +39,35 @@ local function modifyAccessories(player, action, equippedWeaponAccessory)
 		end
 		if equippedWeaponAccessory then
 			humanoid:AddAccessory(equippedWeaponAccessory:Clone())
+		end
+	elseif action.type == "rebirthPlayer" then
+		local bestWeaponName, bestWeaponDamage = "Fists", -1
+		local ownedWeapons = selectors.getOwnedWeapons(store:getState(), player.Name)
+		for weaponName in ownedWeapons do
+			if weaponName == "Fists" then
+				continue
+			end
+			if
+				not weapons[weaponName]:FindFirstChild "Price"
+				and weapons[weaponName].Damage.Value > bestWeaponDamage
+			then
+				bestWeaponName = weaponName
+				bestWeaponDamage = weapons[weaponName].Damage.Value
+			end
+		end
+		if bestWeaponName ~= "Fists" then
+			local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
+			if oldEquippedWeaponAccessory then
+				oldEquippedWeaponAccessory:Destroy()
+			end
+			if weapons.BodyAccessory:FindFirstChild(bestWeaponName) then
+				humanoid:AddAccessory(weapons.BodyAccessory[bestWeaponName]:Clone())
+			end
+		else
+			local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
+			if oldEquippedWeaponAccessory then
+				oldEquippedWeaponAccessory:Destroy()
+			end
 		end
 	elseif action.type == "addPlayer" then
 		if action.profileData.WeaponData.EquippedWeapon ~= "Fists" then
@@ -80,7 +109,7 @@ return function(nextDispatch, store)
 			return
 		end
 
-		task.spawn(modifyAccessories, player, action, equippedWeaponAccessory)
+		task.spawn(modifyAccessories, player, action, equippedWeaponAccessory, store)
 		nextDispatch(action)
 	end
 end

@@ -27,6 +27,13 @@ local function getWeightedRandom(player: Player, weights: { [string]: { [string]
 		luck += 5
 	end
 
+	if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Lucky") > 0 then
+		if luck == 0 then
+			luck = 1
+		end
+		luck += 0.1 * selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Lucky")
+	end
+
 	if luck ~= 0 then
 		local normalRarity = 0
 		local boostedRarity = 0

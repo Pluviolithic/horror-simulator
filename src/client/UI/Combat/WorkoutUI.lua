@@ -26,13 +26,13 @@ local function countdownTimer()
 		return
 	end
 	looping = true
-	WorkoutUI.Background.Frame.Timer.Text = string.format("%.1fs", playerWorkoutSpeed)
+	WorkoutUI.Background.FrameBackground.Frame.Timer.Text = string.format("%.1fs", playerWorkoutSpeed)
 	repeat
 		task.wait()
 		local length = os.clock() - startTime
-		WorkoutUI.Background.Frame.Timer.Text =
+		WorkoutUI.Background.FrameBackground.Frame.Timer.Text =
 			string.format("%.1fs", math.clamp(playerWorkoutSpeed - length, 0, playerWorkoutSpeed))
-		WorkoutUI.Background.Frame.Bar.Size =
+		WorkoutUI.Background.FrameBackground.Frame.Bar.Size =
 			UDim2.fromScale(1.013 * (playerWorkoutSpeed - length) / playerWorkoutSpeed, 1.104)
 	until length >= playerWorkoutSpeed or not looping
 	looping = false
@@ -70,8 +70,11 @@ playerStatePromise:andThen(function()
 			looping = false
 			WorkoutUI.Enabled = false
 			return
-		elseif not currentTarget then
+		else
 			local tempWorkoutSpeed = workoutSpeed
+			local rebirthBuff = selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "WorkoutSpeed") * 0.05
+
+			tempWorkoutSpeed *= (1 - rebirthBuff)
 			if selectors.hasGamepass(newState, player.Name, "3xWorkoutSpeed") then
 				tempWorkoutSpeed /= 3
 			end
@@ -79,7 +82,9 @@ playerStatePromise:andThen(function()
 				tempWorkoutSpeed /= 3
 			end
 			playerWorkoutSpeed = tempWorkoutSpeed
-			return
+			if not currentTarget then
+				return
+			end
 		end
 
 		if not CollectionService:HasTag(currentTarget, "PunchingBag") then

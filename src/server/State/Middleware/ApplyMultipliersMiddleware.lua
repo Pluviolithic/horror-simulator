@@ -56,14 +56,6 @@ return function(nextDispatch, store)
 					)
 				end
 
-				if action.statName == "Strength" then
-					if multiplier == 0 then
-						multiplier = 1
-						multiplierCount = 1
-					end
-					multiplier *= (1 + 0.1 * selectors.getStat(store:getState(), action.playerName, "Rebirths"))
-				end
-
 				local boostData = action.statName ~= "Luck"
 					and selectors.getActiveBoosts(store:getState(), action.playerName)[action.statName .. "Boost"]
 
@@ -71,6 +63,14 @@ return function(nextDispatch, store)
 					action.incrementAmount *= (1 + multiplier) * (boostData and 2 or 1)
 				else
 					action.incrementAmount *= multiplier * (boostData and 2 or 1)
+				end
+
+				if action.statName == "Strength" then
+					action.incrementAmount *= (1 + 0.1 * selectors.getStat(
+						store:getState(),
+						action.playerName,
+						"Rebirths"
+					))
 				end
 			end
 		end

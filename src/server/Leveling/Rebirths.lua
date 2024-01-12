@@ -60,8 +60,6 @@ Remotes.Server:Get("PurchaseRebirthUpgrade"):Connect(function(player, upgradeNam
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetCount", 5))
 	elseif upgradeName == "EquipMorePets" then
 		store:dispatch(actions.incrementPlayerStat(player.Name, "MaxPetEquipCount"))
-	elseif upgradeName == "Lucky" then
-		store:dispatch(actions.incrementPlayerStat(player.Name, "Luck", 5))
 	end
 end)
 
