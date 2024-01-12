@@ -11,7 +11,7 @@ if not permissionList.Admins[player.UserId] then
 end
 
 Promise.new(function(resolve)
-	local Cmdr = require(ReplicatedStorage:WaitForChild "CmdrClient")
+	local Cmdr = require(ReplicatedStorage:WaitForChild "CmdrClient" :: ModuleScript)
 	resolve(Cmdr)
 end):andThen(function(Cmdr)
 	Cmdr:SetActivationKeys { Enum.KeyCode.F2 }
