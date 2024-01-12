@@ -78,6 +78,10 @@ local tweens = {
 local hatchingSounds = ReplicatedStorage.Config.Audio.Hatching:Clone()
 hatchingSounds.Parent = workspace
 
+local function isAuto()
+	return autoLastEnabled > autoLastDisabled
+end
+
 local function createEggShakeTween(egg: GuiObject, rotation): Tween
 	return TweenService:Create(egg, TweenInfo.new(0.1), {
 		Rotation = rotation,
@@ -246,7 +250,7 @@ local function configureHatchUI(asyncResults, single: boolean, areaName: string)
 	end)
 end
 
-function displayPurchaseResults(asyncResults, areaName: string, count: number, auto: boolean): ()
+function displayPurchaseResults(asyncResults, areaName: string, count: number): ()
 	if
 		not asyncResults
 		or (selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count)
@@ -265,7 +269,7 @@ function displayPurchaseResults(asyncResults, areaName: string, count: number, a
 			hatching = false
 			return
 		end
-		if auto and autoLastEnabled > autoLastDisabled then
+		if isAuto() then
 			if
 				selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + count
 					> selectors.getStat(store:getState(), player.Name, "MaxPetCount")
@@ -274,12 +278,7 @@ function displayPurchaseResults(asyncResults, areaName: string, count: number, a
 				hatching = false
 				return
 			end
-			displayPurchaseResults(
-				Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName),
-				areaName,
-				count,
-				auto
-			)
+			displayPurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName), areaName, count)
 		else
 			hatching = false
 		end
@@ -290,7 +289,7 @@ local function handleShop(shop): ()
 	local areaName = shop.Name:sub(1, -6)
 	local debounce = true
 	local eggGemPrice = eggGemPricesConfig[areaName].Value
-	local function buyEgg(count: number, auto: boolean): ()
+	local function buyEgg(count: number): ()
 		if not debounce then
 			return
 		end
@@ -298,20 +297,6 @@ local function handleShop(shop): ()
 		task.delay(0.5, function()
 			debounce = true
 		end)
-
-		if auto then
-			if autoLastEnabled > autoLastDisabled then
-				if movementConnection then
-					movementConnection:Disconnect()
-				end
-				autoLastDisabled = os.time()
-				return
-			else
-				autoLastEnabled = os.time()
-			end
-		elseif autoLastEnabled > autoLastDisabled then
-			autoLastDisabled = os.time()
-		end
 
 		if hatching or displayingResults then
 			return
@@ -334,8 +319,10 @@ local function handleShop(shop): ()
 			return
 		end
 
-		if (count == 1 or selectors.getStat(store:getState(), player.Name, "Gems") < eggGemPrice * 3) and not auto then
-			displayPurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(1, areaName), areaName, count, auto)
+		if
+			(count == 1 or selectors.getStat(store:getState(), player.Name, "Gems") < eggGemPrice * 3) and not isAuto()
+		then
+			displayPurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(1, areaName), areaName, count)
 			return
 		end
 
@@ -345,13 +332,7 @@ local function handleShop(shop): ()
 			return
 		end
 
-		if auto and not selectors.hasGamepass(store:getState(), player.Name, "AutoHatch") then
-			MarketplaceService:PromptGamePassPurchase(player, autoHatchGamepassID)
-			hatching = false
-			return
-		end
-
-		if auto then
+		if isAuto() then
 			if
 				selectors.hasGamepass(store:getState(), player.Name, "3xHatch")
 				and (selectors.getStat(store:getState(), player.Name, "CurrentPetCount") + 3)
@@ -371,19 +352,16 @@ local function handleShop(shop): ()
 			end
 			t = 0
 			if player:DistanceFromCharacter(shop.Adornee.Position) > maxActivationDistance then
-				if auto then
-					if autoLastEnabled > autoLastDisabled then
-						autoLastDisabled = os.time()
-					else
-						autoLastEnabled = os.time()
-					end
+				if isAuto() then
+					autoLastDisabled = os.time()
+					PopupUI("Auto Hatch Off!", Color3.fromRGB(250, 250, 250))
 				end
 				movementConnection:Disconnect()
 				hatching = false
 			end
 		end)
 		displayingResults = true
-		displayPurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName), areaName, count, auto)
+		displayPurchaseResults(Remotes.Client:Get("HatchEggs"):CallServerAsync(count, areaName), areaName, count)
 	end
 
 	table.insert(rarityListeners, function(luck: number): ()
@@ -435,17 +413,31 @@ local function handleShop(shop): ()
 
 	shop.Background.Open1.Activated:Connect(function()
 		playSoundEffect "UIButton"
-		buyEgg(1, false)
+		buyEgg(1)
 	end)
 
 	shop.Background.Open3.Activated:Connect(function()
 		playSoundEffect "UIButton"
-		buyEgg(3, false)
+		buyEgg(3)
 	end)
 
 	shop.Background.Auto.Activated:Connect(function()
 		playSoundEffect "UIButton"
-		buyEgg(1, true)
+		if autoLastEnabled > autoLastDisabled then
+			if movementConnection then
+				movementConnection:Disconnect()
+			end
+			autoLastDisabled = os.time()
+			PopupUI("Auto Hatch Off!", Color3.fromRGB(250, 250, 250))
+		elseif selectors.hasGamepass(store:getState(), player.Name, "AutoHatch") then
+			autoLastEnabled = os.time()
+			PopupUI("Auto Hatch On!", Color3.fromRGB(250, 250, 250))
+			if not hatching and not displayingResults then
+				buyEgg(1)
+			end
+		else
+			MarketplaceService:PromptGamePassPurchase(player, autoHatchGamepassID)
+		end
 	end)
 
 	shop.Background.Passes["2xLuck"].Activated:Connect(function()
@@ -477,11 +469,25 @@ local function handleShop(shop): ()
 
 	listeners[shop] = function(keyCode: Enum.KeyCode): ()
 		if keyCode == Enum.KeyCode.E then
-			buyEgg(1, false)
+			buyEgg(1)
 		elseif keyCode == Enum.KeyCode.R then
-			buyEgg(3, false)
-		else
-			buyEgg(1, true)
+			buyEgg(3)
+		elseif keyCode == Enum.KeyCode.T then
+			if autoLastEnabled > autoLastDisabled then
+				if movementConnection then
+					movementConnection:Disconnect()
+				end
+				autoLastDisabled = os.time()
+				PopupUI("Auto Hatch Off!", Color3.fromRGB(250, 250, 250))
+			elseif selectors.hasGamepass(store:getState(), player.Name, "AutoHatch") then
+				autoLastEnabled = os.time()
+				PopupUI("Auto Hatch On!", Color3.fromRGB(250, 250, 250))
+				if not hatching and not displayingResults then
+					buyEgg(1)
+				end
+			else
+				MarketplaceService:PromptGamePassPurchase(player, autoHatchGamepassID)
+			end
 		end
 	end
 end
