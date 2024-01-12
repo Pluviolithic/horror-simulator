@@ -85,7 +85,7 @@ function RebirthUI:Refresh()
 		self._ui.Background.Passes["2xTokens"].Visible = true
 	end
 	self._ui.Background.Tokens.Text = `{formatter.formatNumberWithSuffix(rebirths * tokenMultiplier)} Rebirth Tokens`
-	self._ui.Background.Strength.Text = `{formatter.formatNumberWithCommas(1 + 0.1 * rebirths)}x Strength`
+	self._ui.Background.Strength.Text = `{formatter.formatNumberWithCommas(1 + 0.01 * rebirths)}x Strength`
 end
 
 task.spawn(RebirthUI._initialize, RebirthUI)

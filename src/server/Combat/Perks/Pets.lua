@@ -37,7 +37,7 @@ local function evolvePet(player, petName)
 		end
 	end
 
-	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = 5 }, true))
+	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = amountToDeduct }, true))
 	store:dispatch(actions.givePlayerPets(player.Name, { ["Evolved " .. petName] = 1 }))
 
 	if petUtils.getPet(petName):FindFirstChild "PermaLock" then

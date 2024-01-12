@@ -63,7 +63,7 @@ local function updateGlobalLeaderboardStores(): ()
 				globalLeaderboard.SetAsync,
 				globalLeaderboard,
 				tostring(player.UserId),
-				selectors.getStat(store:getState(), player.Name, statName)
+				math.floor(selectors.getStat(store:getState(), player.Name, statName))
 			)
 			if not selectors.isPlayerLoaded(store:getState(), player.Name) then
 				continue
