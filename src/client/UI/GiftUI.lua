@@ -35,7 +35,7 @@ function GiftUI:_initialize(): ()
 		self:setEnabled(not self._isOpen)
 	end)
 
-	self._giftDisplays = self._ui.Background.Frame.ScrollingFrame:GetChildren()
+	self._giftDisplays = self._ui.Background.ScrollingFrame:GetChildren()
 	for i = #self._giftDisplays, 1, -1 do
 		if not self._giftDisplays[i]:IsA "ImageButton" then
 			table.remove(self._giftDisplays, i)
@@ -67,7 +67,7 @@ function GiftUI:_initialize(): ()
 
 	self._counter = 0
 
-	for _, giftDisplay in self._ui.Background.Frame.ScrollingFrame:GetChildren() do
+	for _, giftDisplay in self._ui.Background.ScrollingFrame:GetChildren() do
 		if not giftDisplay:IsA "ImageButton" then
 			continue
 		end
@@ -168,22 +168,22 @@ function GiftUI:Refresh(fromLoop: boolean?)
 		end
 	elseif firstTimerText then
 		player.PlayerGui.MainUI.Gifts.Timer.Text = "GIFT IN: " .. firstTimerText
-		if not self._ui.Background.Frame.ScrollingFrame.Visible then
-			self._ui.Background.Frame.ScrollingFrame.Visible = true
-			self._ui.Background.Frame.CompletionText.Visible = false
-			self._ui.Background.Frame.CompletionTimer.Visible = false
+		if not self._ui.Background.ScrollingFrame.Visible then
+			self._ui.Background.ScrollingFrame.Visible = true
+			self._ui.Background.CompletionText.Visible = false
+			self._ui.Background.CompletionTimer.Visible = false
 			self._ui.Background.SkipAll.Visible = true
 		end
 	else
 		player.PlayerGui.MainUI.Gifts.Timer.Text = "COMPLETED"
-		if self._ui.Background.Frame.ScrollingFrame.Visible then
-			self._ui.Background.Frame.ScrollingFrame.Visible = false
-			self._ui.Background.Frame.CompletionText.Visible = true
-			self._ui.Background.Frame.CompletionTimer.Visible = true
+		if self._ui.Background.ScrollingFrame.Visible then
+			self._ui.Background.ScrollingFrame.Visible = false
+			self._ui.Background.CompletionText.Visible = true
+			self._ui.Background.CompletionTimer.Visible = true
 			self._ui.Background.SkipAll.Visible = false
 		end
 
-		self._ui.Background.Frame.CompletionTimer.Text = "Next Gifts In: "
+		self._ui.Background.CompletionTimer.Text = "Next Gifts In: "
 			.. clockUtils.getFormattedGiftTime(
 				16 * 60 * 60
 					- (os.time() - selectors.getStat(store:getState(), player.Name, "LastClaimedAGiftTimestamp"))
