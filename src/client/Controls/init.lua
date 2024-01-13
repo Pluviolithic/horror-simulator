@@ -7,7 +7,7 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local Promise = require(ReplicatedStorage.Common.lib.Promise)
 
 Promise.new(function(resolve)
-	resolve(require(player.PlayerScripts:WaitForChild "PlayerModule"):GetControls())
+	resolve(require(player.PlayerScripts:WaitForChild "PlayerModule" :: ModuleScript):GetControls())
 end):andThen(function(playerControls)
 	Remotes.Client:Get("SetControlsEnabled"):Connect(function(enabled)
 		if enabled then

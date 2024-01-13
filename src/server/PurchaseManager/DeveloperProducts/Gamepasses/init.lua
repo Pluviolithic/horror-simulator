@@ -41,13 +41,14 @@ local function checkIfObtainedRewards(player: Player)
 			else
 				store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
 			end
-			Remotes.Server
-				:Get("SendPopupMessage")
-				:SendToPlayer(
-					player,
-					`You have Received {gamepassNames[gamepassID].Value}!`,
-					Color3.fromRGB(250, 250, 250)
-				)
+			if not gamepassNames:FindFirstChild(tostring(gamepassID)) then
+				continue
+			end
+			Remotes.Server:Get("SendPopupMessage"):SendToPlayer(
+				player,
+				`You have Received {gamepassNames[tostring(gamepassID)].Value}!`,
+				Color3.fromRGB(250, 250, 250)
+			)
 		end
 	end
 end
@@ -64,9 +65,13 @@ return function(player: Player, gamepassID: number): (boolean, string?)
 		return false
 	end
 
-	Remotes.Server
-		:Get("SendPopupMessage")
-		:SendToPlayer(player, `You have Received {gamepassNames[gamepassID].Value}!`, Color3.fromRGB(250, 250, 250))
+	if gamepassNames:FindFirstChild(tostring(gamepassID)) then
+		Remotes.Server:Get("SendPopupMessage"):SendToPlayer(
+			player,
+			`You have Received {gamepassNames[tostring(gamepassID)].Value}!`,
+			Color3.fromRGB(250, 250, 250)
+		)
+	end
 
 	if typeof(rewarders[gamepassID]) == "function" then
 		store:dispatch(actions.awardGamepassToPlayer(player.Name, gamepassID))
