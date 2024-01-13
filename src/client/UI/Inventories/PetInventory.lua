@@ -285,7 +285,9 @@ function PetInventory:Refresh()
 				playSoundEffect "UIButton"
 				--petTemplate.Unlocked.Visible = false
 				--petTemplate.Lock.Visible = true
-				self._focusedTemplateDetails.Locked = true
+				if self._focusedTemplateDetails then
+					self._focusedTemplateDetails.Locked = true
+				end
 				Remotes.Client:Get("LockPet"):SendToServer(petName)
 			end)
 
@@ -372,7 +374,7 @@ function PetInventory:_setFocusedDisplay()
 		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolved"
 	else
 		local amountToEvolve = 5
-		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") then
+		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") > 0 then
 			amountToEvolve = 4
 		end
 		self._ui.RightBackground.Evolve.EvolveText.Text = `Evolve ({details.Quantity}/{amountToEvolve})`
@@ -446,7 +448,7 @@ function PetInventory:_setFocusedDisplay()
 	self._focusedDestructor:Add(self._ui.RightBackground.Evolve.Activated:Connect(function()
 		playSoundEffect "UIButton"
 		local amountToEvolve = 5
-		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") then
+		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") > 0 then
 			amountToEvolve = 4
 		end
 		if details.Quantity >= amountToEvolve then

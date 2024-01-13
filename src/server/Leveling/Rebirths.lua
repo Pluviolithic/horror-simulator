@@ -15,14 +15,13 @@ Remotes.Server:Get("Rebirth"):Connect(function(player)
 		return
 	end
 
-	local equippedPets = selectors.getEquippedPets(store:getState(), player.Name)
 	local rebirthIncrement = math.floor(selectors.getStat(store:getState(), player.Name, "Strength") / exchangeAmount)
 
 	store:dispatch(actions.incrementPlayerStat(player.Name, "Rebirths", rebirthIncrement))
 	store:dispatch(actions.incrementPlayerStat(player.Name, "RebirthTokens", rebirthIncrement))
 
-	store:dispatch(actions.unlockPlayerPets(player.Name, equippedPets))
-	store:dispatch(actions.unequipPlayerPets(player.Name, equippedPets))
+	store:dispatch(actions.unlockPlayerPets(player.Name, selectors.getLockedPets(store:getState(), player.Name)))
+	store:dispatch(actions.unequipPlayerPets(player.Name, selectors.getEquippedPets(store:getState(), player.Name)))
 
 	local ownedPets = table.clone(selectors.getOwnedPets(store:getState(), player.Name))
 	local lockedPets = selectors.getLockedPets(store:getState(), player.Name)
