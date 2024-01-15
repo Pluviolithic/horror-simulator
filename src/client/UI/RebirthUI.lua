@@ -33,8 +33,8 @@ local function modifiedBinarySearch(array, value)
 	local high = #array
 	local mid = math.floor((low + high) / 2)
 	while low <= high do
-		if array[mid].RangeStart <= value and array[mid + 1].RangeStart > value then
-			return array[mid].Multiplier
+		if array[mid].RangeStart <= value and (not array[mid + 1] or array[mid + 1].RangeStart > value) then
+			return mid
 		elseif array[mid].RangeStart > value then
 			high = mid - 1
 		else
@@ -42,7 +42,20 @@ local function modifiedBinarySearch(array, value)
 		end
 		mid = math.floor((low + high) / 2)
 	end
-	return array[#array].Multiplier
+	return #array
+end
+
+local function getRebirthStrengthMultiplier(array, rebirths)
+	local multiplier = 1
+	local index = modifiedBinarySearch(array, rebirths)
+	if index == 1 then
+		return multiplier + rebirths * array[1].Multiplier
+	end
+	for i = 1, index - 1 do
+		rebirths -= (array[i + 1].RangeStart - array[i].RangeStart)
+		multiplier += array[i].PreComputedResult
+	end
+	return multiplier + rebirths * array[index].Multiplier
 end
 
 function RebirthUI:_initialize()
@@ -90,6 +103,12 @@ function RebirthUI:_initialize()
 		return a.RangeStart < b.RangeStart
 	end)
 
+	for i = 1, #self._rebirthMultipliers - 1 do
+		self._rebirthMultipliers[i].PreComputedResult = (
+			self._rebirthMultipliers[i + 1].RangeStart - self._rebirthMultipliers[i].RangeStart
+		) * self._rebirthMultipliers[i].Multiplier
+	end
+
 	playerStatePromise:andThen(function()
 		self:Refresh()
 		store.changed:connect(function(newState, oldState)
@@ -116,13 +135,10 @@ function RebirthUI:Refresh()
 	end
 	self._ui.Background.Tokens.Text = `{formatter.formatNumberWithSuffix(rebirths * tokenMultiplier)} Rebirth Tokens`
 	self._ui.Background.Strength.Text = `{formatter.formatNumberWithCommas(
-		1
-			+ modifiedBinarySearch(
-					self._rebirthMultipliers,
-					selectors.getStat(store:getState(), player.Name, "Rebirths") + rebirths
-				)
-				* rebirths,
-		2
+		getRebirthStrengthMultiplier(
+			self._rebirthMultipliers,
+			rebirths + selectors.getStat(store:getState(), player.Name, "Rebirths")
+		)
 	)}x Strength`
 end
 
