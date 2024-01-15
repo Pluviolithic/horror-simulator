@@ -28,6 +28,23 @@ local function shouldRefresh(newState, oldState)
 			~= selectors.getStat(oldState, player.Name, "Strength")
 end
 
+local function modifiedBinarySearch(array, value)
+	local low = 1
+	local high = #array
+	local mid = math.floor((low + high) / 2)
+	while low <= high do
+		if array[mid].RangeStart <= value and array[mid + 1].RangeStart > value then
+			return array[mid].Multiplier
+		elseif array[mid].RangeStart > value then
+			high = mid - 1
+		else
+			low = mid + 1
+		end
+		mid = math.floor((low + high) / 2)
+	end
+	return array[#array].Multiplier
+end
+
 function RebirthUI:_initialize()
 	mainUI.Rebirth.Activated:Connect(function()
 		playSoundEffect "UIButton"
@@ -60,6 +77,19 @@ function RebirthUI:_initialize()
 		end))
 	end)
 
+	self._rebirthMultipliers = {}
+
+	for _, multiplierValue in ReplicatedStorage.Config.Rebirth.StrengthMultipliers:GetChildren() do
+		table.insert(self._rebirthMultipliers, {
+			RangeStart = tonumber(multiplierValue.Name),
+			Multiplier = multiplierValue.Value,
+		})
+	end
+
+	table.sort(self._rebirthMultipliers, function(a, b)
+		return a.RangeStart < b.RangeStart
+	end)
+
 	playerStatePromise:andThen(function()
 		self:Refresh()
 		store.changed:connect(function(newState, oldState)
@@ -85,7 +115,15 @@ function RebirthUI:Refresh()
 		self._ui.Background.Passes["2xTokens"].Visible = true
 	end
 	self._ui.Background.Tokens.Text = `{formatter.formatNumberWithSuffix(rebirths * tokenMultiplier)} Rebirth Tokens`
-	self._ui.Background.Strength.Text = `{formatter.formatNumberWithCommas(1 + 0.01 * rebirths, 2)}x Strength`
+	self._ui.Background.Strength.Text = `{formatter.formatNumberWithCommas(
+		1
+			+ modifiedBinarySearch(
+					self._rebirthMultipliers,
+					selectors.getStat(store:getState(), player.Name, "Rebirths") + rebirths
+				)
+				* rebirths,
+		2
+	)}x Strength`
 end
 
 task.spawn(RebirthUI._initialize, RebirthUI)
