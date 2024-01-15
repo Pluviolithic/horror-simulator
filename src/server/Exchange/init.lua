@@ -94,7 +94,10 @@ local function handlePunchingBag(bag: any)
 				prompt.ActionText = "Start Training"
 				inUse = false
 
-				if selectors.getStat(store:getState(), player.Name, "Strength") >= initialStrength then
+				if
+					selectors.isPlayerLoaded(store:getState(), player.Name)
+					and selectors.getStat(store:getState(), player.Name, "Strength") >= initialStrength
+				then
 					humanoid.RootPart.CFrame = teleportPart.CFrame
 						+ Vector3.new(0, 1, 0) * (humanoid.RootPart.Size.Y + 3)
 				end

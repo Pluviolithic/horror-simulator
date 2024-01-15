@@ -131,6 +131,7 @@ playerStatePromise:andThen(function()
 		end
 	end)
 
+	buffTray:WaitForChild "Frame"
 	updateBuffTray(store:getState())
 	store.changed:connect(updateBuffTray)
 	while true do

@@ -50,24 +50,19 @@ end
 
 local function updateGlobalLeaderboardStores(): ()
 	for _, player in Players:GetPlayers() do
-		if
-			not profiles[player.Name]
-			or permissionList.Admins[player.UserId]
-			or not selectors.isPlayerLoaded(store:getState(), player.Name)
-			or player.UserId < 0
-		then
+		if not profiles[player.Name] or permissionList.Admins[player.UserId] or player.UserId < 0 then
 			continue
 		end
 		for statName, globalLeaderboard in globalLeaderboardStores do
+			if not selectors.isPlayerLoaded(store:getState(), player.Name) then
+				continue
+			end
 			pcall(
 				globalLeaderboard.SetAsync,
 				globalLeaderboard,
 				tostring(player.UserId),
 				math.floor(selectors.getStat(store:getState(), player.Name, statName))
 			)
-			if not selectors.isPlayerLoaded(store:getState(), player.Name) then
-				continue
-			end
 		end
 	end
 end
@@ -76,7 +71,7 @@ task.delay(10, function()
 	while true do
 		task.spawn(updateGlobalLeaderboardDisplays)
 		task.spawn(updateGlobalLeaderboardStores)
-		task.wait(100)
+		task.wait(120)
 	end
 end)
 
