@@ -46,7 +46,7 @@ playerStatePromise:andThen(function()
 		local currentRequiredFear = selectors.getStat(newState, player.Name, "RequiredFear")
 		local requiredFearChanged = currentRequiredFear ~= selectors.getStat(oldState, player.Name, "RequiredFear")
 
-		if requiredFearChanged then
+		if requiredFearChanged and WorkoutUI:FindFirstChild "Background" then
 			formatter.tweenFormattedTextNumber(WorkoutUI.Background.FearCost, {
 				previousRequiredFear,
 				currentRequiredFear,

@@ -299,7 +299,9 @@ function PetInventory:Refresh()
 					--PopupUI "You Can Not Unlock This Pet!"
 					return
 				end
-				self._focusedTemplateDetails.Locked = false
+				if self._focusedTemplateDetails then
+					self._focusedTemplateDetails.Locked = false
+				end
 				Remotes.Client:Get("UnlockPet"):SendToServer(petName)
 			end)
 

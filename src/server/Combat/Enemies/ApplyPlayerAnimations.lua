@@ -113,7 +113,7 @@ return function(player, enemy, info, janitor)
 			end
 			task.delay(1, function()
 				weaponAccessory:Destroy()
-				if not findFirstChildWithTag(player.Character, "WeaponAccessory") then
+				if player.Character and not findFirstChildWithTag(player.Character, "WeaponAccessory") then
 					player.Character.Humanoid:AddAccessory(equippedWeaponAccessory:Clone())
 				end
 			end)

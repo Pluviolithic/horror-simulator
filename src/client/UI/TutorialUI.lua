@@ -52,6 +52,7 @@ tutorialFunctions = {
 	function() -- step 1
 		local kills = selectors.getStat(store:getState(), player.Name, "Kills")
 		if kills < 2 then
+			TutorialUI:WaitForChild "TutorialText"
 			rolloutTutorialText(`Defeat enemies to gain Fear! ({kills}/2)`)
 
 			if not workspace.Beams.TutorialEnemy.Beam.Attachment1 and not deletedEnemyBeam then
