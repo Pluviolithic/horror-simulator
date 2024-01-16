@@ -8,10 +8,62 @@ local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local Count = require(ReplicatedStorage.Common.lib.Sift).Dictionary.count
 
+local rebirthMultipliers = {}
 local applyMultiplierToNegativeWhitelist = {}
+
+for _, multiplierValue in ReplicatedStorage.Config.Rebirth.StrengthMultipliers:GetChildren() do
+	table.insert(rebirthMultipliers, {
+		RangeStart = tonumber(multiplierValue.Name),
+		Multiplier = multiplierValue.Value,
+	})
+end
+
+table.sort(rebirthMultipliers, function(a, b)
+	return a.RangeStart < b.RangeStart
+end)
+
+for i = 1, #rebirthMultipliers - 1 do
+	rebirthMultipliers[i].PreComputedResult = (rebirthMultipliers[i + 1].RangeStart - rebirthMultipliers[i].RangeStart)
+		* rebirthMultipliers[i].Multiplier
+end
+
+local function modifiedBinarySearch(array, value)
+	local low = 1
+	local high = #array
+	local mid = math.floor((low + high) / 2)
+	while low <= high do
+		if array[mid].RangeStart <= value and (not array[mid + 1] or array[mid + 1].RangeStart > value) then
+			return mid
+		elseif array[mid].RangeStart > value then
+			high = mid - 1
+		else
+			low = mid + 1
+		end
+		mid = math.floor((low + high) / 2)
+	end
+	return #array
+end
+
+local function getRebirthStrengthMultiplier(array, rebirths)
+	local multiplier = 1
+	local index = modifiedBinarySearch(array, rebirths)
+	if index == 1 then
+		return multiplier + rebirths * array[1].Multiplier
+	end
+	for i = 1, index - 1 do
+		rebirths -= (array[i + 1].RangeStart - array[i].RangeStart)
+		multiplier += array[i].PreComputedResult
+	end
+	return multiplier + rebirths * array[index].Multiplier
+end
 
 return function(nextDispatch, store)
 	return function(action)
+		local initialMaxFearMeter = nil
+		if action.playerName and selectors.isPlayerLoaded(store:getState(), action.playerName) then
+			initialMaxFearMeter =
+				rankUtils.getMaxFearMeterFromRank(selectors.getStat(store:getState(), action.playerName, "Rank"))
+		end
 		if action.statName and action.incrementAmount then
 			if action.incrementAmount > 0 or applyMultiplierToNegativeWhitelist[action.statName] then
 				local multiplierData = selectors.getMultiplierData(store:getState(), action.playerName)
@@ -66,26 +118,23 @@ return function(nextDispatch, store)
 				end
 
 				if action.statName == "Strength" then
-					action.incrementAmount *= (1 + 0.01 * selectors.getStat(
-						store:getState(),
-						action.playerName,
-						"Rebirths"
-					))
+					action.incrementAmount *= getRebirthStrengthMultiplier(
+						rebirthMultipliers,
+						selectors.getStat(store:getState(), action.playerName, "Rebirths")
+					)
 				end
 			end
 		end
 		nextDispatch(action)
-		if action.statName == "Strength" then
+		local endMaxFearMeter = nil
+		if action.playerName and selectors.isPlayerLoaded(store:getState(), action.playerName) then
+			endMaxFearMeter =
+				rankUtils.getMaxFearMeterFromRank(selectors.getStat(store:getState(), action.playerName, "Rank"))
+		end
+		if endMaxFearMeter and initialMaxFearMeter ~= endMaxFearMeter then
 			local multiplier = selectors.getMultiplierData(store:getState(), action.playerName).MaxFearMeterMultiplier
 				or 1
-			store:dispatch(
-				actions.setPlayerStat(
-					action.playerName,
-					"MaxFearMeter",
-					rankUtils.getMaxFearMeterFromRank(selectors.getStat(store:getState(), action.playerName, "Rank"))
-						* multiplier
-				)
-			)
+			store:dispatch(actions.setPlayerStat(action.playerName, "MaxFearMeter", endMaxFearMeter * multiplier))
 		end
 	end
 end

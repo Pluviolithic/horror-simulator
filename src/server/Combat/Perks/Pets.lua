@@ -154,6 +154,8 @@ end)
 
 Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
 	local equippedPets = selectors.getEquippedPets(store:getState(), player.Name)
+	local lockedPets = selectors.getLockedPets(store:getState(), player.Name)
+	local ownedPets = selectors.getOwnedPets(store:getState(), player.Name)
 	local bestPets = petUtils.getBestPetNames(
 		selectors.getOwnedPets(store:getState(), player.Name),
 		selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount")
@@ -164,11 +166,21 @@ Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
 	end
 
 	local bestPetsDict = {}
+	local petsToUnlock = table.clone(equippedPets)
 	for _, bestPetName in bestPets do
 		bestPetsDict[bestPetName] = (bestPetsDict[bestPetName] or 0) + 1
 	end
 
-	store:dispatch(actions.unlockPlayerPets(player.Name, equippedPets))
+	for petName, count in bestPetsDict do
+		local lockCount = lockedPets[petName] or 0
+		local equipCount = equippedPets[petName] or 0
+		if ownedPets[petName] - (lockCount - equipCount) < count then
+			local countToUnlock = count - (ownedPets[petName] - (lockCount - equipCount))
+			petsToUnlock[petName] = (petsToUnlock[petName] or 0) + countToUnlock
+		end
+	end
+
+	store:dispatch(actions.unlockPlayerPets(player.Name, petsToUnlock))
 	store:dispatch(actions.unequipPlayerPets(player.Name, equippedPets))
 	store:dispatch(actions.equipPlayerPets(player.Name, bestPetsDict))
 	store:dispatch(actions.lockPlayerPets(player.Name, bestPetsDict, true))

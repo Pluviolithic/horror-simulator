@@ -35,7 +35,7 @@ Remotes.Client:Get("SendFightInfo"):Connect(function(info)
 	gemsToDisplay = getMultiplierAdjustedStat(player, "Gems", gemsToDisplay)
 	fearToDisplay = getMultiplierAdjustedStat(player, "Fear", fearToDisplay)
 
-	BossUI.Background.Frame.Health:TweenSize(
+	BossUI:WaitForChild("Background").Frame.Health:TweenSize(
 		UDim2.fromScale(1.013 * info.Health / info.MaxHealth, 1.104),
 		Enum.EasingDirection.Out,
 		Enum.EasingStyle.Quad,

@@ -91,6 +91,9 @@ function GiftUI:_initialize(): ()
 	end)
 
 	playerStatePromise:andThen(function()
+		store.changed:connect(function()
+			self:Refresh()
+		end)
 		while true do
 			self._counter = (self._counter + 1) % 2
 			self:Refresh(true)
