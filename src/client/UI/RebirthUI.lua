@@ -138,7 +138,8 @@ function RebirthUI:Refresh()
 		getRebirthStrengthMultiplier(
 			self._rebirthMultipliers,
 			rebirths + selectors.getStat(store:getState(), player.Name, "Rebirths")
-		)
+		),
+		2
 	)}x Strength`
 end
 
