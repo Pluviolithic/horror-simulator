@@ -31,7 +31,7 @@ end):andThen(function(petsModel)
 		for i, petModel in petsModel:GetChildren() do
 			local position, look = petUtils.calculatePosition(rootPart, numPets, i)
 
-			if not petModel.PrimaryPart or not petModel:FindFirstChild "BodyPosition" then
+			if not petModel.PrimaryPart then
 				continue
 			end
 

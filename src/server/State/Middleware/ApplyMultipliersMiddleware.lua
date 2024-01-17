@@ -69,6 +69,19 @@ return function(nextDispatch, store)
 				local multiplierData = selectors.getMultiplierData(store:getState(), action.playerName)
 				if not multiplierData or action.skipMultipliers then
 					nextDispatch(action)
+					local endMaxFearMeter = nil
+					if action.playerName and selectors.isPlayerLoaded(store:getState(), action.playerName) then
+						endMaxFearMeter = rankUtils.getMaxFearMeterFromRank(
+							selectors.getStat(store:getState(), action.playerName, "Rank")
+						)
+					end
+					if endMaxFearMeter and initialMaxFearMeter ~= endMaxFearMeter then
+						local multiplier = selectors.getMultiplierData(store:getState(), action.playerName).MaxFearMeterMultiplier
+							or 1
+						store:dispatch(
+							actions.setPlayerStat(action.playerName, "MaxFearMeter", endMaxFearMeter * multiplier)
+						)
+					end
 					return
 				end
 				local multiplier = multiplierData[action.statName .. "Multiplier"] or 0

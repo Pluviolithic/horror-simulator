@@ -5,6 +5,7 @@ local Remotes = require(ReplicatedStorage.Common.Remotes)
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
 
 local upgrades = ReplicatedStorage.Config.Rebirth.Upgrades
@@ -24,7 +25,22 @@ Remotes.Server:Get("Rebirth"):Connect(function(player)
 	store:dispatch(actions.unequipPlayerPets(player.Name, selectors.getEquippedPets(store:getState(), player.Name)))
 
 	local ownedPets = table.clone(selectors.getOwnedPets(store:getState(), player.Name))
-	local lockedPets = selectors.getLockedPets(store:getState(), player.Name)
+	local lockedPets = table.clone(selectors.getLockedPets(store:getState(), player.Name))
+
+	local bestPets = petUtils.getBestPetNames(ownedPets, math.huge)
+	local legendaryKeepLimit = selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "KeepLegendaries")
+
+	for _, petName in bestPets do
+		if legendaryKeepLimit < 1 then
+			break
+		end
+		local pet = petUtils.getPet(petName)
+		if pet.RarityName.Value == "Legendary" and not pet:FindFirstChild "PermaLock" then
+			legendaryKeepLimit -= 1
+			lockedPets[petName] = (lockedPets[petName] or 0) + 1
+		end
+	end
+
 	for petName, count in ownedPets do
 		ownedPets[petName] = count - (lockedPets[petName] or 0)
 	end
