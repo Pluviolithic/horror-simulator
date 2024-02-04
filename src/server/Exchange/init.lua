@@ -131,17 +131,20 @@ local function handlePunchingBag(bag: any)
 				loadedIdleAnimation:Play()
 
 				local newWorkoutSpeed = workoutSpeed
-				local rebirthBuff = selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "WorkoutSpeed")
-					* 0.05
 
-				newWorkoutSpeed *= (1 - rebirthBuff)
+				if selectors.isPlayerLoaded(store:getState(), player.Name) then
+					local rebirthBuff = selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "WorkoutSpeed")
+						* 0.05
 
-				if selectors.hasGamepass(store:getState(), player.Name, tripleWorkoutSpeedPassID) then
-					newWorkoutSpeed /= 3
-				end
+					newWorkoutSpeed *= (1 - rebirthBuff)
 
-				if selectors.getActiveBoosts(store:getState(), player.Name)["WorkoutBoost"] then
-					newWorkoutSpeed /= 3
+					if selectors.hasGamepass(store:getState(), player.Name, tripleWorkoutSpeedPassID) then
+						newWorkoutSpeed /= 3
+					end
+
+					if selectors.getActiveBoosts(store:getState(), player.Name)["WorkoutBoost"] then
+						newWorkoutSpeed /= 3
+					end
 				end
 
 				task.wait(newWorkoutSpeed)

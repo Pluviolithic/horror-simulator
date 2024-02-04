@@ -59,6 +59,7 @@ return {
 			MoreStrength = 0,
 			Sprint = 0,
 			WorkoutSpeed = 0,
+			KeepLegendaries = 0,
 		},
 	},
 
