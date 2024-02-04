@@ -23,7 +23,8 @@ local rarityTemplates = ReplicatedStorage.RarityTemplates
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local globalMaxPetEquipCount = ReplicatedStorage.Config.Pets.GlobalMaxPetEquipCount.Value
 
-local evolvedColor = Color3.fromRGB(255, 255, 0)
+local evolvedColor = Color3.fromRGB(70, 255, 57)
+local shinyColor = Color3.fromRGB(255, 233, 64)
 local ableToEvolveColor = Color3.fromRGB(0, 229, 255)
 local unableToEvolveColor = Color3.fromRGB(255, 255, 255)
 
@@ -58,6 +59,12 @@ function PetInventory:_initialize(): ()
 	end
 
 	for _, petFolder in ReplicatedStorage.EvolvedPets:GetChildren() do
+		for _, pet in petFolder:GetChildren() do
+			table.insert(pets, pet)
+		end
+	end
+
+	for _, petFolder in ReplicatedStorage.ShinyPets:GetChildren() do
 		for _, pet in petFolder:GetChildren() do
 			table.insert(pets, pet)
 		end
@@ -233,6 +240,8 @@ function PetInventory:Refresh()
 
 			if petName:match "Evolved" then
 				petTemplate.PetName.TextColor3 = evolvedColor
+			elseif petName:match "Shiny" then
+				petTemplate.PetName.TextColor3 = shinyColor
 			end
 
 			petTemplate.Parent = self._ui.Background.ScrollingFrame
@@ -348,7 +357,7 @@ function PetInventory:_setFocusedDisplay()
 		PetName = self._focusedTemplate.PetName.Text,
 		PetImage = self._focusedTemplate.PetImage.Image,
 		Multiplier = pet.Multiplier.Value,
-		Evolved = pet.Name:match "Evolved",
+		Shiny = pet.Name:match "Shiny",
 		Quantity = selectors.getOwnedPets(store:getState(), player.Name)[pet.Name],
 		Equipped = self._focusedTemplate.Equipped.Visible,
 		Locked = self._focusedTemplate.Lock.Visible,
@@ -370,17 +379,23 @@ function PetInventory:_setFocusedDisplay()
 	self._ui.RightBackground.Multiplier.Text = "x"
 		.. string.format("%.2f", (if details.Multiplier < 1 then details.Multiplier + 1 else details.Multiplier))
 
-	if details.Evolved then
-		self._ui.RightBackground.PetName.TextColor3 = evolvedColor
-		self._ui.RightBackground.Evolve.ImageColor3 = evolvedColor
-		self._ui.RightBackground.Evolve.EvolveText.Text = "Evolved"
+	if details.Shiny then
+		self._ui.RightBackground.PetName.TextColor3 = shinyColor
+		self._ui.RightBackground.Evolve.ImageColor3 = shinyColor
+		self._ui.RightBackground.Evolve.EvolveText.Text = "Max Evolved"
 	else
 		local amountToEvolve = 5
 		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") > 0 then
 			amountToEvolve = 4
 		end
+		if details.PetName:match "Evolved" then
+			self._ui.RightBackground.PetName.TextColor3 = evolvedColor
+			self._ui.RightBackground.Evolve.ImageColor3 = evolvedColor
+			amountToEvolve = 3
+		else
+			self._ui.RightBackground.PetName.TextColor3 = unableToEvolveColor
+		end
 		self._ui.RightBackground.Evolve.EvolveText.Text = `Evolve ({details.Quantity}/{amountToEvolve})`
-		self._ui.RightBackground.PetName.TextColor3 = unableToEvolveColor
 		if details.Quantity >= amountToEvolve then
 			self._ui.RightBackground.Evolve.ImageColor3 = ableToEvolveColor
 		else
@@ -443,7 +458,7 @@ function PetInventory:_setFocusedDisplay()
 		end
 	end))
 
-	if details.Evolved then
+	if details.Shiny then
 		return
 	end
 
@@ -452,6 +467,9 @@ function PetInventory:_setFocusedDisplay()
 		local amountToEvolve = 5
 		if selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Evolver") > 0 then
 			amountToEvolve = 4
+		end
+		if details.PetName:match "Evolved" then
+			amountToEvolve = 3
 		end
 		if details.Quantity >= amountToEvolve then
 			Remotes.Client:Get("EvolvePet"):SendToServer(details.PetName)

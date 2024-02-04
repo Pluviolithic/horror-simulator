@@ -33,7 +33,14 @@ end
 local petUtils
 petUtils = {
 	getPet = function(petName: string): Instance?
-		local pets = if petName:match "Evolved" then ReplicatedStorage.EvolvedPets else ReplicatedStorage.Pets
+		local pets
+		if petName:match "Evolved" then
+			pets = ReplicatedStorage.EvolvedPets
+		elseif petName:match "Shiny" then
+			pets = ReplicatedStorage.ShinyPets
+		else
+			pets = ReplicatedStorage.Pets
+		end
 		for _, area in pets:GetChildren() do
 			local pet = area:FindFirstChild(petName)
 			if pet then

@@ -19,7 +19,11 @@ local function evolvePet(player, petName)
 		amountToDeduct = 4
 	end
 
-	if not petOwnedCount or petOwnedCount < amountToDeduct or petName:match "Evolved" then
+	if petName:match "Evolved" then
+		amountToDeduct = 3
+	end
+
+	if not petOwnedCount or petOwnedCount < amountToDeduct or petName:match "Shiny" then
 		return 1
 	end
 
@@ -38,10 +42,18 @@ local function evolvePet(player, petName)
 	end
 
 	store:dispatch(actions.deletePlayerPets(player.Name, { [petName] = amountToDeduct }, true))
-	store:dispatch(actions.givePlayerPets(player.Name, { ["Evolved " .. petName] = 1 }))
+
+	local newPetName = petName
+	if petName:match "Evolved" then
+		newPetName = petName:gsub("Evolved", "Shiny")
+	else
+		newPetName = "Evolved " .. petName
+	end
+
+	store:dispatch(actions.givePlayerPets(player.Name, { [newPetName] = 1 }))
 
 	if petUtils.getPet(petName):FindFirstChild "PermaLock" then
-		store:dispatch(actions.lockPlayerPets(player.Name, { ["Evolved " .. petName] = 1 }))
+		store:dispatch(actions.lockPlayerPets(player.Name, { [newPetName] = 1 }))
 	end
 
 	return 0
