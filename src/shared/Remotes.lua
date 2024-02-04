@@ -6,7 +6,7 @@ local t = require(ReplicatedStorage.Common.lib.t)
 local Remotes = Net.CreateDefinitions {
 	HatchEggs = Net.Definitions.ServerFunction {
 		Net.Middleware.RateLimit {
-			MaxRequestsPerMinute = 20,
+			MaxRequestsPerMinute = 60,
 		},
 		Net.Middleware.TypeChecking(t.number, t.string),
 	},
