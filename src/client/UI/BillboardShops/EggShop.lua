@@ -519,7 +519,7 @@ CollectionService:GetInstanceAddedSignal("EggShop"):Connect(handleShop)
 
 local function updateFoundsDisplay(foundPets): ()
 	for petName in foundPets do
-		if petName:match "Evolved" then
+		if petName:match "Evolved" or petName:match "Shiny" then
 			continue
 		end
 
