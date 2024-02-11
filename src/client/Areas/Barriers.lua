@@ -84,7 +84,7 @@ local function unlockAreas(oldWasLoaded)
 					end
 				end
 
-				if requirement.Name == "Howling Woods" and oldWasLoaded then
+				if (requirement.Name == "Howling Woods" or requirement.Name == "Ghostly Manor") and oldWasLoaded then
 					AFKUnlockUIOnTween:Play()
 				end
 			end

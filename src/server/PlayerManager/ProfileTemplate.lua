@@ -102,6 +102,12 @@ return {
 			Active = false,
 			ViewedRewardPopup = false,
 		},
+		["Ghostly Manor"] = {
+			CurrentMissionNumber = 1,
+			CurrentMissionProgress = 0,
+			Active = false,
+			ViewedRewardPopup = false,
+		},
 	},
 
 	SavedSettings = {
