@@ -11,7 +11,7 @@ require(script.FixRichText)
 require(script.Inventories)
 require(script.ChestTimerUI)
 require(script.BillboardShops)
-require(script.NotificationUI)
+--require(script.NotificationUI)
 require(script.GiftUI)
 require(script.RebirthUI)
 

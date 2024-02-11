@@ -83,7 +83,12 @@ function TeleportUI:_initialize()
 		local purchasedTeleporters = selectors.getPurchasedTeleporters(store:getState(), player.Name)
 		local target, targetAreaName = nil, nil
 
-		if areaRequirements["Howling Woods"].Value <= selectors.getStat(store:getState(), player.Name, "Strength") then
+		if areaRequirements["Ghostly Manor"].Value <= selectors.getStat(store:getState(), player.Name, "Strength") then
+			targetAreaName = "Ghostly Manor"
+			target = workspace.Teleports.AFK3TP
+		elseif
+			areaRequirements["Howling Woods"].Value <= selectors.getStat(store:getState(), player.Name, "Strength")
+		then
 			targetAreaName = "Howling Woods"
 			target = workspace.Teleports.AFK2TP
 		else
