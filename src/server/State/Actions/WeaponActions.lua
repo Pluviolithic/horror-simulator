@@ -23,4 +23,11 @@ return {
 			shouldSave = true,
 		}
 	end),
+	takePlayerWeapon = makeActionCreator("takePlayerWeapon", function(playerName: string, weaponName: string)
+		return {
+			playerName = playerName,
+			weaponName = weaponName,
+			shouldSave = true,
+		}
+	end),
 }

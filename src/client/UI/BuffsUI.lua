@@ -2,6 +2,7 @@ local Players = game:GetService "Players"
 local SocialService = game:GetService "SocialService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local CollectionService = game:GetService "CollectionService"
 local MarketplaceService = game:GetService "MarketplaceService"
 
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -21,6 +22,25 @@ local player = Players.LocalPlayer
 local buffTray = player.PlayerGui:WaitForChild "Buffs"
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local InviteUI = CentralUI.new(player.PlayerGui:WaitForChild "InvitePrompt")
+
+local monthlyRebirthLeaderboard
+local monthlyLeaderboards = CollectionService:GetTagged "MonthlyGlobalLeaderboard"
+
+local function isInTopTen()
+	if not monthlyRebirthLeaderboard then
+		return false
+	end
+
+	local entries = monthlyRebirthLeaderboard:GetChildren()
+
+	for i = 2, 11 do
+		if entries[i] and entries[i].PlayerName.Text == player.Name then
+			return true
+		end
+	end
+
+	return false
+end
 
 local function isScared(state)
 	if selectors.getActiveBoosts(state, player.Name)["FearlessBoost"] then
@@ -51,6 +71,8 @@ local function updateBuffTray(state)
 				local friendCount = Count(selectors.getActiveFriendsWhoJoined(state, player.Name))
 				buffDisplay.Visible = friendCount > 0
 				buffDisplay.Amount.Text = `{15 * friendCount}%`
+			elseif buffDisplay.Name == "LeaderboardLuck" then
+				buffTray.Frame.LeaderboardLuck.Visible = isInTopTen()
 			else
 				buffDisplay.Visible = isScared(state)
 				buffDisplay.Timer.Text = clockUtils.getFormattedRemainingTime(
@@ -80,6 +102,13 @@ local function updateBuffTray(state)
 
 			PopupUI(`{multiplierAmount}{buffDisplay.Name:match "(%u.+)%u"} Boost Has Expired!`)
 		end
+	end
+end
+
+for _, leaderboard in ipairs(monthlyLeaderboards) do
+	if leaderboard.Name:match "Rebirths" then
+		monthlyRebirthLeaderboard = leaderboard
+		break
 	end
 end
 
