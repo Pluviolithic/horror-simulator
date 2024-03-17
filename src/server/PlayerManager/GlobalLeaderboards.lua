@@ -23,6 +23,9 @@ local monthlyTopTen = {
 	Kills = {},
 	Strength = {},
 	Rebirths = {},
+	KillsLoaded = false,
+	StrengthLoaded = false,
+	RebirthsLoaded = false,
 }
 
 local leaderboardEntry = ServerStorage.Templates.LeaderboardEntry
@@ -112,6 +115,7 @@ local function updateGlobalLeaderboardDisplays(): ()
 				print("monthlyTopTen", statName, rank, entry.PlayerName.Text)
 				if rank < 3 then
 					monthlyTopTen[statName][rank] = entry.PlayerName.Text
+					monthlyTopTen[statName .. "Loaded"] = true
 					print("monthlyTopTen", statName, rank, entry.PlayerName.Text)
 				end
 
@@ -168,53 +172,78 @@ task.delay(10, function()
 	while true do
 		task.spawn(updateGlobalLeaderboardDisplays)
 		task.spawn(updateGlobalLeaderboardStores)
-
-		for _, player in Players:GetPlayers() do
-			if not selectors.isPlayerLoaded(store:getState(), player.Name) then
-				continue
-			end
-
-			if
-				table.find(monthlyTopTen.Kills, player.Name)
-				and not selectors.getOwnedPets(store:getState(), player.Name)[leaderboardPetName]
-			then
-				print "awarding leaderboard pet"
-				awardPetsToPlayer(player, { [leaderboardPetName] = 1 })
-			elseif
-				not table.find(monthlyTopTen.Kills, player.Name)
-				and selectors.getOwnedPets(store:getState(), player.Name)[leaderboardPetName]
-			then
-				print "removing leaderboard pet"
-				store:dispatch(actions.deletePlayerPets(player.Name, { [leaderboardPetName] = 1 }))
-				if selectors.getEquippedPets(store:getState(), player.Name)[leaderboardPetName] then
-					store:dispatch(actions.unequipPlayerPets(player.Name, { [leaderboardPetName] = 1 }))
-				end
-				if selectors.getLockedPets(store:getState(), player.Name)[leaderboardPetName] then
-					store:dispatch(actions.unlockPlayerPets(player.Name, { [leaderboardPetName] = 1 }, true))
-				end
-			end
-
-			if
-				table.find(monthlyTopTen.Strength, player.Name)
-				and not selectors.getOwnedWeapons(store:getState(), player.Name)[leaderboardWeaponName]
-			then
-				print "awarding leaderboard weapon"
-				store:dispatch(actions.givePlayerWeapon(player.Name, leaderboardWeaponName))
-				store:dispatch(actions.equipWeapon(player.Name, leaderboardWeaponName))
-			elseif
-				not table.find(monthlyTopTen.Strength, player.Name)
-				and selectors.getOwnedWeapons(store:getState(), player.Name)[leaderboardWeaponName]
-			then
-				print "removing leaderboard weapon"
-				store:dispatch(actions.unequipWeapon(player.Name, leaderboardWeaponName))
-				store:dispatch(actions.takePlayerWeapon(player.Name, leaderboardWeaponName))
-			end
-		end
-
 		task.wait(120)
 	end
 end)
 
-return function(playerName: string, statName: string)
-	return table.find(monthlyTopTen[statName], playerName)
+local function checkPlayer(player: Player)
+	if not selectors.isPlayerLoaded(store:getState(), player.Name) then
+		return
+	end
+
+	if
+		table.find(monthlyTopTen.Kills, player.Name)
+		and not selectors.getOwnedPets(store:getState(), player.Name)[leaderboardPetName]
+	then
+		print "awarding leaderboard pet"
+		awardPetsToPlayer(player, { [leaderboardPetName] = 1 })
+	elseif
+		monthlyTopTen.KillsLoaded
+		and not table.find(monthlyTopTen.Kills, player.Name)
+		and selectors.getOwnedPets(store:getState(), player.Name)[leaderboardPetName]
+	then
+		print "removing leaderboard pet"
+		store:dispatch(actions.deletePlayerPets(player.Name, { [leaderboardPetName] = 1 }))
+		if selectors.getEquippedPets(store:getState(), player.Name)[leaderboardPetName] then
+			store:dispatch(actions.unequipPlayerPets(player.Name, { [leaderboardPetName] = 1 }))
+		end
+		if selectors.getLockedPets(store:getState(), player.Name)[leaderboardPetName] then
+			store:dispatch(actions.unlockPlayerPets(player.Name, { [leaderboardPetName] = 1 }, true))
+		end
+	end
+
+	if
+		table.find(monthlyTopTen.Strength, player.Name)
+		and not selectors.getOwnedWeapons(store:getState(), player.Name)[leaderboardWeaponName]
+	then
+		print "awarding leaderboard weapon"
+		store:dispatch(actions.givePlayerWeapon(player.Name, leaderboardWeaponName))
+		store:dispatch(actions.equipWeapon(player.Name, leaderboardWeaponName))
+	elseif
+		monthlyTopTen.StrengthLoaded
+		and not table.find(monthlyTopTen.Strength, player.Name)
+		and selectors.getOwnedWeapons(store:getState(), player.Name)[leaderboardWeaponName]
+	then
+		print "removing leaderboard weapon"
+		store:dispatch(actions.unequipWeapon(player.Name, leaderboardWeaponName))
+		store:dispatch(actions.takePlayerWeapon(player.Name, leaderboardWeaponName))
+	end
+
+	if
+		table.find(monthlyTopTen.Rebirths, player.Name)
+		and not selectors.achievedMilestone(store:getState(), player.Name, "TopRebirths")
+	then
+		print "awarding top ten rebirths milestone"
+		store:dispatch(actions.achievedMilestone(player.Name, "TopRebirths"))
+	elseif
+		monthlyTopTen.RebirthsLoaded
+		and not table.find(monthlyTopTen.Rebirths, player.Name)
+		and selectors.achievedMilestone(store:getState(), player.Name, "TopRebirths")
+	then
+		print "removing top ten rebirths milestone"
+		store:dispatch(actions.unachieveMilestone(player.Name, "TopRebirths"))
+	end
 end
+
+task.spawn(function()
+	while true do
+		task.wait(15)
+		for _, player in Players:GetPlayers() do
+			checkPlayer(player)
+		end
+	end
+end)
+
+Players.PlayerAdded:Connect(checkPlayer)
+
+return 0

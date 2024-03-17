@@ -21,6 +21,7 @@ local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.Descr
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
+local leaderboardPetName = ReplicatedStorage.Config.Misc.LeaderboardPet.Value
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["AutoHatch"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xHatch"].Value
 local doubleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["2xLuck"].Value
@@ -376,6 +377,10 @@ local function handleShop(shop): ()
 			luck += 0.1 * selectors.getRebirthUpgradeLevel(store:getState(), player.Name, "Lucky")
 		end
 
+		if selectors.achievedMilestone(store:getState(), player.Name, "TopRebirths") then
+			luck += 3
+		end
+
 		if luck == 0 then
 			return
 		end
@@ -519,7 +524,7 @@ CollectionService:GetInstanceAddedSignal("EggShop"):Connect(handleShop)
 
 local function updateFoundsDisplay(foundPets): ()
 	for petName in foundPets do
-		if petName:match "Evolved" or petName:match "Shiny" then
+		if petName:match "Evolved" or petName:match "Shiny" or petName == leaderboardPetName then
 			continue
 		end
 
@@ -564,8 +569,13 @@ playerStatePromise:andThen(function()
 				oldState,
 				player.Name
 			)["LuckBoost"]
-			or selectors.getRebirthUpgradeLevel(newState, player.Name, "Lucky")
-				~= selectors.getRebirthUpgradeLevel(oldState, player.Name, "Lucky")
+			or selectors.getRebirthUpgradeLevel(newState, player.Name, "Lucky") ~= selectors.getRebirthUpgradeLevel(
+				oldState,
+				player.Name,
+				"Lucky"
+			)
+			or selectors.achievedMilestone(newState, player.Name, "TopRebirths")
+				~= selectors.achievedMilestone(oldState, player.Name, "TopRebirths")
 		then
 			updateRarityListeners(selectors.getStat(newState, player.Name, "Luck"))
 		end

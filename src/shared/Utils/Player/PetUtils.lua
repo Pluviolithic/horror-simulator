@@ -6,6 +6,7 @@ local Janitor = require(ReplicatedStorage.Common.lib.Janitor)
 
 local petConfig = ReplicatedStorage.Config.Pets
 local modelYOffset = petConfig.VerticalOffset.Value
+local leaderboardPetName = ReplicatedStorage.Config.Misc.LeaderboardPet.Value
 
 local baseBodyPosition = Instance.new "BodyPosition"
 local baseBodyGyro = Instance.new "BodyGyro"
@@ -36,7 +37,7 @@ petUtils = {
 		local pets
 		if petName:match "Evolved" then
 			pets = ReplicatedStorage.EvolvedPets
-		elseif petName:match "Shiny" then
+		elseif petName:match "Shiny" or petName == leaderboardPetName then
 			pets = ReplicatedStorage.ShinyPets
 		else
 			pets = ReplicatedStorage.Pets

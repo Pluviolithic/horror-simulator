@@ -8,7 +8,6 @@ local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
-local isTopTen = require(ServerScriptService.Server.PlayerManager.GlobalLeaderboards)
 
 local eggGemPricesConfig = ReplicatedStorage.Config.Pets.Prices
 local areaRequirements = ReplicatedStorage.Config.AreaRequirements
@@ -24,7 +23,7 @@ local function getWeightedRandom(player: Player, weights: { [string]: { [string]
 	local luck = selectors.getStat(store:getState(), player.Name, "Luck")
 	local newWeights = {}
 
-	if isTopTen(player.Name, "Rebirths") then
+	if selectors.achievedMilestone(store:getState(), player.Name, "TopRebirths") then
 		luck += 3
 	end
 
