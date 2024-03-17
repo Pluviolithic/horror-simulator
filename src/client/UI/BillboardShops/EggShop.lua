@@ -21,7 +21,6 @@ local DescriptionUI = require(StarterPlayer.StarterPlayerScripts.Client.UI.Descr
 local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.State.PlayerStatePromise)
 local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
-local leaderboardPetName = ReplicatedStorage.Config.Misc.LeaderboardPet.Value
 local autoHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["AutoHatch"].Value
 local tripleHatchGamepassID = ReplicatedStorage.Config.GamepassData.IDs["3xHatch"].Value
 local doubleLuckGamepassID = ReplicatedStorage.Config.GamepassData.IDs["2xLuck"].Value
@@ -524,7 +523,7 @@ CollectionService:GetInstanceAddedSignal("EggShop"):Connect(handleShop)
 
 local function updateFoundsDisplay(foundPets): ()
 	for petName in foundPets do
-		if petName:match "Evolved" or petName:match "Shiny" or petName == leaderboardPetName then
+		if petName:match "Evolved" or petName:match "Shiny" or not petAreas[petName] then
 			continue
 		end
 

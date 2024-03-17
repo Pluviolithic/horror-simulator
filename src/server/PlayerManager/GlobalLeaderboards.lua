@@ -98,6 +98,7 @@ local function updateGlobalLeaderboardDisplays(): ()
 			end
 		end
 
+		local newTopTen = {}
 		for rank, score in pages:GetCurrentPage() do
 			local success, playerName = pcall(Players.GetNameFromUserIdAsync, Players, tonumber(score.key))
 
@@ -114,8 +115,7 @@ local function updateGlobalLeaderboardDisplays(): ()
 
 				print("monthlyTopTen", statName, rank, entry.PlayerName.Text)
 				if rank < 3 then
-					monthlyTopTen[statName][rank] = entry.PlayerName.Text
-					monthlyTopTen[statName .. "Loaded"] = true
+					newTopTen[rank] = entry.PlayerName.Text
 					print("monthlyTopTen", statName, rank, entry.PlayerName.Text)
 				end
 
@@ -124,6 +124,8 @@ local function updateGlobalLeaderboardDisplays(): ()
 				end
 			end
 		end
+		monthlyTopTen[statName .. "Loaded"] = true
+		monthlyTopTen[statName] = newTopTen
 
 		task.wait(10)
 	end
@@ -231,7 +233,7 @@ local function checkPlayer(player: Player)
 		and selectors.achievedMilestone(store:getState(), player.Name, "TopRebirths")
 	then
 		print "removing top ten rebirths milestone"
-		store:dispatch(actions.unachieveMilestone(player.Name, "TopRebirths"))
+		store:dispatch(actions.removeMilestone(player.Name, "TopRebirths"))
 	end
 end
 
