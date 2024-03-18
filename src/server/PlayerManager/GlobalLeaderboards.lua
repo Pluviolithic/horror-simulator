@@ -28,6 +28,7 @@ local monthlyTopTen = {
 	RebirthsLoaded = false,
 }
 
+local _, podiums = next(CollectionService:GetTagged "Podiums")
 local leaderboardEntry = ServerStorage.Templates.LeaderboardEntry
 local leaderboardPetName = ReplicatedStorage.Config.Misc.LeaderboardPet.Value
 local leaderboardWeaponName = ReplicatedStorage.Config.Misc.LeaderboardWeapon.Value
@@ -52,6 +53,7 @@ end
 
 local function updateGlobalLeaderboardDisplays(): ()
 	for statName, globalLeaderboardStore in globalLeaderboardStores do
+		local globalPodium = podiums:FindFirstChild("AllTime" .. statName .. "Podium")
 		local pages = globalLeaderboardStore:GetSortedAsync(false, 99)
 		local leaderboardDisplays = {}
 
@@ -75,6 +77,12 @@ local function updateGlobalLeaderboardDisplays(): ()
 				entry.Rank.Text = "#" .. rank
 				entry.Parent = leaderboardDisplay
 			end
+
+			if rank == 1 then
+				globalPodium
+					:FindFirstChild("Humanoid", true)
+					:ApplyDescription(Players:GetHumanoidDescriptionFromUserId(score.key))
+			end
 		end
 
 		task.wait(10)
@@ -89,6 +97,7 @@ local function updateGlobalLeaderboardDisplays(): ()
 	}
 
 	for statName, monthlyGlobalLeaderboardStore in monthlyGlobalLeaderboardStores do
+		local monthlyPodium = podiums:FindFirstChild("Monthly" .. statName .. "Podium")
 		local pages = monthlyGlobalLeaderboardStore:GetSortedAsync(false, 99)
 		local leaderboardDisplays = {}
 
@@ -113,14 +122,14 @@ local function updateGlobalLeaderboardDisplays(): ()
 				entry.Rank.Text = "#" .. rank
 				entry.Parent = leaderboardDisplay
 
-				print("monthlyTopTen", statName, rank, entry.PlayerName.Text)
 				if rank < 3 then
 					newTopTen[rank] = entry.PlayerName.Text
-					print("monthlyTopTen", statName, rank, entry.PlayerName.Text)
 				end
 
 				if rank == 1 then
-					-- update podium
+					monthlyPodium
+						:FindFirstChild("Humanoid", true)
+						:ApplyDescription(Players:GetHumanoidDescriptionFromUserId(score.key))
 				end
 			end
 		end
@@ -187,14 +196,12 @@ local function checkPlayer(player: Player)
 		table.find(monthlyTopTen.Kills, player.Name)
 		and not selectors.getOwnedPets(store:getState(), player.Name)[leaderboardPetName]
 	then
-		print "awarding leaderboard pet"
 		awardPetsToPlayer(player, { [leaderboardPetName] = 1 })
 	elseif
 		monthlyTopTen.KillsLoaded
 		and not table.find(monthlyTopTen.Kills, player.Name)
 		and selectors.getOwnedPets(store:getState(), player.Name)[leaderboardPetName]
 	then
-		print "removing leaderboard pet"
 		store:dispatch(actions.deletePlayerPets(player.Name, { [leaderboardPetName] = 1 }))
 		if selectors.getEquippedPets(store:getState(), player.Name)[leaderboardPetName] then
 			store:dispatch(actions.unequipPlayerPets(player.Name, { [leaderboardPetName] = 1 }))
@@ -208,7 +215,6 @@ local function checkPlayer(player: Player)
 		table.find(monthlyTopTen.Strength, player.Name)
 		and not selectors.getOwnedWeapons(store:getState(), player.Name)[leaderboardWeaponName]
 	then
-		print "awarding leaderboard weapon"
 		store:dispatch(actions.givePlayerWeapon(player.Name, leaderboardWeaponName))
 		store:dispatch(actions.equipWeapon(player.Name, leaderboardWeaponName))
 	elseif
@@ -216,7 +222,6 @@ local function checkPlayer(player: Player)
 		and not table.find(monthlyTopTen.Strength, player.Name)
 		and selectors.getOwnedWeapons(store:getState(), player.Name)[leaderboardWeaponName]
 	then
-		print "removing leaderboard weapon"
 		store:dispatch(actions.unequipWeapon(player.Name, leaderboardWeaponName))
 		store:dispatch(actions.takePlayerWeapon(player.Name, leaderboardWeaponName))
 	end
@@ -225,14 +230,12 @@ local function checkPlayer(player: Player)
 		table.find(monthlyTopTen.Rebirths, player.Name)
 		and not selectors.achievedMilestone(store:getState(), player.Name, "TopRebirths")
 	then
-		print "awarding top ten rebirths milestone"
 		store:dispatch(actions.achievedMilestone(player.Name, "TopRebirths"))
 	elseif
 		monthlyTopTen.RebirthsLoaded
 		and not table.find(monthlyTopTen.Rebirths, player.Name)
 		and selectors.achievedMilestone(store:getState(), player.Name, "TopRebirths")
 	then
-		print "removing top ten rebirths milestone"
 		store:dispatch(actions.removeMilestone(player.Name, "TopRebirths"))
 	end
 end
