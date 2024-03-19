@@ -32,7 +32,7 @@ local function modifyAccessories(player, action, equippedWeaponAccessory, store)
 		if oldEquippedWeaponAccessory then
 			oldEquippedWeaponAccessory:Destroy()
 		end
-	elseif action.type == "equipWeapon" then
+	elseif action.type == "equipWeapon" or action.type == "takePlayerWeapon" then
 		local oldEquippedWeaponAccessory = findFirstChildWithTag(player.Character, "WeaponAccessory")
 		if oldEquippedWeaponAccessory then
 			oldEquippedWeaponAccessory:Destroy()

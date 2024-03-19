@@ -7,8 +7,10 @@ local ServerScriptService = game:GetService "ServerScriptService"
 
 local store = require(ServerScriptService.Server.State.Store)
 local actions = require(ServerScriptService.Server.State.Actions)
+local pets = require(ServerScriptService.Server.Combat.Perks.Pets)
 local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
+local clockUtils = require(ReplicatedStorage.Common.Utils.ClockUtils)
 local permissionList = require(ReplicatedStorage.Common.PermissionList)
 local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
@@ -30,6 +32,7 @@ local monthlyTopTen = {
 
 local _, podiums = next(CollectionService:GetTagged "Podiums")
 local leaderboardEntry = ServerStorage.Templates.LeaderboardEntry
+local playerNameTemplate = ReplicatedStorage.PlayerName:Clone()
 local leaderboardPetName = ReplicatedStorage.Config.Misc.LeaderboardPet.Value
 local leaderboardWeaponName = ReplicatedStorage.Config.Misc.LeaderboardWeapon.Value
 
@@ -37,18 +40,7 @@ local function awardPetsToPlayer(player: Player, petsDict: { [string]: number })
 	store:dispatch(actions.givePlayerPets(player.Name, petsDict))
 	store:dispatch(actions.lockPlayerPets(player.Name, petsDict))
 
-	local petsToEquip, counter = {}, 0
-	local equippedPetsCount = petUtils.countPetsInDict(selectors.getEquippedPets(store:getState(), player.Name))
-	for _, petName in petUtils.getBestPetNames(petsDict, petUtils.countPetsInDict(petsDict)) do
-		if equippedPetsCount + counter >= selectors.getStat(store:getState(), player.Name, "MaxPetEquipCount") then
-			break
-		end
-		counter += 1
-		petsToEquip[petName] = if petsToEquip[petName] then petsToEquip[petName] + 1 else 1
-	end
-	if counter > 0 then
-		store:dispatch(actions.equipPlayerPets(player.Name, petsToEquip))
-	end
+	pets.equipBestPets(player)
 end
 
 local function updateGlobalLeaderboardDisplays(): ()
@@ -79,16 +71,16 @@ local function updateGlobalLeaderboardDisplays(): ()
 			end
 
 			if rank == 1 then
-				globalPodium
-					:FindFirstChild("Humanoid", true)
-					:ApplyDescription(Players:GetHumanoidDescriptionFromUserId(score.key))
+				globalPodium.Rig.Humanoid:ApplyDescription(Players:GetHumanoidDescriptionFromUserId(score.key))
+				playerNameTemplate:Clone().Parent = globalPodium.Rig.Head
+				globalPodium.Rig.Head.PlayerName.Frame.PlayerName.Text = if success then playerName else score.key
 			end
 		end
 
 		task.wait(10)
 	end
 
-	local monthlyTimestamp = os.date("*t").month .. os.date("*t").year
+	local monthlyTimestamp = clockUtils.getMonthlyTimestamp()
 
 	local monthlyGlobalLeaderboardStores = {
 		Kills = DataStoreService:GetOrderedDataStore(monthlyTimestamp .. "MonthlyGlobalKills"),
@@ -127,9 +119,9 @@ local function updateGlobalLeaderboardDisplays(): ()
 				end
 
 				if rank == 1 then
-					monthlyPodium
-						:FindFirstChild("Humanoid", true)
-						:ApplyDescription(Players:GetHumanoidDescriptionFromUserId(score.key))
+					monthlyPodium.Rig.Humanoid:ApplyDescription(Players:GetHumanoidDescriptionFromUserId(score.key))
+					playerNameTemplate:Clone().Parent = monthlyPodium.Rig.Head
+					monthlyPodium.Rig.Head.PlayerName.Frame.PlayerName.Text = if success then playerName else score.key
 				end
 			end
 		end
@@ -157,7 +149,7 @@ local function updateGlobalLeaderboardStores(): ()
 			)
 		end
 
-		local monthlyTimestamp = os.date("*t").month .. os.date("*t").year
+		local monthlyTimestamp = clockUtils.getMonthlyTimestamp()
 
 		local monthlyGlobalLeaderboardStores = {
 			Kills = DataStoreService:GetOrderedDataStore(monthlyTimestamp .. "MonthlyGlobalKills"),
@@ -209,6 +201,7 @@ local function checkPlayer(player: Player)
 		if selectors.getLockedPets(store:getState(), player.Name)[leaderboardPetName] then
 			store:dispatch(actions.unlockPlayerPets(player.Name, { [leaderboardPetName] = 1 }, true))
 		end
+		pets.equipBestPets(player)
 	end
 
 	if
@@ -222,7 +215,6 @@ local function checkPlayer(player: Player)
 		and not table.find(monthlyTopTen.Strength, player.Name)
 		and selectors.getOwnedWeapons(store:getState(), player.Name)[leaderboardWeaponName]
 	then
-		store:dispatch(actions.unequipWeapon(player.Name, leaderboardWeaponName))
 		store:dispatch(actions.takePlayerWeapon(player.Name, leaderboardWeaponName))
 	end
 

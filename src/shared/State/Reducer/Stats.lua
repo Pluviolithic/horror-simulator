@@ -4,6 +4,7 @@ local Immut = require(ReplicatedStorage.Common.lib.Immut)
 local Rodux = require(ReplicatedStorage.Common.lib.Rodux)
 local Dict = require(ReplicatedStorage.Common.lib.Sift).Dictionary
 local defaultStates = require(ReplicatedStorage.Common.State.DefaultStates)
+local clockUtils = require(ReplicatedStorage.Common.Utils.ClockUtils)
 local rankUtils = require(ReplicatedStorage.Common.Utils.RankUtils)
 
 local produce = Immut.produce
@@ -47,7 +48,7 @@ return Rodux.createReducer({}, {
 			end
 
 			if action.statName == "Strength" or action.statName == "Kills" or action.statName == "Rebirths" then
-				local monthlyTimestamp = os.date("*t").month .. os.date("*t").year
+				local monthlyTimestamp = clockUtils.getMonthlyTimestamp()
 				draft[action.playerName][action.statName .. monthlyTimestamp] = (
 					draft[action.playerName][action.statName .. monthlyTimestamp] or 0
 				) + (action.incrementAmount or 1)
@@ -67,7 +68,7 @@ return Rodux.createReducer({}, {
 			end
 
 			if action.statName == "Strength" or action.statName == "Kills" or action.statName == "Rebirths" then
-				local monthlyTimestamp = os.date("*t").month .. os.date("*t").year
+				local monthlyTimestamp = clockUtils.getMonthlyTimestamp()
 				draft[action.playerName][action.statName .. monthlyTimestamp] = action.value
 			end
 		end)

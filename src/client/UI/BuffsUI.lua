@@ -122,6 +122,11 @@ buffTray.Frame.FriendBuff.Activated:Connect(function()
 	end
 end)
 
+buffTray.Frame.LeaderboardLuck.Activated:Connect(function()
+	playSoundEffect "UIButton"
+	RobuxShop:OpenSubShop "Boosts"
+end)
+
 interfaces[InviteUI] = true
 
 playerStatePromise:andThen(function()
