@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
 
+local monthlyTimestampOverride = nil
 local chestTimerLength = ReplicatedStorage.Config.DevProductData.Chests.ChestTimerLength.Value
 
 return {
@@ -38,5 +39,11 @@ return {
 		else
 			return string.format("%02d:%02d", minutes, seconds)
 		end
+	end,
+	setMonthlyTimestampOverride = function(overrideValue: string)
+		monthlyTimestampOverride = overrideValue
+	end,
+	getMonthlyTimestamp = function()
+		return monthlyTimestampOverride or os.date("*t").month .. os.date("*t").year
 	end,
 }

@@ -28,4 +28,9 @@ return Rodux.createReducer({}, {
 			draft[action.playerName][action.milestone] = true
 		end)
 	end,
+	removeMilestone = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName][action.milestone] = false
+		end)
+	end,
 })
