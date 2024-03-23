@@ -29,6 +29,22 @@ return Rodux.createReducer({}, {
 			draft[action.playerName].OwnedWeapons[action.weaponName] = true
 		end)
 	end,
+	takePlayerWeapon = function(state, action)
+		return produce(state, function(draft)
+			draft[action.playerName].OwnedWeapons[action.weaponName] = nil
+			local bestWeaponName, bestWeaponDamage = "Fists", -1
+			for weaponName in draft[action.playerName].OwnedWeapons do
+				if weaponName == "Fists" then
+					continue
+				end
+				if weapons[weaponName].Damage.Value > bestWeaponDamage then
+					bestWeaponName = weaponName
+					bestWeaponDamage = weapons[weaponName].Damage.Value
+				end
+			end
+			draft[action.playerName].EquippedWeapon = bestWeaponName
+		end)
+	end,
 	unequipWeapon = function(state, action)
 		return produce(state, function(draft)
 			draft[action.playerName].EquippedWeapon = "Fists"
@@ -54,9 +70,7 @@ return Rodux.createReducer({}, {
 					bestWeaponDamage = weapons[weaponName].Damage.Value
 				end
 			end
-			if not draft[action.playerName].OwnedWeapons[draft[action.playerName].EquippedWeapon] then
-				draft[action.playerName].EquippedWeapon = bestWeaponName
-			end
+			draft[action.playerName].EquippedWeapon = bestWeaponName
 		end)
 	end,
 })

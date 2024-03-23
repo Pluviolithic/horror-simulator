@@ -164,7 +164,7 @@ Remotes.Server:Get("EvolvePet"):Connect(function(player: Player, petName: string
 	return 0
 end)
 
-Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
+local function equipBestPets(player: Player)
 	local equippedPets = selectors.getEquippedPets(store:getState(), player.Name)
 	local lockedPets = selectors.getLockedPets(store:getState(), player.Name)
 	local ownedPets = selectors.getOwnedPets(store:getState(), player.Name)
@@ -198,7 +198,9 @@ Remotes.Server:Get("EquipBestPets"):Connect(function(player: Player)
 	store:dispatch(actions.lockPlayerPets(player.Name, bestPetsDict, true))
 
 	return 0
-end)
+end
+
+Remotes.Server:Get("EquipBestPets"):Connect(equipBestPets)
 
 Remotes.Server:Get("UnequipAllPets"):Connect(function(player: Player)
 	local equippedPets = selectors.getEquippedPets(store:getState(), player.Name)
@@ -249,4 +251,6 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
-return 0
+return {
+	equipBestPets = equipBestPets,
+}

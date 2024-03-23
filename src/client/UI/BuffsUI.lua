@@ -51,6 +51,9 @@ local function updateBuffTray(state)
 				local friendCount = Count(selectors.getActiveFriendsWhoJoined(state, player.Name))
 				buffDisplay.Visible = friendCount > 0
 				buffDisplay.Amount.Text = `{15 * friendCount}%`
+			elseif buffDisplay.Name == "LeaderboardLuck" then
+				buffTray.Frame.LeaderboardLuck.Visible =
+					selectors.achievedMilestone(store:getState(), player.Name, "TopRebirths")
 			else
 				buffDisplay.Visible = isScared(state)
 				buffDisplay.Timer.Text = clockUtils.getFormattedRemainingTime(
@@ -114,6 +117,11 @@ buffTray.Frame.FriendBuff.Activated:Connect(function()
 	if canSendGameInvite(player) then
 		pcall(SocialService.PromptGameInvite, SocialService, player)
 	end
+end)
+
+buffTray.Frame.LeaderboardLuck.Activated:Connect(function()
+	playSoundEffect "UIButton"
+	RobuxShop:OpenSubShop "Boosts"
 end)
 
 interfaces[InviteUI] = true

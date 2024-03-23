@@ -20,6 +20,9 @@ local function getFilteredState(playerName, state)
 		GiftData = selectors.getGiftData(state, playerName),
 	}
 	for field, entry in filteredState do
+		if field == "Stats" then
+			continue
+		end
 		for key in entry do
 			if key:match "Multiplier" then
 				continue

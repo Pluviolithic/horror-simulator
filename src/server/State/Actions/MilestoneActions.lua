@@ -10,4 +10,11 @@ return {
 			shouldSave = true,
 		}
 	end),
+	removeMilestone = makeActionCreator("removeMilestone", function(playerName: string, milestone: string)
+		return {
+			playerName = playerName,
+			milestone = milestone,
+			shouldSave = true,
+		}
+	end),
 }

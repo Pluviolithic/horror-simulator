@@ -21,6 +21,7 @@ local playerStatePromise = require(StarterPlayer.StarterPlayerScripts.Client.Sta
 local playSoundEffect = require(StarterPlayer.StarterPlayerScripts.Client.GameAtmosphere.SoundEffects)
 
 local weapons = ReplicatedStorage.Weapons
+local leaderboardWeaponName = ReplicatedStorage.Config.Misc.LeaderboardWeapon.Value
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local gamepassPrices = ReplicatedStorage.Config.GamepassData.Prices
 local WeaponShop = CentralUI.new(player.PlayerGui:WaitForChild "WeaponShop")
@@ -149,7 +150,11 @@ function WeaponShop:_initialize(): ()
 					end
 				end)
 			else
-				if button:FindFirstChild "GamepassText" then
+				if button.Name == leaderboardWeaponName then
+					focusedDisplay.GreenButton.Visible = true
+					focusedDisplay.LeaderboardWeapon.Visible = true
+					focusedDisplay.GreenButton.Text.Text = "Monthly Leaderboard"
+				elseif button:FindFirstChild "GamepassText" then
 					focusedDisplay.RobuxPrice.Text = if button.Name == "Scythe"
 						then gamepassPrices.Scythe.Value
 						else gamepassPrices.VIP.Value
@@ -204,6 +209,7 @@ function WeaponShop:ClearFocusedDisplay()
 	focusedDisplay.DamageIcon.Visible = false
 
 	focusedDisplay.GreenButton.Visible = false
+	focusedDisplay.LeaderboardWeapon.Visible = false
 
 	if self._eventConnections["PurchaseButton"] then
 		self._eventConnections["PurchaseButton"]:Disconnect()

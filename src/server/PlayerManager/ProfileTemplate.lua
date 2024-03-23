@@ -128,6 +128,7 @@ return {
 
 	MilestonesData = {
 		["100MStrength"] = false,
+		["TopRebirths"] = false,
 	},
 
 	GiftData = {

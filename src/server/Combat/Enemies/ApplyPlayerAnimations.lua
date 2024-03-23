@@ -165,6 +165,10 @@ return function(player, enemy, info, janitor)
 
 				local playbackSpeed = random:NextNumber(0.9, 1.1)
 
+				if not player.Character:FindFirstChild(weapon) then
+					return
+				end
+
 				local sounds = player.Character[weapon]:FindFirstChild "Sounds"
 				while not sounds do
 					task.wait()
