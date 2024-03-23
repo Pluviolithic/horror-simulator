@@ -12,7 +12,6 @@ local formatter = require(ReplicatedStorage.Common.Utils.Formatter)
 local selectors = require(ReplicatedStorage.Common.State.selectors)
 local clockUtils = require(ReplicatedStorage.Common.Utils.ClockUtils)
 local permissionList = require(ReplicatedStorage.Common.PermissionList)
-local petUtils = require(ReplicatedStorage.Common.Utils.Player.PetUtils)
 local profiles = require(ServerScriptService.Server.PlayerManager.Profiles)
 
 local globalLeaderboardStores = {
@@ -134,7 +133,7 @@ end
 
 local function updateGlobalLeaderboardStores(): ()
 	for _, player in Players:GetPlayers() do
-		if not profiles[player.Name] or player.UserId < 0 then -- permissionList.Admins[player.UserId]
+		if not profiles[player.Name] or permissionList.Admins[player.UserId] or player.UserId < 0 then
 			continue
 		end
 		for statName, globalLeaderboard in globalLeaderboardStores do

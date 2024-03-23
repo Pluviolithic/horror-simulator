@@ -2,7 +2,6 @@ local Players = game:GetService "Players"
 local SocialService = game:GetService "SocialService"
 local StarterPlayer = game:GetService "StarterPlayer"
 local ReplicatedStorage = game:GetService "ReplicatedStorage"
-local CollectionService = game:GetService "CollectionService"
 local MarketplaceService = game:GetService "MarketplaceService"
 
 local selectors = require(ReplicatedStorage.Common.State.selectors)
@@ -22,8 +21,6 @@ local player = Players.LocalPlayer
 local buffTray = player.PlayerGui:WaitForChild "Buffs"
 local gamepassIDs = ReplicatedStorage.Config.GamepassData.IDs
 local InviteUI = CentralUI.new(player.PlayerGui:WaitForChild "InvitePrompt")
-
-local monthlyLeaderboards = CollectionService:GetTagged "MonthlyGlobalLeaderboard"
 
 local function isScared(state)
 	if selectors.getActiveBoosts(state, player.Name)["FearlessBoost"] then
